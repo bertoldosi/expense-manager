@@ -6,7 +6,7 @@
   "repository": "https://github.com/bertoldosi/expense-manager",
   "author": "bertoldosi",
   "scripts": {
-    "build": "next build",
+    "build": "npx prisma generate && next build",
     "dev": "next dev",
     "start": "NODE_ENV=production next start",
     "lint": "next lint"
