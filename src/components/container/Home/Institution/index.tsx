@@ -102,6 +102,18 @@ export const Institution = () => {
     const doc = new jsPDF();
 
     if (institutions?.length) {
+      const totalPerDateTable = categotyTotalsMonth?.categoryTotals.map(
+        (categoryTotal) => {
+          const category = categoryTotal.category;
+          const total = formatMorney(categoryTotal.total);
+
+          return [category, total];
+        }
+      );
+
+      doc.text(`#${institution?.createAt}`, 12, 10);
+
+      //Exibindo as tabelas de gastos de cada mês
       institutions?.map((institution: InstitutionType, index) => {
         institution.shoppings?.sort(orderByCategory);
 
@@ -114,6 +126,19 @@ export const Institution = () => {
           return [description, amount, category, status];
         });
 
+        autoTable(doc, {
+          theme: "striped",
+          head: [[`${institution.name}`, "", "", ""]],
+          body: shoppingsTable,
+          showHead: "firstPage",
+          showFoot: "lastPage",
+        });
+      });
+
+      //Exibindo as tabelas totais de cada instituição
+      institutions?.map((institution: InstitutionType, index) => {
+        institution.shoppings?.sort(orderByCategory);
+
         const categoryTotalsTable = institution.categoryTotals?.map(
           (categoryTotal) => {
             const category = categoryTotal.category;
@@ -124,18 +149,7 @@ export const Institution = () => {
         );
 
         autoTable(doc, {
-          theme: "striped",
-          head: [
-            [`${institution.name} ${institution.createAt}`, "", "", ""],
-            ["Descrição", "Valor", "Categoria", "Status"],
-          ],
-          body: shoppingsTable,
-          showHead: "firstPage",
-          showFoot: "lastPage",
-        });
-
-        autoTable(doc, {
-          theme: "plain",
+          theme: "grid",
           head: [[`TOTAL ${institution.name}`, ""]],
           body: categoryTotalsTable,
           showHead: "firstPage",
@@ -143,15 +157,7 @@ export const Institution = () => {
         });
       });
 
-      const totalPerDateTable = categotyTotalsMonth?.categoryTotals.map(
-        (categoryTotal) => {
-          const category = categoryTotal.category;
-          const total = formatMorney(categoryTotal.total);
-
-          return [category, total];
-        }
-      );
-
+      //Exibindo total mensal
       autoTable(doc, {
         theme: "plain",
         head: [[`TOTAL DO MÊS DE ${institution?.createAt}`, ""]],
