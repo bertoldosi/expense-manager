@@ -109,8 +109,9 @@ export const Institution = () => {
           const amount = formatMorney(shopping.amount);
           const description = shopping.description;
           const category = shopping.category;
+          const status = shopping.paymentStatus === "open" ? "Aberto" : "Pago";
 
-          return [description, amount, category];
+          return [description, amount, category, status];
         });
 
         const categoryTotalsTable = institution.categoryTotals?.map(
@@ -125,8 +126,8 @@ export const Institution = () => {
         autoTable(doc, {
           theme: "striped",
           head: [
-            [`${institution.name} ${institution.createAt}`, "", ""],
-            ["Descrição", "Valor", "Categoria"],
+            [`${institution.name} ${institution.createAt}`, "", "", ""],
+            ["Descrição", "Valor", "Categoria", "Status"],
           ],
           body: shoppingsTable,
           showHead: "firstPage",
