@@ -14,6 +14,8 @@ import { customToast } from "@commons/CustomToast";
 import { formatedInputValue } from "@helpers/formatedInputValue";
 import { focusInput } from "@helpers/focusInput";
 import useIsMobile from "@hooks/useIsMobile";
+import { InstitutionType } from "@interfaces/*";
+import { userContext, userContextType } from "@context/userContext";
 
 interface ShoppingCreateType {
   description: string;
@@ -47,33 +49,45 @@ function Shopping() {
   const cookies = new Cookies();
   const { isMobile } = useIsMobile();
 
-  const { getInstitution, getExpense } = useContext(
-    userContextData
-  ) as userContextDataType;
+  const { setInstitution, institution } = useContext(
+    userContext
+  ) as userContextType;
 
-  async function createShopping(
-    shopping: ShoppingCreateType,
-    filter: FilterType
-  ) {
-    async function requestCreate() {
-      return await instances
-        .post("api/shopping", {
-          shopping: {
-            ...shopping,
-            amount: shopping.amount.replace(/,/g, ""),
-          },
-          institutionId: filter.institution.id,
-        })
-        .then(() => {
-          if (!isMobile) {
-            focusInput("description");
-          }
-          getInstitution(filter.institution.id);
-          getExpense(filter.expense.id, filter.institutions.createAt);
-        });
+  async function createShopping(shopping: ShoppingCreateType) {
+    setInstitution((prevInstitution: InstitutionType) => ({
+      ...prevInstitution,
+      shoppings: prevInstitution?.shoppings?.length
+        ? [shopping, ...prevInstitution.shoppings]
+        : [shopping],
+    }));
+
+    await instances
+      .post("api/shopping", {
+        institutionId: institution?.id,
+        shopping,
+      })
+      .then((response) => {
+        setInstitution((prevInstitution: InstitutionType) => ({
+          ...prevInstitution,
+          shoppings: prevInstitution?.shoppings?.map((shoppingMap) => {
+            if (!shoppingMap.id) {
+              return {
+                ...shoppingMap,
+                id: response.data.id,
+              };
+            } else {
+              return shoppingMap;
+            }
+          }),
+        }));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    if (!isMobile) {
+      focusInput("description");
     }
-
-    await customToast(requestCreate);
   }
 
   const onSubmitShopping = useFormik({
@@ -86,7 +100,7 @@ function Shopping() {
         category: values.category ? values.category : "sem",
       };
 
-      await createShopping(shopping, filter);
+      await createShopping(shopping);
 
       onSubmitShopping.resetForm();
     },

@@ -1,5 +1,6 @@
 import Cookies from "universal-cookie";
 import React, { ReactNode, createContext, useMemo, useState } from "react";
+import instances from "@lib/axios-instance-internal";
 
 interface CategoryType {
   category: string;
@@ -68,6 +69,7 @@ export interface userContextType {
   institution: InstitutionType | null;
   setInstitution: Function;
   getInstitution: Function;
+  reloadInstitution: Function;
 
   toggleSelectedInstitution: Function;
   setSelectedInstitution: Function;
@@ -99,8 +101,20 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
   function getExpense() {}
 
   function getInstitution() {}
-  function updateInstitution() {}
   function deleteInstitution() {}
+
+  async function reloadInstitution() {
+    await instances
+      .put("api/institution", {
+        ...institution,
+      })
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
   function getShopping() {}
   function updateShopping() {}
@@ -143,6 +157,7 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
         institution,
         setInstitution,
         getInstitution,
+        reloadInstitution,
 
         toggleSelectedInstitution,
         setSelectedInstitution,
