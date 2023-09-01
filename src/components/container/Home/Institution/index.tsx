@@ -260,8 +260,11 @@ export const Institution = () => {
         showFoot: "lastPage",
       });
 
-      const dateNow = moment().format("DD-MM-YYYY");
-      doc.save(`relatorio ${categoty} ${dateNow}`);
+      const cookiesValues = cookies.get("expense-manager");
+
+      doc.save(
+        `relatorio ${categoty} ${cookiesValues.filter.institutions.createAt}`
+      );
     }
   }
 
