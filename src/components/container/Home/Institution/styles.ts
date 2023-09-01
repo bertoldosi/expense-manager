@@ -51,3 +51,21 @@ export const Saside = styled.aside`
 export const ScontainerWithoutInstitution = styled.main`
   width: 100%;
 `;
+
+export const ScontentModal = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+export const Sfilterform = styled.form`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  gap: 1rem;
+
+  > button {
+    margin-top: 2rem;
+  }
+`;

@@ -7,7 +7,13 @@ import { Button } from "@commons/Button";
 import InstitutionMenuCard from "@containers/Home/InstitutionMenuCard";
 import InstitutionMenuHeader from "@containers/Home/InstitutionMenuHeader";
 
-import { Saside, Ssection, Swrapper } from "./styles";
+import {
+  Saside,
+  ScontentModal,
+  Sfilterform,
+  Ssection,
+  Swrapper,
+} from "./styles";
 
 import { userContextData, userContextDataType } from "@context/userContextData";
 import InstitutionForm from "../InstitutionForm";
@@ -19,6 +25,8 @@ import Cookies from "universal-cookie";
 import { formatMorney } from "@helpers/formatMorney";
 import moment from "moment";
 import orderByCategory from "@helpers/orderByCategory";
+import InputSelect from "@commons/InputSelect";
+import { useFormik } from "formik";
 
 interface CategoryTotalsType {
   category: string;
@@ -33,14 +41,19 @@ interface TotalsMonthType {
   total: number;
 }
 
+const INITIAL_OPTIONS = {
+  category: "all",
+};
+
 export const Institution = () => {
   const cookies = new Cookies();
 
-  const { getExpense, institution, setInstitution, expense } = useContext(
-    userContextData
-  ) as userContextDataType;
+  const { getExpense, institution, setInstitution, expense, categories } =
+    useContext(userContextData) as userContextDataType;
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [isModalReportVisible, setIsModalReportVisible] =
+    useState<boolean>(false);
   const [institutionUpdate, setInstitutionUpdate] =
     useState<InstitutionType | null>(null);
 
@@ -98,7 +111,7 @@ export const Institution = () => {
     setTotalsMonth(totalMonthFilter);
   }
 
-  async function report(institutions: InstitutionType[] | undefined) {
+  function reportAll(institutions: InstitutionType[] | undefined) {
     const doc = new jsPDF();
 
     if (institutions?.length) {
@@ -172,6 +185,94 @@ export const Institution = () => {
     }
   }
 
+  function reportCategory(
+    categoty: string,
+    institutions: InstitutionType[] | undefined
+  ) {
+    const doc = new jsPDF();
+
+    if (institutions?.length) {
+      const categotyTotalsCategoryTable = new Array();
+      categotyTotalsMonth?.categoryTotals.map((findCategoryTotal) => {
+        if (findCategoryTotal.category === categoty) {
+          return categotyTotalsCategoryTable.push(
+            formatMorney(findCategoryTotal.total)
+          );
+        }
+      });
+
+      const institutionsByCategory = new Array();
+      institutions.map((mapInstitution) => {
+        const shoppingByCategory = mapInstitution?.shoppings?.filter(
+          (mapShopping) => mapShopping.category === categoty
+        );
+
+        institutionsByCategory.push({
+          ...mapInstitution,
+          shoppings: shoppingByCategory,
+        });
+      });
+
+      doc.text(`#${institution?.createAt}`, 12, 10);
+      //Exibindo as tabelas de gastos de cada mês
+      institutionsByCategory?.map((institution: InstitutionType, index) => {
+        institution.shoppings?.sort(orderByCategory);
+        const shoppingsTable = institution.shoppings?.map((shopping) => {
+          const amount =
+            shopping.paymentStatus === "open"
+              ? "+ " + `${formatMorney(shopping.amount)}`
+              : "- " + `${formatMorney(shopping.amount)}`;
+          const description = shopping.description;
+          const category = shopping.category;
+          const status = shopping.paymentStatus === "open" ? "Aberto" : "Pago";
+          return [description, amount, category, status];
+        });
+
+        const totalInstitutionByCategory = institution.categoryTotals?.find(
+          (findCategoryTotal) => findCategoryTotal.category === categoty
+        );
+
+        autoTable(doc, {
+          theme: "striped",
+          head: [[`${institution.name}`, "", "", ""]],
+          foot: [
+            [
+              "TOTAL",
+              `${formatMorney(totalInstitutionByCategory?.total || 0)}`,
+              "",
+              "",
+            ],
+          ],
+          body: shoppingsTable,
+          showHead: "firstPage",
+        });
+      });
+
+      //Exibindo total mensal
+      autoTable(doc, {
+        theme: "plain",
+        head: [["TOTAL A PAGAR"]],
+        body: [categotyTotalsCategoryTable],
+        showHead: "firstPage",
+        showFoot: "lastPage",
+      });
+
+      const dateNow = moment().format("DD-MM-YYYY");
+      doc.save(`relatorio-de-gastos-${dateNow}`);
+    }
+  }
+
+  const onSubmitReportShopping = useFormik({
+    initialValues: INITIAL_OPTIONS,
+    onSubmit: async (values) => {
+      if (values.category === "all") {
+        return reportAll(expense?.institutions);
+      }
+
+      return reportCategory(values.category, expense?.institutions);
+    },
+  });
+
   useEffect(() => {
     if (expense?.categoryTotalPerDate && expense?.totalPerDate) {
       getCategoryTotalsMonthAndTotalsMonth(
@@ -220,7 +321,7 @@ export const Institution = () => {
 
                     <Button
                       onClick={() => {
-                        report(expense?.institutions);
+                        setIsModalReportVisible(!isModalReportVisible);
                       }}
                       text="Baixar relatório"
                       typeButton=""
@@ -244,6 +345,31 @@ export const Institution = () => {
               exitModal={exitModal}
               institution={institutionUpdate}
             />
+          </Modal>
+
+          <Modal
+            title="Relatório"
+            isVisible={isModalReportVisible}
+            handlerIsVisible={() => {
+              setIsModalReportVisible(!isModalReportVisible);
+            }}
+          >
+            <ScontentModal>
+              <Sfilterform onSubmit={onSubmitReportShopping.handleSubmit}>
+                <InputSelect
+                  name="category"
+                  id="category"
+                  value={onSubmitReportShopping.values.category}
+                  onChange={onSubmitReportShopping.handleChange}
+                  defaultOption={{ value: "all", label: "Todos" }}
+                  options={categories.map((option) => ({
+                    value: option.category,
+                    label: option.category,
+                  }))}
+                />
+                <Button text="Baixar" type="submit" width="20rem" />
+              </Sfilterform>
+            </ScontentModal>
           </Modal>
         </div>
       ) : (
