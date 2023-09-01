@@ -261,7 +261,7 @@ export const Institution = () => {
       });
 
       const dateNow = moment().format("DD-MM-YYYY");
-      doc.save(`relatorio-de-gastos-${dateNow}`);
+      doc.save(`relatorio ${categoty} ${dateNow}`);
     }
   }
 
