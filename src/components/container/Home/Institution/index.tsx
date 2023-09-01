@@ -365,10 +365,12 @@ export const Institution = () => {
                   value={onSubmitReportShopping.values.category}
                   onChange={onSubmitReportShopping.handleChange}
                   defaultOption={{ value: "all", label: "Todos" }}
-                  options={categories.map((option) => ({
-                    value: option.category,
-                    label: option.category,
-                  }))}
+                  options={
+                    categotyTotalsMonth?.categoryTotals.map((option) => ({
+                      value: option.category,
+                      label: option.category,
+                    })) || []
+                  }
                 />
                 <Button text="Baixar" type="submit" width="20rem" />
               </Sfilterform>
