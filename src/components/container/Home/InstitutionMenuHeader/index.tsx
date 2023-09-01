@@ -1,16 +1,13 @@
-import React from "react";
+import React, { useContext } from "react";
 
 import { Scontainer, Sitem, SmenuHeader, Soptions } from "./styles";
-import {
-  userContextData,
-  userContextDataType,
-} from "src/context/userContextData";
+import { userContext, userContextType } from "@context/userContext";
 
 type PropsType = {};
 
 function InstitutionMenuHeader({}: PropsType) {
-  const { selectedInstitution, toggleSelectedInstitution, expense } =
-    React.useContext(userContextData) as userContextDataType;
+  const { expense, selectedInstitution, toggleSelectedInstitution } =
+    useContext(userContext) as userContextType;
 
   if (expense?.institutions?.length === 0) {
     return (

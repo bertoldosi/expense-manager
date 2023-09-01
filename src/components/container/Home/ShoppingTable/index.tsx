@@ -12,6 +12,7 @@ import { customToast } from "@commons/CustomToast";
 import { formatedInputValue } from "@helpers/formatedInputValue";
 import InputSelectTable from "@commons/InputSelectTable ";
 import { Button } from "@commons/Button";
+import { userContext, userContextType } from "@context/userContext";
 
 const options = [
   { label: "Aberto", value: "open" },
@@ -22,8 +23,13 @@ function ShoppingTable() {
   const cookies = new Cookies();
 
   const [idShoppingUpdate, setIdShoppingUpdate] = useState<string>("");
-  const { institution, getInstitution, setInstitution, getExpense } =
-    useContext(userContextData) as userContextDataType;
+  const { getInstitution, getExpense } = useContext(
+    userContextData
+  ) as userContextDataType;
+
+  const { institution, setInstitution } = useContext(
+    userContext
+  ) as userContextType;
 
   async function fethInstitutionAndExpense() {
     const cookieValues = cookies.get("expense-manager");

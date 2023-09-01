@@ -11,13 +11,18 @@ import instances from "@lib/axios-instance-internal";
 import { ExpenseType } from "@interfaces/*";
 import { useSession } from "next-auth/react";
 import moment from "moment";
+import { userContext, userContextType } from "@context/userContext";
+
+interface InstitutionType {}
+
+const keyCookies = "expense-manager";
 
 function Home() {
-  const cookies = new Cookies();
-  const { data: session } = useSession();
+  /////////////////////////////////////////////////////////////////
+  // const cookies = new Cookies();
 
-  const { expense, setExpense, setSelectedInstitution, getInstitution } =
-    useContext(userContextData) as userContextDataType;
+  // const { expense, setExpense, setSelectedInstitution, getInstitution } =
+  //   useContext(userContextData) as userContextDataType;
 
   const [valueYear, setValueYear] = useState<number>(() => {
     const date = moment().format("DD/MM/YYYY");
@@ -32,64 +37,64 @@ function Home() {
     return month;
   });
 
-  async function persistData(expense: ExpenseType) {
-    const cookieValues = cookies.get("expense-manager");
-    setExpense(expense);
+  // async function persistData(expense: ExpenseType) {
+  //   const cookieValues = cookies.get("expense-manager");
+  //   setExpense(expense);
 
-    const firstInstitution = expense.institutions?.length
-      ? expense.institutions[0]
-      : null;
+  //   const firstInstitution = expense.institutions?.length
+  //     ? expense.institutions[0]
+  //     : null;
 
-    const cookiesData = {
-      filter: {
-        expense: {
-          id: expense.id,
-          name: expense.name,
-        },
-        institution: firstInstitution && {
-          id: firstInstitution.id,
-          name: firstInstitution.name,
-        },
-        institutions: {
-          createAt: cookieValues.filter.institutions.createAt,
-        },
-      },
-    };
+  //   const cookiesData = {
+  //     filter: {
+  //       expense: {
+  //         id: expense.id,
+  //         name: expense.name,
+  //       },
+  //       institution: firstInstitution && {
+  //         id: firstInstitution.id,
+  //         name: firstInstitution.name,
+  //       },
+  //       institutions: {
+  //         createAt: cookieValues.filter.institutions.createAt,
+  //       },
+  //     },
+  //   };
 
-    if (firstInstitution) {
-      setSelectedInstitution(firstInstitution);
-      await getInstitution(firstInstitution.id);
-    }
+  //   if (firstInstitution) {
+  //     setSelectedInstitution(firstInstitution);
+  //     await getInstitution(firstInstitution.id);
+  //   }
 
-    cookies.set("expense-manager", cookiesData);
-  }
+  //   cookies.set("expense-manager", cookiesData);
+  // }
 
-  async function fethExpense(userEmail: string) {
-    const cookieValues = cookies.get("expense-manager");
+  // async function fethExpense(userEmail: string) {
+  //   const cookieValues = cookies.get("expense-manager");
 
-    const { data: user } = await instances.get("api/user", {
-      params: {
-        email: userEmail,
-      },
-    });
+  //   const { data: user } = await instances.get("api/user", {
+  //     params: {
+  //       email: userEmail,
+  //     },
+  //   });
 
-    if (user?.expense) {
-      const { data: expense } = await instances.get("api/expense", {
-        params: {
-          id: user.expense.id,
-          institutionsCreateAt: cookieValues.filter.institutions.createAt,
-        },
-      });
-      await persistData(expense);
-    } else {
-      const { data: expense } = await instances.post("api/expense", {
-        name: "default",
-        userEmail,
-      });
+  //   if (user?.expense) {
+  //     const { data: expense } = await instances.get("api/expense", {
+  //       params: {
+  //         id: user.expense.id,
+  //         institutionsCreateAt: cookieValues.filter.institutions.createAt,
+  //       },
+  //     });
+  //     await persistData(expense);
+  //   } else {
+  //     const { data: expense } = await instances.post("api/expense", {
+  //       name: "default",
+  //       userEmail,
+  //     });
 
-      await persistData(expense);
-    }
-  }
+  //     await persistData(expense);
+  //   }
+  // }
 
   async function setDateFilter() {
     const cookieValues = cookies.get("expense-manager");
@@ -126,35 +131,132 @@ function Home() {
     setDateFilter();
   }, []);
 
+  // useEffect(() => {
+  //   if (session?.user?.email) {
+  //     fethExpense(session.user.email);
+  //   }
+  // }, [session?.user]);
+
+  // if (expense?.institutions?.length) {
+  //   return (
+  //     <Scontainer>
+  //       <InstitutionMenuFilter
+  //         valueMonth={valueMonth}
+  //         valueYear={valueYear}
+  //         setValueMonth={setValueMonth}
+  //         setValueYear={setValueYear}
+  //       />
+  //       <Institution />
+  //     </Scontainer>
+  //   );
+  // }
+
+  // return (
+  //   <Scontainer>
+  //     <InstitutionMenuFilter
+  //       valueMonth={valueMonth}
+  //       valueYear={valueYear}
+  //       setValueMonth={setValueMonth}
+  //       setValueYear={setValueYear}
+  //     />
+  //     <WithoutInstitution />
+  //   </Scontainer>
+  // );
+
+  /////////////////////////////////////////////////////////////////
+  const cookies = new Cookies();
+
+  const { data: session } = useSession();
+  const { setUser, setExpense, setInstitution, expense } = useContext(
+    userContext
+  ) as userContextType;
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  function persistCookies(expense: ExpenseType) {
+    const cookieValues = cookies.get(keyCookies);
+
+    const institutionCookies = cookieValues?.filter?.institution;
+    const firstInstitutionExpense = expense?.institutions?.length
+      ? expense.institutions[0]
+      : null;
+
+    /* se existir institution no cookies*/
+    if (institutionCookies) {
+      const institution = expense?.institutions?.find(
+        (institution) => institution.name === institutionCookies.name
+      );
+
+      setInstitution(institution);
+    } else {
+      /* se não existir institution no cookies */
+
+      if (firstInstitutionExpense) {
+        setInstitution(firstInstitutionExpense);
+
+        cookies.set(keyCookies, {
+          ...cookieValues,
+          filter: {
+            institution: {
+              id: firstInstitutionExpense?.id,
+              name: firstInstitutionExpense?.name,
+            },
+          },
+        });
+      } else {
+        cookies.set(keyCookies, {
+          ...cookieValues,
+          filter: {
+            institution: null,
+          },
+        });
+      }
+    }
+  }
+
+  async function fecthUser(email: string) {
+    await instances
+      .get("api/user", {
+        params: {
+          email,
+        },
+      })
+      .then(({ data: user }) => {
+        setUser(user);
+        setExpense(user.expense);
+        persistCookies(user.expense);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    setIsLoading(false);
+  }
+
   useEffect(() => {
     if (session?.user?.email) {
-      fethExpense(session.user.email);
+      fecthUser(session.user.email);
     }
-  }, [session?.user]);
-
-  if (expense?.institutions?.length) {
-    return (
-      <Scontainer>
-        <InstitutionMenuFilter
-          valueMonth={valueMonth}
-          valueYear={valueYear}
-          setValueMonth={setValueMonth}
-          setValueYear={setValueYear}
-        />
-        <Institution />
-      </Scontainer>
-    );
-  }
+  }, [session]);
 
   return (
     <Scontainer>
-      <InstitutionMenuFilter
-        valueMonth={valueMonth}
-        valueYear={valueYear}
-        setValueMonth={setValueMonth}
-        setValueYear={setValueYear}
-      />
-      <WithoutInstitution />
+      {isLoading ? (
+        <h1>Carregando...</h1>
+      ) : (
+        <>
+          <InstitutionMenuFilter
+            valueMonth={valueMonth}
+            valueYear={valueYear}
+            setValueMonth={setValueMonth}
+            setValueYear={setValueYear}
+          />
+          {expense?.institutions?.length ? (
+            <Institution />
+          ) : (
+            <WithoutInstitution />
+          )}
+        </>
+      )}
     </Scontainer>
   );
 }

@@ -7,8 +7,9 @@ import Theme from "src/styles/theme";
 
 import Layout from "@containers/Layout";
 import { Wrapped } from "@commons/Wrapped";
-import UserContextProvider from "@context/userContextConfig";
-import UserAppContextProvider from "@context/userContextData";
+import UserContextProviderConfig from "@context/userContextConfig";
+import UserContextProviderData from "@context/userContextData";
+import UserContextProvider from "@context/userContext";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   const AppLayout = Component.layout || Layout;
@@ -16,28 +17,30 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   return (
     <SessionProvider session={session}>
       <UserContextProvider>
-        <UserAppContextProvider>
-          <Theme>
-            <ToastContainer
-              position="top-right"
-              autoClose={2000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="light"
-            />
-            <GlobalStyle />
-            <AppLayout>
-              <Wrapped>
-                <Component {...pageProps} />
-              </Wrapped>
-            </AppLayout>
-          </Theme>
-        </UserAppContextProvider>
+        <UserContextProviderConfig>
+          <UserContextProviderData>
+            <Theme>
+              <ToastContainer
+                position="top-right"
+                autoClose={2000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+              />
+              <GlobalStyle />
+              <AppLayout>
+                <Wrapped>
+                  <Component {...pageProps} />
+                </Wrapped>
+              </AppLayout>
+            </Theme>
+          </UserContextProviderData>
+        </UserContextProviderConfig>
       </UserContextProvider>
     </SessionProvider>
   );

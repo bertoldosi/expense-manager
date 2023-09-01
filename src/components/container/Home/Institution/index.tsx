@@ -19,6 +19,7 @@ import Cookies from "universal-cookie";
 import { formatMorney } from "@helpers/formatMorney";
 import moment from "moment";
 import orderByCategory from "@helpers/orderByCategory";
+import { userContext, userContextType } from "@context/userContext";
 
 interface CategoryTotalsType {
   category: string;
@@ -36,9 +37,9 @@ interface TotalsMonthType {
 export const Institution = () => {
   const cookies = new Cookies();
 
-  const { getExpense, institution, setInstitution, expense } = useContext(
-    userContextData
-  ) as userContextDataType;
+  const { institution, setInstitution, expense } = useContext(
+    userContext
+  ) as userContextType;
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [institutionUpdate, setInstitutionUpdate] =
@@ -66,9 +67,9 @@ export const Institution = () => {
           },
         })
         .then(async () => {
-          const { filter } = cookies.get("expense-manager");
+          // const { filter } = cookies.get("expense-manager");
 
-          await getExpense(filter?.expense?.id, filter.institutions.createAt);
+          // await getExpense(filter?.expense?.id, filter.institutions.createAt);
           setInstitution(null);
         });
     }
@@ -81,22 +82,22 @@ export const Institution = () => {
     openModal();
   }
 
-  function getCategoryTotalsMonthAndTotalsMonth(categoryTotals, totalsMonth) {
-    const { filter } = cookies.get("expense-manager");
+  // function getCategoryTotalsMonthAndTotalsMonth(categoryTotals, totalsMonth) {
+  //   const { filter } = cookies.get("expense-manager");
 
-    const categoryTotalsFilter = categoryTotals.find(
-      (categoryTotal: any) =>
-        categoryTotal.date === filter.institutions.createAt
-    );
+  //   const categoryTotalsFilter = categoryTotals.find(
+  //     (categoryTotal: any) =>
+  //       categoryTotal.date === filter?.institutions?.createAt
+  //   );
 
-    const totalMonthFilter = totalsMonth.find(
-      (categoryTotalPerDate) =>
-        categoryTotalPerDate.date === filter.institutions.createAt
-    );
+  //   const totalMonthFilter = totalsMonth.find(
+  //     (categoryTotalPerDate) =>
+  //       categoryTotalPerDate.date === filter?.institutions?.createAt
+  //   );
 
-    setCategoryTotalsMonth(categoryTotalsFilter);
-    setTotalsMonth(totalMonthFilter);
-  }
+  //   setCategoryTotalsMonth(categoryTotalsFilter);
+  //   setTotalsMonth(totalMonthFilter);
+  // }
 
   async function report(institutions: InstitutionType[] | undefined) {
     const doc = new jsPDF();
@@ -172,14 +173,14 @@ export const Institution = () => {
     }
   }
 
-  useEffect(() => {
-    if (expense?.categoryTotalPerDate && expense?.totalPerDate) {
-      getCategoryTotalsMonthAndTotalsMonth(
-        expense.categoryTotalPerDate,
-        expense.totalPerDate
-      );
-    }
-  }, [expense]);
+  // useEffect(() => {
+  //   if (expense?.categoryTotalPerDate && expense?.totalPerDate) {
+  //     getCategoryTotalsMonthAndTotalsMonth(
+  //       expense.categoryTotalPerDate,
+  //       expense.totalPerDate
+  //     );
+  //   }
+  // }, [expense]);
 
   return (
     <Swrapper>
