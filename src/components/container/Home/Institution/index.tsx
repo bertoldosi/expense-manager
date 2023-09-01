@@ -214,9 +214,9 @@ export const Institution = () => {
       });
 
       doc.text(`#${institution?.createAt}`, 12, 10);
+
       //Exibindo as tabelas de gastos de cada mês
       institutionsByCategory?.map((institution: InstitutionType, index) => {
-        institution.shoppings?.sort(orderByCategory);
         const shoppingsTable = institution.shoppings?.map((shopping) => {
           const amount =
             shopping.paymentStatus === "open"
@@ -232,20 +232,23 @@ export const Institution = () => {
           (findCategoryTotal) => findCategoryTotal.category === categoty
         );
 
-        autoTable(doc, {
-          theme: "striped",
-          head: [[`${institution.name}`, "", "", ""]],
-          foot: [
-            [
-              "TOTAL",
-              `${formatMorney(totalInstitutionByCategory?.total || 0)}`,
-              "",
-              "",
+        //Tabela de gastos
+        if (institution.shoppings?.length) {
+          autoTable(doc, {
+            theme: "striped",
+            head: [[`${institution.name}`, "", "", ""]],
+            foot: [
+              [
+                "TOTAL",
+                `${formatMorney(totalInstitutionByCategory?.total || 0)}`,
+                "",
+                "",
+              ],
             ],
-          ],
-          body: shoppingsTable,
-          showHead: "firstPage",
-        });
+            body: shoppingsTable,
+            showHead: "firstPage",
+          });
+        }
       });
 
       //Exibindo total mensal
