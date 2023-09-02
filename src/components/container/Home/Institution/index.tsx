@@ -196,6 +196,7 @@ export const Institution = () => {
       categotyTotalsMonth?.categoryTotals.map((findCategoryTotal) => {
         if (findCategoryTotal.category === categoty) {
           return categotyTotalsCategoryTable.push(
+            "TOTAL A PAGAR",
             formatMorney(findCategoryTotal.total)
           );
         }
@@ -212,8 +213,6 @@ export const Institution = () => {
           shoppings: shoppingByCategory,
         });
       });
-
-      doc.text(`#${institution?.createAt}`, 12, 10);
 
       //Exibindo as tabelas de gastos de cada mês
       institutionsByCategory?.map((institution: InstitutionType, index) => {
@@ -235,18 +234,31 @@ export const Institution = () => {
         //Tabela de gastos
         if (institution.shoppings?.length) {
           autoTable(doc, {
+            theme: "plain",
+            head: [[`${institution.name}`]],
+            body: [],
+            showHead: "firstPage",
+          });
+
+          autoTable(doc, {
             theme: "striped",
-            head: [[`${institution.name}`, "", "", ""]],
-            foot: [
+            head: [["Descrição", "Valor", "Responsavel", "Status"]],
+            body: shoppingsTable,
+            showHead: "firstPage",
+          });
+
+          autoTable(doc, {
+            theme: "striped",
+            body: [
               [
-                "TOTAL",
+                `TOTAL ${institution.name}`,
                 `${formatMorney(totalInstitutionByCategory?.total || 0)}`,
                 "",
                 "",
               ],
             ],
-            body: shoppingsTable,
             showHead: "firstPage",
+            bodyStyles: { fontSize: 9, fontStyle: "bold" },
           });
         }
       });
@@ -254,10 +266,10 @@ export const Institution = () => {
       //Exibindo total mensal
       autoTable(doc, {
         theme: "plain",
-        head: [["TOTAL A PAGAR"]],
         body: [categotyTotalsCategoryTable],
         showHead: "firstPage",
         showFoot: "lastPage",
+        bodyStyles: { fontSize: 13, fontStyle: "bolditalic" },
       });
 
       const cookiesValues = cookies.get("expense-manager");
