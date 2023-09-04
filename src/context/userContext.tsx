@@ -1,6 +1,10 @@
 import Cookies from "universal-cookie";
 import React, { ReactNode, createContext, useMemo, useState } from "react";
 import instances from "@lib/axios-instance-internal";
+import institutionCalculateTotalAmountInstitution from "@helpers/institutionCalculateTotalAmountInstitution";
+import institutionCalculateCategoryTotals from "@helpers/institutionCalculateCategoryTotals";
+import expenseCalculateCategoryTotalPerDate from "@helpers/expenseCalculateCategoryTotalPerDate";
+import extractUniqueCategoriesWithSum from "@helpers/extractUniqueCategoriesWithSum";
 
 interface CategoryType {
   category: string;
@@ -45,6 +49,11 @@ interface ExpenseType {
   institutions?: InstitutionType[];
 }
 
+interface CategorieType {
+  category: string;
+  total: string;
+}
+
 interface UserType {
   id?: string;
   email: string;
@@ -69,11 +78,14 @@ export interface userContextType {
   institution: InstitutionType | null;
   setInstitution: Function;
   getInstitution: Function;
-  reloadInstitution: Function;
 
   toggleSelectedInstitution: Function;
   setSelectedInstitution: Function;
   selectedInstitution: SelectedInstitutionType | null;
+
+  recalculate: Function;
+
+  categories: CategorieType[];
 }
 
 interface UserAppContextProviderType {
@@ -88,6 +100,7 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
   const [user, setUser] = useState<UserType | null>(null);
   const [expense, setExpense] = useState<ExpenseType | null>(null);
   const [institution, setInstitution] = useState<InstitutionType | null>(null);
+  const [categories, setCategories] = useState<CategorieType[]>([]);
 
   const [selectedInstitution, setSelectedInstitution] =
     useState<SelectedInstitutionType | null>(() => {
@@ -101,24 +114,15 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
   function getExpense() {}
 
   function getInstitution() {}
-  function deleteInstitution() {}
 
-  async function reloadInstitution() {
-    await instances
-      .put("api/institution", {
-        ...institution,
-      })
-      .then((response) => {
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  function recalculate(expense) {
+    // const totalAmount = institutionCalculateTotalAmountInstitution(institution);
+    // const categoryTotals = institutionCalculateCategoryTotals(institution);
+    // const expenseTotals = expenseCalculateCategoryTotalPerDate(expense);
+    // console.log(totalAmount);
+    // console.log(categoryTotals);
+    // console.log(expenseTotals);
   }
-
-  function getShopping() {}
-  function updateShopping() {}
-  function deleteShopping() {}
 
   function toggleSelectedInstitution(institution: InstitutionType) {
     const cookieValues = cookies.get("expense-manager");
@@ -143,6 +147,14 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
   useMemo(() => {}, [expense]);
   useMemo(() => {}, [institution]);
 
+  useMemo(() => {
+    if (institution) {
+      const options = extractUniqueCategoriesWithSum(institution);
+
+      setCategories(options);
+    }
+  }, [institution]);
+
   return (
     <userContext.Provider
       value={{
@@ -157,11 +169,14 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
         institution,
         setInstitution,
         getInstitution,
-        reloadInstitution,
 
         toggleSelectedInstitution,
         setSelectedInstitution,
         selectedInstitution,
+
+        recalculate,
+
+        categories,
       }}
     >
       {children}

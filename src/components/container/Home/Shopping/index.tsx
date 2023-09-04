@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import Cookies from "universal-cookie";
 import { useFormik } from "formik";
 
@@ -9,7 +9,6 @@ import ShoppingTable from "@containers/Home/ShoppingTable";
 import { Scontent, Sheader } from "./styles";
 import validationSchema from "@containers/Home/Shopping/validations";
 import instances from "@lib/axios-instance-internal";
-import { customToast } from "@commons/CustomToast";
 import { formatedInputValue } from "@helpers/formatedInputValue";
 import { focusInput } from "@helpers/focusInput";
 import useIsMobile from "@hooks/useIsMobile";
@@ -48,37 +47,42 @@ function Shopping() {
   const cookies = new Cookies();
   const { isMobile } = useIsMobile();
 
-  const { setInstitution, institution } = useContext(
-    userContext
-  ) as userContextType;
+  const { setInstitution, institution, setExpense, expense, recalculate } =
+    useContext(userContext) as userContextType;
 
   async function createShopping(shopping: ShoppingCreateType) {
-    setInstitution((prevInstitution: InstitutionType) => ({
-      ...prevInstitution,
-      shoppings: prevInstitution?.shoppings?.length
-        ? [shopping, ...prevInstitution.shoppings]
+    shopping.amount = shopping.amount.replace(",", "");
+
+    const newInstitution = {
+      ...institution,
+      shoppings: institution?.shoppings?.length
+        ? [shopping, ...institution.shoppings]
         : [shopping],
-    }));
+    };
+    const newExpense = {
+      ...expense,
+      institutions: expense?.institutions?.map(
+        (mapInstitution: InstitutionType) => {
+          if (mapInstitution.id == newInstitution?.id) {
+            return newInstitution;
+          }
+
+          return mapInstitution;
+        }
+      ),
+    };
 
     await instances
       .post("api/shopping", {
         institutionId: institution?.id,
         shopping,
       })
-      .then((response) => {
-        setInstitution((prevInstitution: InstitutionType) => ({
-          ...prevInstitution,
-          shoppings: prevInstitution?.shoppings?.map((shoppingMap) => {
-            if (!shoppingMap.id) {
-              return {
-                ...shoppingMap,
-                id: response.data.id,
-              };
-            } else {
-              return shoppingMap;
-            }
-          }),
-        }));
+      .then(() => {
+        setInstitution(newInstitution);
+        setExpense(newExpense);
+        recalculate(newExpense);
+
+        return;
       })
       .catch((error) => {
         console.log(error);

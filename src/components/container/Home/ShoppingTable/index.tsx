@@ -5,7 +5,7 @@ import ShoppingTableHeader from "@containers/Home/ShoppingTableHeader";
 import InputTable from "@commons/InputTable";
 
 import { NoResult, Scontent, SrowTable } from "./styles";
-import { InstitutionType, ShoppingType } from "@interfaces/*";
+import { ExpenseType, InstitutionType, ShoppingType } from "@interfaces/*";
 import instances from "@lib/axios-instance-internal";
 import { customToast } from "@commons/CustomToast";
 import { formatedInputValue } from "@helpers/formatedInputValue";
@@ -23,19 +23,8 @@ function ShoppingTable() {
 
   const [idShoppingUpdate, setIdShoppingUpdate] = useState<string>("");
 
-  const { institution, setInstitution } = useContext(
-    userContext
-  ) as userContextType;
-
-  async function fethInstitutionAndExpense() {
-    const cookieValues = cookies.get("expense-manager");
-
-    // getInstitution(cookieValues?.filter?.institution?.id);
-    // getExpense(
-    //   cookieValues?.filter.expense.id,
-    //   cookieValues?.filter.institutions.createAt
-    // );
-  }
+  const { institution, setInstitution, expense, setExpense, recalculate } =
+    useContext(userContext) as userContextType;
 
   function onChangeShopping(ev: React.ChangeEvent<HTMLInputElement>) {
     const { id, name, value, checked } = ev.target;
@@ -74,16 +63,35 @@ function ShoppingTable() {
   async function updateShopping(shopping: ShoppingType) {
     setIdShoppingUpdate("");
 
-    setInstitution((prevInstitution: InstitutionType) => ({
-      ...prevInstitution,
-      shoppings: prevInstitution?.shoppings?.map((mapShopping) => {
+    /* guardar os dados anteriores, para inserir novamente, em casos de erro ao deletar */
+    const institutionOld = institution;
+    const expenseOld = expense;
+
+    /* salvando os novos valores localmente */
+    const institutionUpdate = {
+      ...institution,
+      shoppings: institution?.shoppings?.map((mapShopping) => {
         if (mapShopping.id === shopping.id) {
           return shopping;
         }
 
         return mapShopping;
       }),
-    }));
+    };
+    const expenseUpdate = {
+      ...expense,
+      institutions: expense?.institutions?.map(
+        (mapInstitution: InstitutionType) => {
+          if (mapInstitution.id == institutionUpdate?.id) {
+            return institutionUpdate;
+          }
+
+          return mapInstitution;
+        }
+      ),
+    };
+
+    shopping.amount = shopping.amount.replace(",", "");
 
     async function requestUpdate() {
       return await instances
@@ -91,8 +99,19 @@ function ShoppingTable() {
           ...shopping,
           amount: shopping.amount.replace(/,/g, ""),
         })
-        .then(async () => {
-          await fethInstitutionAndExpense();
+        .then(() => {
+          setInstitution(institutionUpdate);
+          setExpense(expenseUpdate);
+          recalculate(expenseUpdate);
+        })
+        .catch(() => {
+          setInstitution(institutionOld);
+          setExpense(expenseOld);
+          recalculate(expenseOld);
+
+          throw new Error(
+            "Houve algum erro ao tentar atualizar o item, tente novamente mais tarde!"
+          );
         });
     }
 

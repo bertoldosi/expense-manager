@@ -1,6 +1,5 @@
 import React, { useContext, useMemo, useState } from "react";
 import instances from "@lib/axios-instance-internal";
-import Cookies from "universal-cookie";
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
 
@@ -22,6 +21,7 @@ import {
   Sfilter,
   SselectingAll,
 } from "./styles";
+import { userContext, userContextType } from "@context/userContext";
 
 const INITIAL_OPTIONS = {
   category: "all",
@@ -29,6 +29,15 @@ const INITIAL_OPTIONS = {
 
 function ShoppingTableHeader() {
   const router = useRouter();
+
+  const {
+    institution,
+    setInstitution,
+    expense,
+    setExpense,
+    recalculate,
+    categories,
+  } = useContext(userContext) as userContextType;
 
   const [isModalFilterVisible, setIsModalFilterVisible] =
     useState<boolean>(false);
@@ -38,13 +47,13 @@ function ShoppingTableHeader() {
     []
   );
 
-  // useMemo(() => {
-  //   const shoppings = institution?.shoppings?.filter(
-  //     (shoppingFilter) => shoppingFilter.selected
-  //   );
+  useMemo(() => {
+    const shoppings = institution?.shoppings?.filter(
+      (shoppingFilter) => shoppingFilter.selected
+    );
 
-  //   setShoppingsSelected(shoppings || []);
-  // }, [institution?.shoppings]);
+    setShoppingsSelected(shoppings || []);
+  }, [institution?.shoppings]);
 
   function handleModalUpdate() {
     const items = JSON.stringify(shoppingsSeleceted);
@@ -68,27 +77,49 @@ function ShoppingTableHeader() {
     const { checked } = ev.target;
     setValueSelectingAllShoppings(checked);
 
-    // setInstitution((prevInstitution: InstitutionType) => ({
-    //   ...prevInstitution,
-    //   shoppings: prevInstitution.shoppings?.map((shoppingMap) => ({
-    //     ...shoppingMap,
-    //     selected: checked,
-    //   })),
-    // }));
-  }
-
-  async function fethInstitutionAndExpense() {
-    const cookies = new Cookies();
-    const cookieValues = cookies.get("expense-manager");
-
-    // await getInstitution(cookieValues?.filter?.institution?.id);
-    // await getExpense(
-    //   cookieValues?.filter.expense.id,
-    //   cookieValues?.filter.institutions.createAt
-    // );
+    setInstitution((prevInstitution: InstitutionType) => ({
+      ...prevInstitution,
+      shoppings: prevInstitution.shoppings?.map((shoppingMap) => ({
+        ...shoppingMap,
+        selected: checked,
+      })),
+    }));
   }
 
   async function deleteShoppings() {
+    const shoppingsSelecetedIds = shoppingsSeleceted.map((item) => item.id);
+    const newShoppings = institution?.shoppings?.filter(
+      (item) => !shoppingsSelecetedIds.includes(item.id)
+    );
+
+    /* guardar os dados anteriores, para inserir novamente, em casos de erro ao deletar */
+    const institutionOld = institution;
+    const expenseOld = expense;
+
+    /* salvando os novos valores localmente */
+    const institutionUpdate = {
+      ...institution,
+      shoppings: newShoppings,
+    };
+
+    const expenseUpdate = {
+      ...expense,
+      institutions: expense?.institutions?.map(
+        (mapInstitution: InstitutionType) => {
+          if (mapInstitution.id == institutionUpdate?.id) {
+            return institutionUpdate;
+          }
+
+          return mapInstitution;
+        }
+      ),
+    };
+
+    setInstitution(institutionUpdate);
+    setExpense(expenseUpdate);
+    recalculate(expenseUpdate);
+
+    /* persistindo as informações no banco */
     async function requestDelete() {
       return await instances
         .delete("api/shopping", {
@@ -96,9 +127,18 @@ function ShoppingTableHeader() {
             shoppings: shoppingsSeleceted,
           },
         })
-        .then(async () => {
-          await fethInstitutionAndExpense();
+        .then(() => {
           setValueSelectingAllShoppings(false);
+        })
+        .catch(() => {
+          /* alterando as informações locais para o stado anterior */
+          setInstitution(institutionOld);
+          setExpense(expenseOld);
+          recalculate(expenseOld);
+
+          throw new Error(
+            "Houve algum erro ao tentar deletar o(s) item(s), tente novamente mais tarde!"
+          );
         });
     }
 
@@ -109,20 +149,20 @@ function ShoppingTableHeader() {
     const category = values.category === "all" ? "" : values.category;
 
     async function requestFilter() {
-      // return await instances
-      //   .get("api/shopping", {
-      //     params: {
-      //       category: category,
-      //       institutionId: institution?.id,
-      //     },
-      //   })
-      //   .then((response) => {
-      //     setInstitution((prevInstitution: ShoppingType) => ({
-      //       ...prevInstitution,
-      //       shoppings: response.data,
-      //     }));
-      //     setIsModalFilterVisible(false);
-      //   });
+      return await instances
+        .get("api/shopping", {
+          params: {
+            category: category,
+            institutionId: institution?.id,
+          },
+        })
+        .then((response) => {
+          setInstitution((prevInstitution: ShoppingType) => ({
+            ...prevInstitution,
+            shoppings: response.data,
+          }));
+          setIsModalFilterVisible(false);
+        });
     }
 
     await customToast(requestFilter);
@@ -192,7 +232,10 @@ function ShoppingTableHeader() {
               value={onSubmitFilterShopping.values.category}
               onChange={onSubmitFilterShopping.handleChange}
               defaultOption={{ value: "all", label: "Todos" }}
-              options={[]}
+              options={categories.map((option) => ({
+                value: option.category,
+                label: option.category,
+              }))}
             />
             <Button text="Filtrar" type="submit" width="20rem" />
           </Sfilterform>
