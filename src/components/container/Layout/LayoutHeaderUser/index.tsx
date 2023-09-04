@@ -7,14 +7,11 @@ import Dropdown from "@commons/Dropdown";
 
 import { Scontainer, ScontentFooter, Sitem } from "./styles";
 import { useTheme } from "styled-components";
-import { userContextData, userContextDataType } from "@context/userContextData";
 import { ToggleButtonTheme } from "@commons/ToggleButtonTheme";
 
 function LayoutHeaderUser() {
   const cookies = new Cookies();
   const theme = useTheme();
-
-  const {} = React.useContext(userContextData) as userContextDataType;
 
   const [isVisible, setIsVisible] = useState(false);
   const { data: session } = useSession();

@@ -9,7 +9,6 @@ import InstitutionMenuHeader from "@containers/Home/InstitutionMenuHeader";
 
 import { Saside, Ssection, Swrapper } from "./styles";
 
-import { userContextData, userContextDataType } from "@context/userContextData";
 import InstitutionForm from "../InstitutionForm";
 import { InstitutionType } from "@interfaces/*";
 import instances from "@lib/axios-instance-internal";
@@ -81,23 +80,6 @@ export const Institution = () => {
     setInstitutionUpdate(institutionData);
     openModal();
   }
-
-  // function getCategoryTotalsMonthAndTotalsMonth(categoryTotals, totalsMonth) {
-  //   const { filter } = cookies.get("expense-manager");
-
-  //   const categoryTotalsFilter = categoryTotals.find(
-  //     (categoryTotal: any) =>
-  //       categoryTotal.date === filter?.institutions?.createAt
-  //   );
-
-  //   const totalMonthFilter = totalsMonth.find(
-  //     (categoryTotalPerDate) =>
-  //       categoryTotalPerDate.date === filter?.institutions?.createAt
-  //   );
-
-  //   setCategoryTotalsMonth(categoryTotalsFilter);
-  //   setTotalsMonth(totalMonthFilter);
-  // }
 
   async function report(institutions: InstitutionType[] | undefined) {
     const doc = new jsPDF();
@@ -172,15 +154,6 @@ export const Institution = () => {
       doc.save(`relatorio-de-gastos-${dateNow}`);
     }
   }
-
-  // useEffect(() => {
-  //   if (expense?.categoryTotalPerDate && expense?.totalPerDate) {
-  //     getCategoryTotalsMonthAndTotalsMonth(
-  //       expense.categoryTotalPerDate,
-  //       expense.totalPerDate
-  //     );
-  //   }
-  // }, [expense]);
 
   return (
     <Swrapper>

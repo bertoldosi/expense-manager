@@ -4,7 +4,6 @@ import Cookies from "universal-cookie";
 import { BsChevronDown } from "@icons/BsChevronDown";
 import { Modal } from "@commons/Modal";
 
-import { userContextData, userContextDataType } from "@context/userContextData";
 import instances from "@lib/axios-instance-internal";
 import { ExpenseType } from "@interfaces/*";
 
@@ -47,10 +46,6 @@ function InstitutionMenuFilter({
 
   const { theme } = useContext(UserContextConfig) as UserContextConfigType;
 
-  const { setExpense, setSelectedInstitution, setInstitution } = useContext(
-    userContextData
-  ) as userContextDataType;
-
   const [isOptionsModalVisible, setOptionsModalVisible] = useState(false);
 
   function handlerIsVisibleModal() {
@@ -82,13 +77,13 @@ function InstitutionMenuFilter({
       })
 
       .then((response) => {
-        setExpense((prevExpense: ExpenseType) => ({
-          ...prevExpense,
-          institutions: response.data,
-        }));
+        // setExpense((prevExpense: ExpenseType) => ({
+        //   ...prevExpense,
+        //   institutions: response.data,
+        // }));
 
-        setInstitution(null);
-        setSelectedInstitution();
+        // setInstitution(null);
+        // setSelectedInstitution();
         cookies.set("expense-manager", newCookies);
         setOptionsModalVisible(false);
       });

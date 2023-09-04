@@ -10,7 +10,6 @@ import { Modal } from "@commons/Modal";
 
 import { InstitutionType, ShoppingType } from "@interfaces/*";
 import { schemaFilter } from "./validations";
-import { userContextData, userContextDataType } from "@context/userContextData";
 import InputTable from "@commons/InputTable";
 import { Filter } from "@icons/Filter";
 import InputSelect from "@commons/InputSelect";
@@ -31,14 +30,6 @@ const INITIAL_OPTIONS = {
 function ShoppingTableHeader() {
   const router = useRouter();
 
-  const {
-    getInstitution,
-    institution,
-    setInstitution,
-    getExpense,
-    categories,
-  } = useContext(userContextData) as userContextDataType;
-
   const [isModalFilterVisible, setIsModalFilterVisible] =
     useState<boolean>(false);
   const [valueSelectingAllShoppings, setValueSelectingAllShoppings] =
@@ -47,13 +38,13 @@ function ShoppingTableHeader() {
     []
   );
 
-  useMemo(() => {
-    const shoppings = institution?.shoppings?.filter(
-      (shoppingFilter) => shoppingFilter.selected
-    );
+  // useMemo(() => {
+  //   const shoppings = institution?.shoppings?.filter(
+  //     (shoppingFilter) => shoppingFilter.selected
+  //   );
 
-    setShoppingsSelected(shoppings || []);
-  }, [institution?.shoppings]);
+  //   setShoppingsSelected(shoppings || []);
+  // }, [institution?.shoppings]);
 
   function handleModalUpdate() {
     const items = JSON.stringify(shoppingsSeleceted);
@@ -77,24 +68,24 @@ function ShoppingTableHeader() {
     const { checked } = ev.target;
     setValueSelectingAllShoppings(checked);
 
-    setInstitution((prevInstitution: InstitutionType) => ({
-      ...prevInstitution,
-      shoppings: prevInstitution.shoppings?.map((shoppingMap) => ({
-        ...shoppingMap,
-        selected: checked,
-      })),
-    }));
+    // setInstitution((prevInstitution: InstitutionType) => ({
+    //   ...prevInstitution,
+    //   shoppings: prevInstitution.shoppings?.map((shoppingMap) => ({
+    //     ...shoppingMap,
+    //     selected: checked,
+    //   })),
+    // }));
   }
 
   async function fethInstitutionAndExpense() {
     const cookies = new Cookies();
     const cookieValues = cookies.get("expense-manager");
 
-    await getInstitution(cookieValues?.filter?.institution?.id);
-    await getExpense(
-      cookieValues?.filter.expense.id,
-      cookieValues?.filter.institutions.createAt
-    );
+    // await getInstitution(cookieValues?.filter?.institution?.id);
+    // await getExpense(
+    //   cookieValues?.filter.expense.id,
+    //   cookieValues?.filter.institutions.createAt
+    // );
   }
 
   async function deleteShoppings() {
@@ -118,20 +109,20 @@ function ShoppingTableHeader() {
     const category = values.category === "all" ? "" : values.category;
 
     async function requestFilter() {
-      return await instances
-        .get("api/shopping", {
-          params: {
-            category: category,
-            institutionId: institution?.id,
-          },
-        })
-        .then((response) => {
-          setInstitution((prevInstitution: ShoppingType) => ({
-            ...prevInstitution,
-            shoppings: response.data,
-          }));
-          setIsModalFilterVisible(false);
-        });
+      // return await instances
+      //   .get("api/shopping", {
+      //     params: {
+      //       category: category,
+      //       institutionId: institution?.id,
+      //     },
+      //   })
+      //   .then((response) => {
+      //     setInstitution((prevInstitution: ShoppingType) => ({
+      //       ...prevInstitution,
+      //       shoppings: response.data,
+      //     }));
+      //     setIsModalFilterVisible(false);
+      //   });
     }
 
     await customToast(requestFilter);
@@ -201,10 +192,7 @@ function ShoppingTableHeader() {
               value={onSubmitFilterShopping.values.category}
               onChange={onSubmitFilterShopping.handleChange}
               defaultOption={{ value: "all", label: "Todos" }}
-              options={categories.map((option) => ({
-                value: option.category,
-                label: option.category,
-              }))}
+              options={[]}
             />
             <Button text="Filtrar" type="submit" width="20rem" />
           </Sfilterform>

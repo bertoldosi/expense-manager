@@ -9,7 +9,6 @@ import ShoppingTable from "@containers/Home/ShoppingTable";
 import { Scontent, Sheader } from "./styles";
 import validationSchema from "@containers/Home/Shopping/validations";
 import instances from "@lib/axios-instance-internal";
-import { userContextData, userContextDataType } from "@context/userContextData";
 import { customToast } from "@commons/CustomToast";
 import { formatedInputValue } from "@helpers/formatedInputValue";
 import { focusInput } from "@helpers/focusInput";

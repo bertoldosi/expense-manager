@@ -8,7 +8,6 @@ import Theme from "src/styles/theme";
 import Layout from "@containers/Layout";
 import { Wrapped } from "@commons/Wrapped";
 import UserContextProviderConfig from "@context/userContextConfig";
-import UserContextProviderData from "@context/userContextData";
 import UserContextProvider from "@context/userContext";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
@@ -18,28 +17,26 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     <SessionProvider session={session}>
       <UserContextProvider>
         <UserContextProviderConfig>
-          <UserContextProviderData>
-            <Theme>
-              <ToastContainer
-                position="top-right"
-                autoClose={2000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-              />
-              <GlobalStyle />
-              <AppLayout>
-                <Wrapped>
-                  <Component {...pageProps} />
-                </Wrapped>
-              </AppLayout>
-            </Theme>
-          </UserContextProviderData>
+          <Theme>
+            <ToastContainer
+              position="top-right"
+              autoClose={2000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"
+            />
+            <GlobalStyle />
+            <AppLayout>
+              <Wrapped>
+                <Component {...pageProps} />
+              </Wrapped>
+            </AppLayout>
+          </Theme>
         </UserContextProviderConfig>
       </UserContextProvider>
     </SessionProvider>

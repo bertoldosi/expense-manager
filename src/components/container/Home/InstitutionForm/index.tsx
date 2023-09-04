@@ -9,7 +9,6 @@ import { Button } from "@commons/Button";
 import Input from "@commons/Input";
 
 import { Sform } from "./styles";
-import { userContextData, userContextDataType } from "@context/userContextData";
 import { customToast } from "@commons/CustomToast";
 import { ExpenseType, InstitutionType } from "@interfaces/*";
 
@@ -36,10 +35,6 @@ interface InstitutionFormProps {
 function InstitutionForm({ exitModal, institution }: InstitutionFormProps) {
   const cookies = new Cookies();
 
-  const { toggleSelectedInstitution, getExpense } = useContext(
-    userContextData
-  ) as userContextDataType;
-
   async function updateInstitution(
     dataForm: DataFormType,
     filter: FilterType,
@@ -54,8 +49,8 @@ function InstitutionForm({ exitModal, institution }: InstitutionFormProps) {
           createAt: filter.institutions.createAt,
         })
         .then(async (response) => {
-          await getExpense(filter.expense.id, filter.institutions.createAt);
-          toggleSelectedInstitution(response.data);
+          // await getExpense(filter.expense.id, filter.institutions.createAt);
+          // toggleSelectedInstitution(response.data);
 
           if (exitModal) exitModal();
         })
@@ -80,8 +75,8 @@ function InstitutionForm({ exitModal, institution }: InstitutionFormProps) {
           createAt: filter.institutions.createAt,
         })
         .then(async (response) => {
-          await getExpense(filter.expense.id, filter.institutions.createAt);
-          toggleSelectedInstitution(response.data);
+          // await getExpense(filter.expense.id, filter.institutions.createAt);
+          // toggleSelectedInstitution(response.data);
           if (exitModal) exitModal();
         })
         .catch((error) => {

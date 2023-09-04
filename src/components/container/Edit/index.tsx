@@ -12,7 +12,6 @@ import { toast } from "react-toastify";
 import { schemaUpdate } from "./validations";
 import instances from "@lib/axios-instance-internal";
 import Cookies from "universal-cookie";
-import { userContextData, userContextDataType } from "@context/userContextData";
 import { customToast } from "@commons/CustomToast";
 import { formatedInputValue } from "@helpers/formatedInputValue";
 import { useRouter } from "next/router";
@@ -58,9 +57,6 @@ const INITIAL_OPTIONS_REPEAT = [
 
 function Edit() {
   const router = useRouter();
-  const { getInstitution, getExpense } = useContext(
-    userContextData
-  ) as userContextDataType;
 
   const [shoppingsEdit, setShoppingsEdit] = useState<ShoppingType[] | []>([]);
 
@@ -79,11 +75,11 @@ function Edit() {
     const cookies = new Cookies();
     const cookieValues = cookies.get("expense-manager");
 
-    await getInstitution(cookieValues?.filter?.institution?.id);
-    await getExpense(
-      cookieValues?.filter.expense.id,
-      cookieValues?.filter.institutions.createAt
-    );
+    // await getInstitution(cookieValues?.filter?.institution?.id);
+    // await getExpense(
+    //   cookieValues?.filter.expense.id,
+    //   cookieValues?.filter.institutions.createAt
+    // );
   }
 
   async function updateAllShoppings(values: ShoppingUpdateType) {

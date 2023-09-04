@@ -5,7 +5,6 @@ import ShoppingTableHeader from "@containers/Home/ShoppingTableHeader";
 import InputTable from "@commons/InputTable";
 
 import { NoResult, Scontent, SrowTable } from "./styles";
-import { userContextData, userContextDataType } from "@context/userContextData";
 import { InstitutionType, ShoppingType } from "@interfaces/*";
 import instances from "@lib/axios-instance-internal";
 import { customToast } from "@commons/CustomToast";
@@ -23,9 +22,6 @@ function ShoppingTable() {
   const cookies = new Cookies();
 
   const [idShoppingUpdate, setIdShoppingUpdate] = useState<string>("");
-  const { getInstitution, getExpense } = useContext(
-    userContextData
-  ) as userContextDataType;
 
   const { institution, setInstitution } = useContext(
     userContext
@@ -34,11 +30,11 @@ function ShoppingTable() {
   async function fethInstitutionAndExpense() {
     const cookieValues = cookies.get("expense-manager");
 
-    getInstitution(cookieValues?.filter?.institution?.id);
-    getExpense(
-      cookieValues?.filter.expense.id,
-      cookieValues?.filter.institutions.createAt
-    );
+    // getInstitution(cookieValues?.filter?.institution?.id);
+    // getExpense(
+    //   cookieValues?.filter.expense.id,
+    //   cookieValues?.filter.institutions.createAt
+    // );
   }
 
   function onChangeShopping(ev: React.ChangeEvent<HTMLInputElement>) {
