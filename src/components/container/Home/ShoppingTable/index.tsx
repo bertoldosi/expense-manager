@@ -74,6 +74,17 @@ function ShoppingTable() {
   async function updateShopping(shopping: ShoppingType) {
     setIdShoppingUpdate("");
 
+    setInstitution((prevInstitution: InstitutionType) => ({
+      ...prevInstitution,
+      shoppings: prevInstitution?.shoppings?.map((mapShopping) => {
+        if (mapShopping.id === shopping.id) {
+          return shopping;
+        }
+
+        return mapShopping;
+      }),
+    }));
+
     async function requestUpdate() {
       return await instances
         .put("api/shopping", {

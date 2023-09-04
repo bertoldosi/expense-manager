@@ -12,8 +12,6 @@ import { useSession } from "next-auth/react";
 import moment from "moment";
 import { userContext, userContextType } from "@context/userContext";
 
-interface InstitutionType {}
-
 const keyCookies = "expense-manager";
 
 function Home() {

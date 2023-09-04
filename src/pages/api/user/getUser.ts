@@ -20,7 +20,11 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
             include: {
               institutions: {
                 include: {
-                  shoppings: true,
+                  shoppings: {
+                    orderBy: {
+                      createAt: "desc",
+                    },
+                  },
                 },
               },
             },
