@@ -13,6 +13,7 @@ import {
   UserContextConfig,
   UserContextConfigType,
 } from "@context/userContextConfig";
+import { userContext, userContextType } from "@context/userContext";
 
 const dates = [
   { name: "JAN", number: "01" },
@@ -43,6 +44,9 @@ function InstitutionMenuFilter({
   setValueYear,
 }: InstitutionMenuFilterType) {
   const cookies = new Cookies();
+  const { setInstitution, setExpense, setSelectedInstitution } = useContext(
+    userContext
+  ) as userContextType;
 
   const { theme } = useContext(UserContextConfig) as UserContextConfigType;
 
@@ -77,13 +81,13 @@ function InstitutionMenuFilter({
       })
 
       .then((response) => {
-        // setExpense((prevExpense: ExpenseType) => ({
-        //   ...prevExpense,
-        //   institutions: response.data,
-        // }));
+        setExpense((prevExpense: ExpenseType) => ({
+          ...prevExpense,
+          institutions: response.data,
+        }));
 
-        // setInstitution(null);
-        // setSelectedInstitution();
+        setInstitution(null);
+        setSelectedInstitution();
         cookies.set("expense-manager", newCookies);
         setOptionsModalVisible(false);
       });
