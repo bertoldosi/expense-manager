@@ -18,9 +18,13 @@ function Home() {
   const cookies = new Cookies();
 
   const { data: session } = useSession();
-  const { setUser, setExpense, setInstitution, expense } = useContext(
-    userContext
-  ) as userContextType;
+  const {
+    setUser,
+    setExpense,
+    setInstitution,
+    expense,
+    setSelectedInstitution,
+  } = useContext(userContext) as userContextType;
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [valueYear, setValueYear] = useState<number>(() => {
@@ -99,9 +103,12 @@ function Home() {
         : null;
 
       if (existInstitutionInInstitutions) {
+        setSelectedInstitution(existInstitutionInInstitutions);
         setInstitution(existInstitutionInInstitutions);
       } else {
+        setSelectedInstitution(null);
         setInstitution(null);
+
         cookies.set(keyCookies, {
           ...cookieValues,
           filter: {
@@ -111,6 +118,7 @@ function Home() {
         });
       }
     } else {
+      setSelectedInstitution(firstInstitutionExpense);
       setInstitution(firstInstitutionExpense);
 
       cookies.set(keyCookies, {
