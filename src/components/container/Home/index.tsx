@@ -147,6 +147,8 @@ function Home() {
   }
 
   async function fecthUser(email: string) {
+    const cookieValues = cookies.get(keyCookies);
+
     await instances
       .get("api/user", {
         params: {
@@ -154,15 +156,28 @@ function Home() {
         },
       })
       .then(async ({ data: user }) => {
-        setUser(user);
-        setExpense(user.expense);
-
         //criar novo gasto caso o usuario não possua
         if (!user?.expense) {
           return await createExpense(user);
         }
 
-        persistCookies(user?.expense);
+        await instances
+          .get("api/institution", {
+            params: {
+              createAt: cookieValues?.filter?.institutions?.createAt,
+              expenseId: cookieValues.filter?.expense?.id,
+            },
+          })
+          .then(({ data: institutions }) => {
+            const expenseGet = {
+              ...user.expense,
+              institutions,
+            };
+
+            setUser({ ...user, expense: expenseGet });
+            setExpense(expenseGet);
+            persistCookies(expenseGet);
+          });
       })
       .catch((error) => {
         console.log(error);
