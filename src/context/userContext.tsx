@@ -58,7 +58,7 @@ interface UserType {
   id?: string;
   email: string;
   name: string;
-  expenses: ExpenseType[];
+  expense: ExpenseType[];
 }
 
 interface SelectedInstitutionType {

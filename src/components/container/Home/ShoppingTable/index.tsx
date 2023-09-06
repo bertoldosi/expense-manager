@@ -5,7 +5,7 @@ import ShoppingTableHeader from "@containers/Home/ShoppingTableHeader";
 import InputTable from "@commons/InputTable";
 
 import { NoResult, Scontent, SrowTable } from "./styles";
-import { ExpenseType, InstitutionType, ShoppingType } from "@interfaces/*";
+import { InstitutionType, ShoppingType } from "@interfaces/*";
 import instances from "@lib/axios-instance-internal";
 import { customToast } from "@commons/CustomToast";
 import { formatedInputValue } from "@helpers/formatedInputValue";
@@ -27,6 +27,7 @@ function ShoppingTable() {
     useContext(userContext) as userContextType;
 
   function onChangeShopping(ev: React.ChangeEvent<HTMLInputElement>) {
+    console.log("aqui");
     const { id, name, value, checked } = ev.target;
     if (name != "selected") {
       setIdShoppingUpdate(id);

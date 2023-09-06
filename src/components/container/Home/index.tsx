@@ -7,7 +7,7 @@ import WithoutInstitution from "@containers/Home/Institution/WithoutInstitution"
 import { Scontainer } from "./styles";
 import InstitutionMenuFilter from "./InstitutionMenuFilter";
 import instances from "@lib/axios-instance-internal";
-import { ExpenseType } from "@interfaces/*";
+import { ExpenseType, UserType } from "@interfaces/*";
 import { useSession } from "next-auth/react";
 import moment from "moment";
 import { userContext, userContextType } from "@context/userContext";
@@ -74,6 +74,18 @@ function Home() {
   function persistCookies(expense: ExpenseType) {
     const cookieValues = cookies.get(keyCookies);
 
+    /* sempre persistir o expense do user*/
+    cookies.set(keyCookies, {
+      ...cookieValues,
+      filter: {
+        ...cookieValues.filter,
+        expense: {
+          id: expense.id,
+          name: expense.name,
+        },
+      },
+    });
+
     const institutionCookies = cookieValues?.filter?.institution;
     const firstInstitutionExpense = expense?.institutions?.length
       ? expense.institutions[0]
@@ -81,35 +93,57 @@ function Home() {
 
     /* se existir institution no cookies*/
     if (institutionCookies) {
-      const institution = expense?.institutions?.find(
-        (institution) => institution.name === institutionCookies.name
-      );
+      //verificar se dentro da instituições, existe essa salva no cookies
 
-      setInstitution(institution);
-    } else {
-      /* se não existir institution no cookies */
+      const existInstitutionInInstitutions = expense?.institutions?.length
+        ? expense.institutions.find(
+            (findInstitution) =>
+              findInstitution.name === institutionCookies.name
+          )
+        : null;
 
-      if (firstInstitutionExpense) {
-        setInstitution(firstInstitutionExpense);
-
-        cookies.set(keyCookies, {
-          ...cookieValues,
-          filter: {
-            institution: {
-              id: firstInstitutionExpense?.id,
-              name: firstInstitutionExpense?.name,
-            },
-          },
-        });
+      if (existInstitutionInInstitutions) {
+        setInstitution(existInstitutionInInstitutions);
       } else {
+        setInstitution(null);
         cookies.set(keyCookies, {
           ...cookieValues,
           filter: {
+            ...cookieValues.filter,
             institution: null,
           },
         });
       }
+    } else {
+      setInstitution(firstInstitutionExpense);
+
+      cookies.set(keyCookies, {
+        ...cookieValues,
+        filter: {
+          ...cookieValues.filter,
+          institution: firstInstitutionExpense
+            ? {
+                id: firstInstitutionExpense?.id,
+                name: firstInstitutionExpense?.name,
+              }
+            : null,
+        },
+      });
     }
+  }
+
+  async function createExpense(user: UserType) {
+    await instances
+      .post("api/expense", {
+        name: "default",
+        userEmail: user.email,
+      })
+      .then(({ data: expense }) => {
+        return persistCookies(expense);
+      })
+      .catch((error) => {
+        console.log("error ao criar expense", error);
+      });
   }
 
   async function fecthUser(email: string) {
@@ -119,10 +153,16 @@ function Home() {
           email,
         },
       })
-      .then(({ data: user }) => {
+      .then(async ({ data: user }) => {
         setUser(user);
         setExpense(user.expense);
-        persistCookies(user.expense);
+
+        //criar novo gasto caso o usuario não possua
+        if (!user?.expense) {
+          return await createExpense(user);
+        }
+
+        persistCookies(user?.expense);
       })
       .catch((error) => {
         console.log(error);

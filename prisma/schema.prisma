@@ -78,7 +78,7 @@ model Institution {
 }
 
 model Shopping {
-  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  id            String       @id @map("_id") @db.ObjectId
   description   String
   category      String
   amount        String

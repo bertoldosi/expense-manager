@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import Cookies from "universal-cookie";
 import { useFormik } from "formik";
+import { v4 as uuidv4 } from "uuid";
 
 import Input from "@commons/Input";
 import { Button } from "@commons/Button";
@@ -53,11 +54,13 @@ function Shopping() {
   async function createShopping(shopping: ShoppingCreateType) {
     shopping.amount = shopping.amount.replace(",", "");
 
+    const shoppingId = uuidv4();
+
     const newInstitution = {
       ...institution,
       shoppings: institution?.shoppings?.length
-        ? [shopping, ...institution.shoppings]
-        : [shopping],
+        ? [{ ...shopping, id: shoppingId }, ...institution.shoppings]
+        : [{ ...shopping, id: shoppingId }],
     };
     const newExpense = {
       ...expense,

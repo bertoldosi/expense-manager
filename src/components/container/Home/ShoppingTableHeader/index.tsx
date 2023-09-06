@@ -129,6 +129,7 @@ function ShoppingTableHeader() {
         })
         .then(() => {
           setValueSelectingAllShoppings(false);
+          onSubmitFilterShopping.resetForm();
         })
         .catch(() => {
           /* alterando as informações locais para o stado anterior */
