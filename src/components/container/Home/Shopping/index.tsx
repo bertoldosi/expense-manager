@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import Cookies from "universal-cookie";
 import { useFormik } from "formik";
 import { v4 as uuidv4 } from "uuid";
+import ObjectId from "mongo-objectid";
 
 import Input from "@commons/Input";
 import { Button } from "@commons/Button";
@@ -54,33 +55,36 @@ function Shopping() {
   async function createShopping(shopping: ShoppingCreateType) {
     shopping.amount = shopping.amount.replace(",", "");
 
-    const shoppingId = uuidv4();
-
-    const newInstitution = {
-      ...institution,
-      shoppings: institution?.shoppings?.length
-        ? [{ ...shopping, id: shoppingId }, ...institution.shoppings]
-        : [{ ...shopping, id: shoppingId }],
-    };
-    const newExpense = {
-      ...expense,
-      institutions: expense?.institutions?.map(
-        (mapInstitution: InstitutionType) => {
-          if (mapInstitution.id == newInstitution?.id) {
-            return newInstitution;
-          }
-
-          return mapInstitution;
-        }
-      ),
-    };
+    const uuid = new ObjectId().hex;
+    const shoppingId = uuid;
 
     await instances
       .post("api/shopping", {
         institutionId: institution?.id,
-        shopping,
+        shopping: {
+          ...shopping,
+          id: shoppingId,
+        },
       })
-      .then(() => {
+      .then(({ data: shoppingCreate }) => {
+        const newInstitution = {
+          ...institution,
+          shoppings: institution?.shoppings?.length
+            ? [shoppingCreate, ...institution.shoppings]
+            : [shoppingCreate],
+        };
+        const newExpense = {
+          ...expense,
+          institutions: expense?.institutions?.map(
+            (mapInstitution: InstitutionType) => {
+              if (mapInstitution.id == newInstitution?.id) {
+                return newInstitution;
+              }
+
+              return mapInstitution;
+            }
+          ),
+        };
         setInstitution(newInstitution);
         setExpense(newExpense);
         recalculate(newExpense);
