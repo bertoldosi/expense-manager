@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import Cookies from "universal-cookie";
 
 import { BsChevronDown } from "@icons/BsChevronDown";
@@ -35,6 +35,7 @@ interface InstitutionMenuFilterType {
   valueYear: number;
   setValueMonth: Function;
   setValueYear: Function;
+  setIsLoading: Function;
 }
 
 function InstitutionMenuFilter({
@@ -42,8 +43,10 @@ function InstitutionMenuFilter({
   valueYear,
   setValueMonth,
   setValueYear,
+  setIsLoading,
 }: InstitutionMenuFilterType) {
   const cookies = new Cookies();
+
   const { setInstitution, setExpense, setSelectedInstitution } = useContext(
     userContext
   ) as userContextType;
@@ -72,7 +75,7 @@ function InstitutionMenuFilter({
       },
     };
 
-    instances
+    await instances
       .get("api/institution", {
         params: {
           createAt: date,
@@ -91,9 +94,12 @@ function InstitutionMenuFilter({
         cookies.set("expense-manager", newCookies);
         setOptionsModalVisible(false);
       });
+
+    setIsLoading(false);
   }
 
   function selectDate(numberMonth: string, numberYear: number) {
+    setIsLoading(true);
     setValueMonth(numberMonth);
     setValueYear(numberYear);
 

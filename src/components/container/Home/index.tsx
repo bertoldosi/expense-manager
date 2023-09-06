@@ -15,6 +15,14 @@ import { userContext, userContextType } from "@context/userContext";
 const keyCookies = "expense-manager";
 
 function Home() {
+  const cookies = new Cookies();
+
+  const { data: session } = useSession();
+  const { setUser, setExpense, setInstitution, expense } = useContext(
+    userContext
+  ) as userContextType;
+
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [valueYear, setValueYear] = useState<number>(() => {
     const date = moment().format("DD/MM/YYYY");
     const [_day, _month, year] = date.split("/");
@@ -58,18 +66,6 @@ function Home() {
       setValueMonth(month);
     }
   }
-
-  useEffect(() => {
-    setDateFilter();
-  }, []);
-
-  const cookies = new Cookies();
-
-  const { data: session } = useSession();
-  const { setUser, setExpense, setInstitution, expense } = useContext(
-    userContext
-  ) as userContextType;
-  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   function persistCookies(expense: ExpenseType) {
     const cookieValues = cookies.get(keyCookies);
@@ -187,6 +183,10 @@ function Home() {
   }
 
   useEffect(() => {
+    setDateFilter();
+  }, []);
+
+  useEffect(() => {
     if (session?.user?.email) {
       fecthUser(session.user.email);
     }
@@ -203,6 +203,7 @@ function Home() {
             valueYear={valueYear}
             setValueMonth={setValueMonth}
             setValueYear={setValueYear}
+            setIsLoading={setIsLoading}
           />
           {expense?.institutions?.length ? (
             <Institution />
