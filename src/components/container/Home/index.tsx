@@ -169,7 +169,7 @@ function Home() {
           .get("api/institution", {
             params: {
               createAt: cookieValues?.filter?.institutions?.createAt,
-              expenseId: cookieValues.filter?.expense?.id,
+              expenseId: user?.expense?.id,
             },
           })
           .then(({ data: institutions }) => {
