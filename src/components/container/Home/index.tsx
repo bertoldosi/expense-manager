@@ -73,6 +73,7 @@ function Home() {
 
   function persistCookies(expense: ExpenseType) {
     const cookieValues = cookies.get(keyCookies);
+    setExpense(expense);
 
     /* sempre persistir o expense do user*/
     cookies.set(keyCookies, {

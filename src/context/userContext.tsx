@@ -115,13 +115,16 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
 
   function getInstitution() {}
 
-  function recalculate(expense) {
-    // const totalAmount = institutionCalculateTotalAmountInstitution(institution);
-    // const categoryTotals = institutionCalculateCategoryTotals(institution);
-    // const expenseTotals = expenseCalculateCategoryTotalPerDate(expense);
-    // console.log(totalAmount);
-    // console.log(categoryTotals);
-    // console.log(expenseTotals);
+  function recalculate(expense, newInstitution: InstitutionType) {
+    const totalAmount =
+      institutionCalculateTotalAmountInstitution(newInstitution);
+    const categoryTotals = institutionCalculateCategoryTotals(newInstitution);
+    const expenseTotals = expenseCalculateCategoryTotalPerDate(expense);
+
+    console.log(expense);
+    console.log(categoryTotals);
+
+    setExpense(expenseTotals);
   }
 
   function toggleSelectedInstitution(institution: InstitutionType) {
@@ -141,11 +144,6 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
       },
     });
   }
-
-  //control of
-  useMemo(() => {}, [user]);
-  useMemo(() => {}, [expense]);
-  useMemo(() => {}, [institution]);
 
   useMemo(() => {
     if (institution) {

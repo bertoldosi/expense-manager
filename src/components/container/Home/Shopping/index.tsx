@@ -25,6 +25,18 @@ interface ShoppingCreateType {
   selected?: boolean;
   institutionId?: string;
 }
+interface FilterType {
+  institution: {
+    id: string;
+  };
+  expense: {
+    id: string;
+  };
+
+  institutions: {
+    createAt: string;
+  };
+}
 
 const INITIAL_SHOPPING = {
   description: "",
@@ -41,11 +53,11 @@ function Shopping() {
     useContext(userContext) as userContextType;
 
   async function createShopping(shopping: ShoppingCreateType) {
-    const amount = shopping.amount.replace(",", "");
+    shopping.amount = shopping.amount.replace(",", "");
     const uuid = new ObjectId().hex;
     const shoppingId = uuid;
 
-    const newShopping = { ...shopping, id: shoppingId, amount: amount };
+    const newShopping = { ...shopping, id: shoppingId };
 
     const newInstitution = {
       ...institution,
@@ -68,7 +80,7 @@ function Shopping() {
 
     setInstitution(newInstitution);
     setExpense(newExpense);
-    recalculate(newExpense);
+    recalculate(newExpense, newInstitution);
 
     await instances
       .post("api/shopping", {

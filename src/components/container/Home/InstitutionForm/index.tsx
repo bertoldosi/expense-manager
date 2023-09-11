@@ -75,7 +75,7 @@ function InstitutionForm({ exitModal, institution }: InstitutionFormProps) {
       return await instances
         .post("api/institution", {
           name: dataForm.name,
-          expenseId: filter.expense.id,
+          expenseId: expense?.id,
           createAt: filter.institutions.createAt,
         })
         .then(async ({ data: institutionCreate }) => {

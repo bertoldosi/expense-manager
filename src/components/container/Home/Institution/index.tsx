@@ -44,9 +44,9 @@ export const Institution = () => {
   const [institutionUpdate, setInstitutionUpdate] =
     useState<InstitutionType | null>(null);
 
-  const [categotyTotalsMonth, setCategoryTotalsMonth] =
+  const [categotyTotalsMonth, _setCategoryTotalsMonth] =
     useState<CategoryTotalsMonthType>();
-  const [totalsMonth, setTotalsMonth] = useState<TotalsMonthType>();
+  const [totalsMonth, _setTotalsMonth] = useState<TotalsMonthType>();
 
   function openModal() {
     setIsModalVisible(!isModalVisible);
