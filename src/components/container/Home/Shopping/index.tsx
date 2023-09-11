@@ -25,18 +25,6 @@ interface ShoppingCreateType {
   selected?: boolean;
   institutionId?: string;
 }
-interface FilterType {
-  institution: {
-    id: string;
-  };
-  expense: {
-    id: string;
-  };
-
-  institutions: {
-    createAt: string;
-  };
-}
 
 const INITIAL_SHOPPING = {
   description: "",
@@ -53,10 +41,34 @@ function Shopping() {
     useContext(userContext) as userContextType;
 
   async function createShopping(shopping: ShoppingCreateType) {
-    shopping.amount = shopping.amount.replace(",", "");
-
+    const amount = shopping.amount.replace(",", "");
     const uuid = new ObjectId().hex;
     const shoppingId = uuid;
+
+    const newShopping = { ...shopping, id: shoppingId, amount: amount };
+
+    const newInstitution = {
+      ...institution,
+      shoppings: institution?.shoppings?.length
+        ? [newShopping, ...institution.shoppings]
+        : [newShopping],
+    };
+    const newExpense = {
+      ...expense,
+      institutions: expense?.institutions?.map(
+        (mapInstitution: InstitutionType) => {
+          if (mapInstitution.id == newInstitution?.id) {
+            return newInstitution;
+          }
+
+          return mapInstitution;
+        }
+      ),
+    };
+
+    setInstitution(newInstitution);
+    setExpense(newExpense);
+    recalculate(newExpense);
 
     await instances
       .post("api/shopping", {
@@ -65,31 +77,6 @@ function Shopping() {
           ...shopping,
           id: shoppingId,
         },
-      })
-      .then(({ data: shoppingCreate }) => {
-        const newInstitution = {
-          ...institution,
-          shoppings: institution?.shoppings?.length
-            ? [shoppingCreate, ...institution.shoppings]
-            : [shoppingCreate],
-        };
-        const newExpense = {
-          ...expense,
-          institutions: expense?.institutions?.map(
-            (mapInstitution: InstitutionType) => {
-              if (mapInstitution.id == newInstitution?.id) {
-                return newInstitution;
-              }
-
-              return mapInstitution;
-            }
-          ),
-        };
-        setInstitution(newInstitution);
-        setExpense(newExpense);
-        recalculate(newExpense);
-
-        return;
       })
       .catch((error) => {
         console.log(error);
