@@ -10,6 +10,7 @@ import InstitutionMenuFilter from "./InstitutionMenuFilter";
 import { useSession } from "next-auth/react";
 import { userContext, userContextType } from "@context/userContext";
 import instances from "@lib/axios-instance-internal";
+import { Loading } from "@commons/Loading";
 
 interface InstitutionType {
   name: string;
@@ -151,7 +152,7 @@ function Home() {
   return (
     <Scontainer>
       {isLoading ? (
-        <h1>Carregando...</h1>
+        <Loading />
       ) : (
         <>
           <InstitutionMenuFilter
