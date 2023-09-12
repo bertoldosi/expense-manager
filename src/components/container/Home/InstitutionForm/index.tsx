@@ -23,9 +23,7 @@ interface DataFormType {
 
 interface FilterType {
   expense: ExpenseType;
-  institutions: {
-    createAt: string;
-  };
+  dateSelected: string;
 }
 
 interface InstitutionFormProps {
@@ -50,7 +48,7 @@ function InstitutionForm({ exitModal, institution }: InstitutionFormProps) {
           id: institution.id,
           name: dataForm.name,
           expenseId: filter.expense.id,
-          createAt: filter.institutions.createAt,
+          createAt: filter.dateSelected,
         })
         .then(async (response) => {
           // await getExpense(filter.expense.id, filter.institutions.createAt);
@@ -73,10 +71,10 @@ function InstitutionForm({ exitModal, institution }: InstitutionFormProps) {
   async function createInstitution(dataForm: DataFormType, filter: FilterType) {
     async function requestCreate() {
       return await instances
-        .post("api/institution", {
+        .post("api/v2/institution", {
           name: dataForm.name,
-          expenseId: expense?.id,
-          createAt: filter.institutions.createAt,
+          expenseId: filter?.expense?.id,
+          createAt: filter?.dateSelected,
         })
         .then(async ({ data: institutionCreate }) => {
           setInstitution(institutionCreate);
