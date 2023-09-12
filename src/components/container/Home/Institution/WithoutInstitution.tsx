@@ -6,7 +6,12 @@ import InstitutionForm from "@containers/Home/InstitutionForm";
 import { Button } from "@commons/Button";
 import { Modal } from "@commons/Modal";
 
-import { Saside, Ssection, ScontainerWithoutInstitution } from "./styles";
+import {
+  Saside,
+  Ssection,
+  ScontainerWithoutInstitution,
+  SmenuHeader,
+} from "./styles";
 
 function WithoutInstitution() {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -22,7 +27,9 @@ function WithoutInstitution() {
   return (
     <ScontainerWithoutInstitution>
       <div>
-        <InstitutionMenuHeader />
+        <SmenuHeader>
+          <h2>Cadastre um cartão!</h2>
+        </SmenuHeader>
         <Ssection>
           <Saside>
             <InstitutionMenuCard

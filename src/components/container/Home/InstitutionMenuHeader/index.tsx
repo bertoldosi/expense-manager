@@ -9,14 +9,6 @@ function InstitutionMenuHeader({}: PropsType) {
   const { expense, selectedInstitution, toggleSelectedInstitution } =
     useContext(userContext) as userContextType;
 
-  if (expense?.institutions?.length === 0) {
-    return (
-      <SmenuHeader>
-        <h2>Cadastre um cartão!</h2>
-      </SmenuHeader>
-    );
-  }
-
   return (
     <Scontainer>
       <SmenuHeader>

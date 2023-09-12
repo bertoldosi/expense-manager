@@ -51,3 +51,17 @@ export const Saside = styled.aside`
 export const ScontainerWithoutInstitution = styled.main`
   width: 100%;
 `;
+
+export const SmenuHeader = styled.nav`
+  width: 100%;
+  height: 5rem;
+  display: flex;
+  align-items: center;
+  background-color: ${(props) => props.theme.backgroundSecondary};
+  color: ${(props) => props.theme.textSecondary};
+
+  > h2 {
+    width: 100%;
+    text-align: center;
+  }
+`;
