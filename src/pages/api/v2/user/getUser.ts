@@ -16,19 +16,7 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
           email,
         },
         include: {
-          expense: {
-            include: {
-              institutions: {
-                include: {
-                  shoppings: {
-                    orderBy: {
-                      createAt: "desc",
-                    },
-                  },
-                },
-              },
-            },
-          },
+          expense: true,
         },
       });
 
