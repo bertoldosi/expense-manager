@@ -9,6 +9,28 @@ import { Scontainer } from "./styles";
 import InstitutionMenuFilter from "./InstitutionMenuFilter";
 import { useSession } from "next-auth/react";
 import { userContext, userContextType } from "@context/userContext";
+import instances from "@lib/axios-instance-internal";
+
+interface InstitutionType {
+  name: string;
+}
+interface ExpenseType {
+  id: string;
+  name: string;
+  institutions: InstitutionType[];
+}
+interface getUserResponseType {
+  data: {
+    email: string;
+    expense: ExpenseType;
+  };
+}
+
+interface CookiesValuesType {
+  filter: {
+    dateSelected: string;
+  };
+}
 
 const keyCookies = "expense-manager";
 
@@ -16,7 +38,7 @@ function Home() {
   const cookies = new Cookies();
 
   const { data: session } = useSession();
-  const { expense } = useContext(userContext) as userContextType;
+  const { expense, setExpense } = useContext(userContext) as userContextType;
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [valueYear, setValueYear] = useState<number>(() => {
@@ -71,129 +93,49 @@ function Home() {
     getDateNow();
   }
 
-  function getUser(email: string) {
-    console.log(email);
+  async function getExpense(expenseId: string) {
+    const cookiesValues: CookiesValuesType = cookies.get(keyCookies);
+
+    const { data: expenseGet } = await instances.get("api/v2/expense", {
+      params: {
+        id: expenseId,
+        institutionCreateAt: cookiesValues?.filter?.dateSelected,
+      },
+    });
+
+    setExpense(expenseGet);
+    setIsLoading(false);
   }
 
-  // function persistCookies(expense: ExpenseType) {
-  //   const cookieValues = cookies.get(keyCookies);
-  //   setExpense(expense);
+  async function createExpense(userEmail: string) {
+    const expenseCreate = await instances.post("api/v2/expense", {
+      name: "default",
+      userEmail: userEmail,
+    });
 
-  //   /* sempre persistir o expense do user*/
-  //   cookies.set(keyCookies, {
-  //     ...cookieValues,
-  //     filter: {
-  //       ...cookieValues.filter,
-  //       expense: {
-  //         id: expense.id,
-  //         name: expense.name,
-  //       },
-  //     },
-  //   });
+    setIsLoading(false);
+    setExpense(expenseCreate);
+  }
 
-  //   const institutionCookies = cookieValues?.filter?.institution;
-  //   const firstInstitutionExpense = expense?.institutions?.length
-  //     ? expense.institutions[0]
-  //     : null;
+  async function getUser(email: string) {
+    const { data: user }: getUserResponseType = await instances.get(
+      "/api/v2/user",
+      {
+        params: {
+          email: email,
+        },
+      }
+    );
 
-  //   /* se existir institution no cookies*/
-  //   if (institutionCookies) {
-  //     //verificar se dentro da instituições, existe essa salva no cookies
+    // verificamos se o usuario ja tem um gasto cadastrado
+    const isExpenseExist = user?.expense?.name;
 
-  //     const existInstitutionInInstitutions = expense?.institutions?.length
-  //       ? expense.institutions.find(
-  //           (findInstitution) =>
-  //             findInstitution.name === institutionCookies.name
-  //         )
-  //       : null;
+    //pegamos o gasto, caso ela ja tenha
+    if (isExpenseExist) return getExpense(user.expense.id);
 
-  //     if (existInstitutionInInstitutions) {
-  //       setSelectedInstitution(existInstitutionInInstitutions);
-  //       setInstitution(existInstitutionInInstitutions);
-  //     } else {
-  //       setSelectedInstitution(null);
-  //       setInstitution(null);
-
-  //       cookies.set(keyCookies, {
-  //         ...cookieValues,
-  //         filter: {
-  //           ...cookieValues.filter,
-  //           institution: null,
-  //         },
-  //       });
-  //     }
-  //   } else {
-  //     setSelectedInstitution(firstInstitutionExpense);
-  //     setInstitution(firstInstitutionExpense);
-
-  //     cookies.set(keyCookies, {
-  //       ...cookieValues,
-  //       filter: {
-  //         ...cookieValues.filter,
-  //         institution: firstInstitutionExpense
-  //           ? {
-  //               id: firstInstitutionExpense?.id,
-  //               name: firstInstitutionExpense?.name,
-  //             }
-  //           : null,
-  //       },
-  //     });
-  //   }
-  // }
-
-  // async function createExpense(user: UserType) {
-  //   await instances
-  //     .post("api/expense", {
-  //       name: "default",
-  //       userEmail: user.email,
-  //     })
-  //     .then(({ data: expense }) => {
-  //       return persistCookies(expense);
-  //     })
-  //     .catch((error) => {
-  //       console.log("error ao criar expense", error);
-  //     });
-  // }
-
-  // async function fecthUser(email: string) {
-  //   const cookieValues = cookies.get(keyCookies);
-
-  //   await instances
-  //     .get("api/user", {
-  //       params: {
-  //         email,
-  //       },
-  //     })
-  //     .then(async ({ data: user }) => {
-  //       //criar novo gasto caso o usuario não possua
-  //       if (!user?.expense) {
-  //         return await createExpense(user);
-  //       }
-
-  //       await instances
-  //         .get("api/institution", {
-  //           params: {
-  //             createAt: cookieValues?.filter?.institutions?.createAt,
-  //             expenseId: user?.expense?.id,
-  //           },
-  //         })
-  //         .then(({ data: institutions }) => {
-  //           const expenseGet = {
-  //             ...user.expense,
-  //             institutions,
-  //           };
-
-  //           setUser({ ...user, expense: expenseGet });
-  //           setExpense(expenseGet);
-  //           persistCookies(expenseGet);
-  //         });
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-
-  //   setIsLoading(false);
-  // }
+    //criamos um gasto, caso ela não tenha
+    return createExpense(user.email);
+  }
 
   useEffect(() => {
     initializationDate();
@@ -205,12 +147,6 @@ function Home() {
       getUser(userEmail);
     }
   }, [session]);
-
-  // useEffect(() => {
-  //   if (session?.user?.email) {
-  //     fecthUser(session.user.email);
-  //   }
-  // }, [session]);
 
   return (
     <Scontainer>
