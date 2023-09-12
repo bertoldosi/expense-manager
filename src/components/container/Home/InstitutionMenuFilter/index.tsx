@@ -38,6 +38,8 @@ interface InstitutionMenuFilterType {
   setIsLoading: Function;
 }
 
+const keyCookies = "expense-manager";
+
 function InstitutionMenuFilter({
   valueMonth,
   valueYear,
@@ -61,39 +63,28 @@ function InstitutionMenuFilter({
 
   async function filter(numberMonth: string, numberYear: number) {
     const cookieValues = cookies.get("expense-manager");
+    const dateSelected = `01/${numberMonth}/${numberYear}`;
 
-    const date = `01/${numberMonth}/${numberYear}`;
-
-    const newCookies = {
+    const newCookieValues = {
       ...cookieValues,
       filter: {
-        ...cookieValues.filter,
-        institution: null,
-        institutions: {
-          createAt: date,
-        },
+        ...cookieValues?.filter,
+        dateSelected,
       },
     };
 
-    await instances
-      .get("api/institution", {
-        params: {
-          createAt: date,
-          expenseId: newCookies.filter?.expense?.id,
-        },
-      })
+    const { data: expenseGet } = await instances.get("api/v2/expense", {
+      params: {
+        id: cookieValues?.filter?.expense?.id,
+        institutionCreateAt: cookieValues?.filter?.dateSelected,
+      },
+    });
 
-      .then((response) => {
-        setExpense((prevExpense: ExpenseType) => ({
-          ...prevExpense,
-          institutions: response.data,
-        }));
-
-        setInstitution(null);
-        setSelectedInstitution();
-        cookies.set("expense-manager", newCookies);
-        setOptionsModalVisible(false);
-      });
+    setExpense(expenseGet);
+    setInstitution(null);
+    setSelectedInstitution();
+    setOptionsModalVisible(false);
+    cookies.set(keyCookies, newCookieValues);
 
     setIsLoading(false);
   }

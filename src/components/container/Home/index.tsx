@@ -27,7 +27,7 @@ interface getUserResponseType {
   };
 }
 
-interface CookiesValuesType {
+interface CookieValuesType {
   filter: {
     dateSelected: string;
   };
@@ -95,27 +95,53 @@ function Home() {
   }
 
   async function getExpense(expenseId: string) {
-    const cookiesValues: CookiesValuesType = cookies.get(keyCookies);
+    const cookieValues: CookieValuesType = cookies.get(keyCookies);
 
     const { data: expenseGet } = await instances.get("api/v2/expense", {
       params: {
         id: expenseId,
-        institutionCreateAt: cookiesValues?.filter?.dateSelected,
+        institutionCreateAt: cookieValues?.filter?.dateSelected,
       },
     });
 
+    const newCookieValues = {
+      ...cookieValues,
+      filter: {
+        ...cookieValues?.filter,
+        expense: {
+          id: expenseGet.id,
+          name: expenseGet?.name,
+        },
+      },
+    };
+
     setExpense(expenseGet);
+    cookies.set(keyCookies, newCookieValues);
     setIsLoading(false);
   }
 
   async function createExpense(userEmail: string) {
-    const expenseCreate = await instances.post("api/v2/expense", {
+    const cookieValues: CookieValuesType = cookies.get(keyCookies);
+
+    const { data: expenseCreate } = await instances.post("api/v2/expense", {
       name: "default",
       userEmail: userEmail,
     });
 
-    setIsLoading(false);
+    const newCookieValues = {
+      ...cookieValues,
+      filter: {
+        ...cookieValues?.filter,
+        expense: {
+          id: expenseCreate?.id,
+          name: expenseCreate?.name,
+        },
+      },
+    };
+
     setExpense(expenseCreate);
+    cookies.set(keyCookies, newCookieValues);
+    setIsLoading(false);
   }
 
   async function getUser(email: string) {
