@@ -13,6 +13,7 @@ import instances from "@lib/axios-instance-internal";
 import { Loading } from "@commons/Loading";
 
 interface InstitutionType {
+  id: string;
   name: string;
 }
 interface ExpenseType {
@@ -39,7 +40,8 @@ function Home() {
   const cookies = new Cookies();
 
   const { data: session } = useSession();
-  const { expense, setExpense } = useContext(userContext) as userContextType;
+  const { expense, setExpense, setInstitution, setSelectedInstitution } =
+    useContext(userContext) as userContextType;
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [valueYear, setValueYear] = useState<number>(() => {
@@ -94,6 +96,48 @@ function Home() {
     getDateNow();
   }
 
+  // verificar em pegar a primeira instituição
+  function getFirstInstitution(institutions: InstitutionType[]) {
+    const cookieValues: CookieValuesType = cookies.get(keyCookies);
+
+    const isInstitutionsExist = institutions.length;
+
+    // salvamos a primeira instituição
+    if (isInstitutionsExist) {
+      const firstInstitution = institutions[0];
+
+      const newCookieValues = {
+        ...cookieValues,
+        filter: {
+          ...cookieValues?.filter,
+          institution: {
+            id: firstInstitution.id,
+            name: firstInstitution.name,
+          },
+        },
+      };
+
+      setInstitution(firstInstitution);
+      setSelectedInstitution(firstInstitution);
+      cookies.set(keyCookies, newCookieValues);
+    }
+
+    // caso não exista nenhuma instituição cadastrada
+    const newCookieValues = {
+      ...cookieValues,
+      filter: {
+        ...cookieValues?.filter,
+        institution: null,
+      },
+    };
+
+    setInstitution(null);
+    setSelectedInstitution();
+    cookies.set(keyCookies, newCookieValues);
+
+    return;
+  }
+
   async function getExpense(expenseId: string) {
     const cookieValues: CookieValuesType = cookies.get(keyCookies);
 
@@ -115,6 +159,7 @@ function Home() {
       },
     };
 
+    getFirstInstitution(expenseGet.institutions);
     setExpense(expenseGet);
     cookies.set(keyCookies, newCookieValues);
     setIsLoading(false);
@@ -140,6 +185,8 @@ function Home() {
     };
 
     setExpense(expenseCreate);
+    setInstitution(null);
+    setSelectedInstitution();
     cookies.set(keyCookies, newCookieValues);
     setIsLoading(false);
   }
