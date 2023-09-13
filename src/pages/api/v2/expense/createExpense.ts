@@ -28,7 +28,23 @@ async function createExpense(req: NextApiRequest, res: NextApiResponse) {
         userId: user.id,
       },
       include: {
-        user: true,
+        user: {
+          include: {
+            expense: {
+              include: {
+                institutions: {
+                  include: {
+                    shoppings: {
+                      orderBy: {
+                        createAt: "desc",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 

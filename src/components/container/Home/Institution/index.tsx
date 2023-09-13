@@ -33,10 +33,12 @@ interface TotalsMonthType {
   total: number;
 }
 
+const keyCookies = "expense-manager";
+
 export const Institution = () => {
   const cookies = new Cookies();
 
-  const { institution, setInstitution, expense } = useContext(
+  const { institution, getFirstInstitution, setExpense, expense } = useContext(
     userContext
   ) as userContextType;
 
@@ -58,19 +60,26 @@ export const Institution = () => {
   }
 
   async function deleteInstitution(institution: InstitutionType) {
-    async function requestDelete() {
-      return await instances
-        .delete("api/institution", {
-          params: {
-            institutionId: institution.id,
-          },
-        })
-        .then(async () => {
-          // const { filter } = cookies.get("expense-manager");
+    const cookieValues = cookies.get(keyCookies);
 
-          // await getExpense(filter?.expense?.id, filter.institutions.createAt);
-          setInstitution(null);
-        });
+    async function requestDelete() {
+      await instances.delete("api/v2/institution", {
+        params: {
+          id: institution.id,
+        },
+      });
+
+      const { data: expenseGet } = await instances.get("api/v2/expense", {
+        params: {
+          id: cookieValues?.filter?.expense?.id,
+          institutionCreateAt: cookieValues?.filter?.dateSelected,
+        },
+      });
+
+      setExpense(expenseGet);
+      getFirstInstitution(expenseGet.institutions);
+
+      return;
     }
 
     await customToast(requestDelete);

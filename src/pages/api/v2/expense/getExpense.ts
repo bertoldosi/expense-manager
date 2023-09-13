@@ -21,6 +21,13 @@ async function getExpense(req: NextApiRequest, res: NextApiResponse) {
             where: {
               createAt: institutionCreateAt,
             },
+            include: {
+              shoppings: {
+                orderBy: {
+                  createAt: "desc",
+                },
+              },
+            },
           },
         },
       });
