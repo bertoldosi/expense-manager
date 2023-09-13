@@ -1,6 +1,5 @@
 import Cookies from "universal-cookie";
 import React, { ReactNode, createContext, useMemo, useState } from "react";
-import instances from "@lib/axios-instance-internal";
 import institutionCalculateTotalAmountInstitution from "@helpers/institutionCalculateTotalAmountInstitution";
 import institutionCalculateCategoryTotals from "@helpers/institutionCalculateCategoryTotals";
 import expenseCalculateCategoryTotalPerDate from "@helpers/expenseCalculateCategoryTotalPerDate";
@@ -61,11 +60,6 @@ interface UserType {
   expense: ExpenseType[];
 }
 
-interface SelectedInstitutionType {
-  id: string;
-  name: string;
-}
-
 export interface userContextType {
   user: UserType | null;
   setUser: Function;
@@ -80,8 +74,6 @@ export interface userContextType {
   getInstitution: Function;
 
   toggleSelectedInstitution: Function;
-  setSelectedInstitution: Function;
-  selectedInstitution: SelectedInstitutionType | null;
 
   recalculate: Function;
 
@@ -91,6 +83,8 @@ export interface userContextType {
 interface UserAppContextProviderType {
   children: ReactNode;
 }
+
+const keyCookie = "expense-manager";
 
 export const userContext = createContext<userContextType | null>(null);
 
@@ -102,38 +96,28 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
   const [institution, setInstitution] = useState<InstitutionType | null>(null);
   const [categories, setCategories] = useState<CategorieType[]>([]);
 
-  const [selectedInstitution, setSelectedInstitution] =
-    useState<SelectedInstitutionType | null>(() => {
-      const cookieValues = cookies.get("expense-manager");
-
-      return cookieValues?.filter?.institution;
-    });
-
   function getUser() {}
 
   function getExpense() {}
 
   function getInstitution() {}
 
-  function recalculate(expense, newInstitution: InstitutionType) {
-    const totalAmount =
-      institutionCalculateTotalAmountInstitution(newInstitution);
-    const categoryTotals = institutionCalculateCategoryTotals(newInstitution);
-    const expenseTotals = expenseCalculateCategoryTotalPerDate(expense);
-
-    console.log(expense);
-    console.log(categoryTotals);
-
-    setExpense(expenseTotals);
+  function recalculate(expense: ExpenseType, newInstitution: InstitutionType) {
+    // const totalAmount =
+    //   institutionCalculateTotalAmountInstitution(newInstitution);
+    // const categoryTotals = institutionCalculateCategoryTotals(newInstitution);
+    // const expenseTotals = expenseCalculateCategoryTotalPerDate(expense);
+    // console.log(expense);
+    // console.log(categoryTotals);
+    // setExpense(expenseTotals);
   }
 
   function toggleSelectedInstitution(institution: InstitutionType) {
-    const cookieValues = cookies.get("expense-manager");
+    const cookieValues = cookies.get(keyCookie);
 
     setInstitution(institution);
-    setSelectedInstitution(institution);
 
-    cookies.set("expense-manager", {
+    const newCookieValues = {
       ...cookieValues,
       filter: {
         ...cookieValues.filter,
@@ -142,7 +126,9 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
           name: institution?.name,
         },
       },
-    });
+    };
+
+    cookies.set(keyCookie, newCookieValues);
   }
 
   useMemo(() => {
@@ -169,8 +155,6 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
         getInstitution,
 
         toggleSelectedInstitution,
-        setSelectedInstitution,
-        selectedInstitution,
 
         recalculate,
 

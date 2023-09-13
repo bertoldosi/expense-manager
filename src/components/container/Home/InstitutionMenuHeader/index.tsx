@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 
 import { Scontainer, Sitem, SmenuHeader, Soptions } from "./styles";
 import { userContext, userContextType } from "@context/userContext";
@@ -6,15 +6,20 @@ import { userContext, userContextType } from "@context/userContext";
 type PropsType = {};
 
 function InstitutionMenuHeader({}: PropsType) {
-  const { expense, selectedInstitution, toggleSelectedInstitution } =
-    useContext(userContext) as userContextType;
+  const { expense, toggleSelectedInstitution, institution } = useContext(
+    userContext
+  ) as userContextType;
+
+  useEffect(() => {
+    console.log(institution);
+  }, [institution]);
 
   return (
     <Scontainer>
       <SmenuHeader>
         <Soptions>
           {expense?.institutions?.map((institutionMap, index) =>
-            institutionMap.id === selectedInstitution?.id ? (
+            institutionMap.id === institution?.id ? (
               <Sitem
                 key={index}
                 className="selected"

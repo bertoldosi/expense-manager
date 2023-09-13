@@ -49,7 +49,7 @@ function InstitutionMenuFilter({
 }: InstitutionMenuFilterType) {
   const cookies = new Cookies();
 
-  const { setInstitution, setExpense, setSelectedInstitution } = useContext(
+  const { setInstitution, setExpense } = useContext(
     userContext
   ) as userContextType;
 
@@ -82,7 +82,6 @@ function InstitutionMenuFilter({
 
     setExpense(expenseGet);
     setInstitution(null);
-    setSelectedInstitution();
     setOptionsModalVisible(false);
     cookies.set(keyCookies, newCookieValues);
 

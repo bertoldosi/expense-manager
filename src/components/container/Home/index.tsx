@@ -40,7 +40,7 @@ function Home() {
   const cookies = new Cookies();
 
   const { data: session } = useSession();
-  const { expense, setExpense, setInstitution, setSelectedInstitution } =
+  const { expense, setExpense, setInstitution, toggleSelectedInstitution } =
     useContext(userContext) as userContextType;
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -117,9 +117,10 @@ function Home() {
         },
       };
 
-      setInstitution(firstInstitution);
-      setSelectedInstitution(firstInstitution);
+      toggleSelectedInstitution(firstInstitution);
       cookies.set(keyCookies, newCookieValues);
+
+      return;
     }
 
     // caso não exista nenhuma instituição cadastrada
@@ -132,7 +133,6 @@ function Home() {
     };
 
     setInstitution(null);
-    setSelectedInstitution();
     cookies.set(keyCookies, newCookieValues);
 
     return;
@@ -186,7 +186,6 @@ function Home() {
 
     setExpense(expenseCreate);
     setInstitution(null);
-    setSelectedInstitution();
     cookies.set(keyCookies, newCookieValues);
     setIsLoading(false);
   }
