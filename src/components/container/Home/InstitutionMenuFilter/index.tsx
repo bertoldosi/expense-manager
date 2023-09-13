@@ -76,7 +76,7 @@ function InstitutionMenuFilter({
     const { data: expenseGet } = await instances.get("api/v2/expense", {
       params: {
         id: cookieValues?.filter?.expense?.id,
-        institutionCreateAt: cookieValues?.filter?.dateSelected,
+        institutionCreateAt: dateSelected,
       },
     });
 
