@@ -5,7 +5,6 @@ import { BsChevronDown } from "@icons/BsChevronDown";
 import { Modal } from "@commons/Modal";
 
 import instances from "@lib/axios-instance-internal";
-import { ExpenseType } from "@interfaces/*";
 
 import { Scontainer, Sdate } from "./styles";
 import { SelectDate } from "@commons/SelectDate";
@@ -49,7 +48,7 @@ function InstitutionMenuFilter({
 }: InstitutionMenuFilterType) {
   const cookies = new Cookies();
 
-  const { setInstitution, setExpense } = useContext(
+  const { setExpense, getFirstInstitution } = useContext(
     userContext
   ) as userContextType;
 
@@ -81,7 +80,7 @@ function InstitutionMenuFilter({
     });
 
     setExpense(expenseGet);
-    setInstitution(null);
+    getFirstInstitution(expenseGet.institutions);
     setOptionsModalVisible(false);
     cookies.set(keyCookies, newCookieValues);
 

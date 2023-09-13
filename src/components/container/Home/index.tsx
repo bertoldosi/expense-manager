@@ -31,6 +31,10 @@ interface getUserResponseType {
 interface CookieValuesType {
   filter: {
     dateSelected: string;
+    institution: {
+      id: string;
+      name: string;
+    };
   };
 }
 
@@ -40,7 +44,7 @@ function Home() {
   const cookies = new Cookies();
 
   const { data: session } = useSession();
-  const { expense, setExpense, setInstitution, toggleSelectedInstitution } =
+  const { expense, setExpense, setInstitution, getFirstInstitution } =
     useContext(userContext) as userContextType;
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -94,48 +98,6 @@ function Home() {
 
     // caso não exista uma data já selecionada, pegamos a data atual e salvamos localmente
     getDateNow();
-  }
-
-  // verificar em pegar a primeira instituição
-  function getFirstInstitution(institutions: InstitutionType[]) {
-    const cookieValues: CookieValuesType = cookies.get(keyCookies);
-
-    const isInstitutionsExist = institutions.length;
-
-    // salvamos a primeira instituição
-    if (isInstitutionsExist) {
-      const firstInstitution = institutions[0];
-
-      const newCookieValues = {
-        ...cookieValues,
-        filter: {
-          ...cookieValues?.filter,
-          institution: {
-            id: firstInstitution.id,
-            name: firstInstitution.name,
-          },
-        },
-      };
-
-      toggleSelectedInstitution(firstInstitution);
-      cookies.set(keyCookies, newCookieValues);
-
-      return;
-    }
-
-    // caso não exista nenhuma instituição cadastrada
-    const newCookieValues = {
-      ...cookieValues,
-      filter: {
-        ...cookieValues?.filter,
-        institution: null,
-      },
-    };
-
-    setInstitution(null);
-    cookies.set(keyCookies, newCookieValues);
-
-    return;
   }
 
   async function getExpense(expenseId: string) {

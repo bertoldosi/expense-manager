@@ -75,6 +75,8 @@ export interface userContextType {
 
   toggleSelectedInstitution: Function;
 
+  getFirstInstitution: Function;
+
   recalculate: Function;
 
   categories: CategorieType[];
@@ -131,6 +133,56 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
     cookies.set(keyCookie, newCookieValues);
   }
 
+  function getFirstInstitution(institutions: InstitutionType[]) {
+    const cookieValues = cookies.get(keyCookie);
+
+    const isInstitutionsExist = institutions.length;
+
+    // salvamos a primeira instituição
+    if (isInstitutionsExist) {
+      const firstInstitution = institutions[0];
+      const institutionNameCookie = cookieValues?.filter?.institution?.name;
+
+      const institutionCookie = institutions.find(
+        (findInstitution) => findInstitution.name === institutionNameCookie
+      );
+
+      const institutionSelected = institutionCookie
+        ? institutionCookie
+        : firstInstitution;
+
+      const newCookieValues = {
+        ...cookieValues,
+        filter: {
+          ...cookieValues?.filter,
+          institution: {
+            id: institutionSelected.id,
+            name: institutionSelected.name,
+          },
+        },
+      };
+
+      toggleSelectedInstitution(institutionSelected);
+      cookies.set(keyCookie, newCookieValues);
+
+      return;
+    }
+
+    // caso não exista nenhuma instituição cadastrada
+    const newCookieValues = {
+      ...cookieValues,
+      filter: {
+        ...cookieValues?.filter,
+        institution: null,
+      },
+    };
+
+    setInstitution(null);
+    cookies.set(keyCookie, newCookieValues);
+
+    return;
+  }
+
   useMemo(() => {
     if (institution) {
       const options = extractUniqueCategoriesWithSum(institution);
@@ -155,6 +207,8 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
         getInstitution,
 
         toggleSelectedInstitution,
+
+        getFirstInstitution,
 
         recalculate,
 
