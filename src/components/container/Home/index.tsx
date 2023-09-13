@@ -31,10 +31,7 @@ interface getUserResponseType {
 interface CookieValuesType {
   filter: {
     dateSelected: string;
-    institution: {
-      id: string;
-      name: string;
-    };
+    institution: InstitutionType;
   };
 }
 
@@ -61,7 +58,7 @@ function Home() {
     return month;
   });
 
-  function persistDate(date: string) {
+  function addDateState(date: string) {
     const [_day, month, year] = date.split("/");
 
     setValueYear(Number(year));
@@ -93,11 +90,27 @@ function Home() {
 
     // caso exista uma data já selecionada, salvamos localmente
     if (createAt) {
-      return persistDate(createAt);
+      return addDateState(createAt);
     }
 
     // caso não exista uma data já selecionada, pegamos a data atual e salvamos localmente
     getDateNow();
+  }
+
+  function persistExpenseCookie(expense: ExpenseType) {
+    const cookieValues: CookieValuesType = cookies.get(keyCookies);
+
+    const newCookieValues = {
+      ...cookieValues,
+      filter: {
+        ...cookieValues?.filter,
+        expense: {
+          id: expense.id,
+          name: expense?.name,
+        },
+      },
+    };
+    cookies.set(keyCookies, newCookieValues);
   }
 
   async function getExpense(expenseId: string) {
@@ -110,45 +123,22 @@ function Home() {
       },
     });
 
-    const newCookieValues = {
-      ...cookieValues,
-      filter: {
-        ...cookieValues?.filter,
-        expense: {
-          id: expenseGet.id,
-          name: expenseGet?.name,
-        },
-      },
-    };
-
+    persistExpenseCookie(expenseGet);
     getFirstInstitution(expenseGet.institutions);
     setExpense(expenseGet);
-    cookies.set(keyCookies, newCookieValues);
     setIsLoading(false);
   }
 
   async function createExpense(userEmail: string) {
-    const cookieValues: CookieValuesType = cookies.get(keyCookies);
-
     const { data: expenseCreate } = await instances.post("api/v2/expense", {
       name: "default",
       userEmail: userEmail,
     });
 
-    const newCookieValues = {
-      ...cookieValues,
-      filter: {
-        ...cookieValues?.filter,
-        expense: {
-          id: expenseCreate?.id,
-          name: expenseCreate?.name,
-        },
-      },
-    };
+    persistExpenseCookie(expenseCreate);
 
     setExpense(expenseCreate);
     setInstitution(null);
-    cookies.set(keyCookies, newCookieValues);
     setIsLoading(false);
   }
 

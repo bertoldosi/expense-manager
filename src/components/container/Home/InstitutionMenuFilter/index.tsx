@@ -71,6 +71,7 @@ function InstitutionMenuFilter({
         dateSelected,
       },
     };
+    cookies.set(keyCookies, newCookieValues);
 
     const { data: expenseGet } = await instances.get("api/v2/expense", {
       params: {
@@ -82,7 +83,6 @@ function InstitutionMenuFilter({
     setExpense(expenseGet);
     getFirstInstitution(expenseGet.institutions);
     setOptionsModalVisible(false);
-    cookies.set(keyCookies, newCookieValues);
 
     setIsLoading(false);
   }

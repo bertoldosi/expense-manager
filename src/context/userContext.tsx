@@ -114,10 +114,10 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
     // setExpense(expenseTotals);
   }
 
-  function toggleSelectedInstitution(institution: InstitutionType) {
+  function toggleSelectedInstitution(institution?: InstitutionType) {
     const cookieValues = cookies.get(keyCookie);
 
-    setInstitution(institution);
+    setInstitution(institution || null);
 
     const newCookieValues = {
       ...cookieValues,
@@ -136,51 +136,27 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
   function getFirstInstitution(institutions: InstitutionType[]) {
     const cookieValues = cookies.get(keyCookie);
 
-    const isInstitutionsExist = institutions.length;
+    const hasInstitutionInCookie = cookieValues?.filter?.institution;
 
-    // salvamos a primeira instituição
-    if (isInstitutionsExist) {
-      const firstInstitution = institutions[0];
-      const institutionNameCookie = cookieValues?.filter?.institution?.name;
+    // Verificamos se existe uma instituição já salva
+    if (hasInstitutionInCookie) {
+      const institutionNameCookie = cookieValues.filter.institution.name;
 
       const institutionCookie = institutions.find(
         (findInstitution) => findInstitution.name === institutionNameCookie
       );
 
-      const institutionSelected = institutionCookie
-        ? institutionCookie
-        : firstInstitution;
+      if (!institutionCookie) {
+        const firstInstitution = institutions[0];
 
-      const newCookieValues = {
-        ...cookieValues,
-        filter: {
-          ...cookieValues?.filter,
-          institution: {
-            id: institutionSelected.id,
-            name: institutionSelected.name,
-          },
-        },
-      };
+        return toggleSelectedInstitution(firstInstitution);
+      }
 
-      toggleSelectedInstitution(institutionSelected);
-      cookies.set(keyCookie, newCookieValues);
-
-      return;
+      return toggleSelectedInstitution(institutionCookie);
+    } else {
+      const firstInstitution = institutions[0];
+      toggleSelectedInstitution(firstInstitution);
     }
-
-    // caso não exista nenhuma instituição cadastrada
-    const newCookieValues = {
-      ...cookieValues,
-      filter: {
-        ...cookieValues?.filter,
-        institution: null,
-      },
-    };
-
-    setInstitution(null);
-    cookies.set(keyCookie, newCookieValues);
-
-    return;
   }
 
   useMemo(() => {
