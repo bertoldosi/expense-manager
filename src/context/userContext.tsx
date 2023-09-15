@@ -4,6 +4,22 @@ import React, { ReactNode, createContext, useMemo, useState } from "react";
 import expenseCalculateCategoryTotalPerDate from "@helpers/expenseCalculateCategoryTotalPerDate";
 import extractUniqueCategoriesWithSum from "@helpers/extractUniqueCategoriesWithSum";
 import calculateInstitution from "@helpers/calculateInstitution";
+import instances from "@lib/axios-instance-internal";
+
+interface CategoryType {
+  category: string;
+  total: number;
+}
+
+interface TotalPerDateType {
+  date: string;
+  total: number;
+}
+
+interface CategoryTotalPerDateType {
+  date: string;
+  categoryTotals: CategoryType[];
+}
 
 interface ShoppingType {
   id: string;
@@ -18,14 +34,19 @@ interface ShoppingType {
 interface InstitutionType {
   id: string;
   name: string;
+  amount?: string | null;
+  totalAmount?: number;
+  categoryTotals?: CategoryType[];
+  shoppings?: ShoppingType[] | null;
   createAt: string;
-  shoppings: ShoppingType[] | null;
 }
 
 interface ExpenseType {
   id: string;
   name: string;
-  institutions: InstitutionType[] | null;
+  totalPerDate: TotalPerDateType[];
+  categoryTotalPerDate: CategoryTotalPerDateType[];
+  institutions?: InstitutionType[];
 }
 
 interface CategorieType {
@@ -43,15 +64,13 @@ interface UserType {
 export interface userContextType {
   user: UserType | null;
   setUser: Function;
-  getUser: Function;
 
   expense: ExpenseType | null;
   setExpense: Function;
-  getExpense: Function;
+  getExpense: (expenseId: string, institutionCreateAt: string) => void;
 
   institution: InstitutionType | null;
   setInstitution: Function;
-  getInstitution: Function;
 
   toggleSelectedInstitution: Function;
 
@@ -78,22 +97,15 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
   const [institution, setInstitution] = useState<InstitutionType | null>(null);
   const [categories, setCategories] = useState<CategorieType[]>([]);
 
-  function getUser() {}
-
-  function getExpense() {}
-
-  function getInstitution() {}
-
   async function recalculate(
     expense: ExpenseType,
     institution: InstitutionType
   ) {
-    const expenseCalculated = expenseCalculateCategoryTotalPerDate(expense);
-    const institutionCalculeted = calculateInstitution(institution);
+    const institutionCalculeted = await calculateInstitution(institution);
 
     const newExpense = {
-      ...expenseCalculated,
-      institutions: expenseCalculated.institutions.map((mapInstitution) => {
+      ...expense,
+      institutions: expense?.institutions?.map((mapInstitution) => {
         if (mapInstitution.id === institution?.id) {
           return institutionCalculeted;
         }
@@ -102,14 +114,48 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
       }),
     };
 
+    const expenseCalculated = await expenseCalculateCategoryTotalPerDate(
+      newExpense
+    );
+
     setInstitution(institutionCalculeted);
-    setExpense(newExpense);
+    setExpense(expenseCalculated);
   }
 
-  function toggleSelectedInstitution(institution?: InstitutionType) {
+  function persistExpenseCookie(expense: ExpenseType) {
     const cookieValues = cookies.get(keyCookie);
 
-    setInstitution(institution || null);
+    const newCookieValues = {
+      ...cookieValues,
+      filter: {
+        ...cookieValues?.filter,
+        expense: {
+          id: expense.id,
+          name: expense?.name,
+        },
+      },
+    };
+    cookies.set(keyCookie, newCookieValues);
+  }
+
+  async function getExpense(expenseId: string, institutionCreateAt: string) {
+    const { data: expenseGet } = await instances.get("api/v2/expense", {
+      params: {
+        id: expenseId,
+        institutionCreateAt,
+      },
+    });
+
+    persistExpenseCookie(expenseGet);
+    const firstInstitution = getFirstInstitution(expenseGet.institutions);
+
+    await recalculate(expenseGet, firstInstitution);
+  }
+
+  function toggleSelectedInstitution(institution: InstitutionType | null) {
+    const cookieValues = cookies.get(keyCookie);
+
+    setInstitution(institution);
 
     const newCookieValues = {
       ...cookieValues,
@@ -141,13 +187,19 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
       if (!institutionCookie) {
         const firstInstitution = institutions[0];
 
-        return toggleSelectedInstitution(firstInstitution);
+        toggleSelectedInstitution(firstInstitution);
+
+        return firstInstitution;
       }
 
-      return toggleSelectedInstitution(institutionCookie);
+      toggleSelectedInstitution(institutionCookie);
+
+      return institutionCookie;
     } else {
       const firstInstitution = institutions[0];
       toggleSelectedInstitution(firstInstitution);
+
+      return firstInstitution;
     }
   }
 
@@ -164,7 +216,6 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
       value={{
         user,
         setUser,
-        getUser,
 
         expense,
         setExpense,
@@ -172,7 +223,6 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
 
         institution,
         setInstitution,
-        getInstitution,
 
         toggleSelectedInstitution,
 

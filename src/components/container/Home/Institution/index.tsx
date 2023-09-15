@@ -46,9 +46,9 @@ export const Institution = () => {
   const [institutionUpdate, setInstitutionUpdate] =
     useState<InstitutionType | null>(null);
 
-  const [categotyTotalsMonth, _setCategoryTotalsMonth] =
+  const [categotyTotalsMonth, setCategoryTotalsMonth] =
     useState<CategoryTotalsMonthType>();
-  const [totalsMonth, _setTotalsMonth] = useState<TotalsMonthType>();
+  const [totalsMonth, setTotalsMonth] = useState<TotalsMonthType>();
 
   function openModal() {
     setIsModalVisible(!isModalVisible);
@@ -163,6 +163,31 @@ export const Institution = () => {
       doc.save(`relatorio-de-gastos-${dateNow}`);
     }
   }
+
+  function getCategoryTotalsMonthAndTotalsMonth(categoryTotals, totalsMonth) {
+    const { filter } = cookies.get("expense-manager");
+
+    const categoryTotalsFilter = categoryTotals.find(
+      (categoryTotal: any) => categoryTotal.date === filter.dateSelected
+    );
+
+    const totalMonthFilter = totalsMonth.find(
+      (categoryTotalPerDate) =>
+        categoryTotalPerDate.date === filter.dateSelected
+    );
+
+    setCategoryTotalsMonth(categoryTotalsFilter);
+    setTotalsMonth(totalMonthFilter);
+  }
+
+  useEffect(() => {
+    if (expense?.categoryTotalPerDate && expense?.totalPerDate) {
+      getCategoryTotalsMonthAndTotalsMonth(
+        expense.categoryTotalPerDate,
+        expense.totalPerDate
+      );
+    }
+  }, [expense]);
 
   return (
     <Swrapper>

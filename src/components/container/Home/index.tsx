@@ -41,13 +41,8 @@ function Home() {
   const cookies = new Cookies();
 
   const { data: session } = useSession();
-  const {
-    expense,
-    setExpense,
-    setInstitution,
-    getFirstInstitution,
-    recalculate,
-  } = useContext(userContext) as userContextType;
+  const { expense, setExpense, setInstitution, getExpense, recalculate } =
+    useContext(userContext) as userContextType;
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [valueYear, setValueYear] = useState<number>(() => {
@@ -102,45 +97,33 @@ function Home() {
     getDateNow();
   }
 
-  function persistExpenseCookie(expense: ExpenseType) {
+  async function findExpense(expenseId: string) {
     const cookieValues: CookieValuesType = cookies.get(keyCookies);
+    const institutionCreateAt = cookieValues?.filter?.dateSelected;
+
+    getExpense(expenseId, institutionCreateAt);
+    setIsLoading(false);
+  }
+
+  async function createExpense(userEmail: string) {
+    const cookieValues = cookies.get(keyCookies);
+
+    const { data: expenseCreate } = await instances.post("api/v2/expense", {
+      name: "default",
+      userEmail: userEmail,
+    });
 
     const newCookieValues = {
       ...cookieValues,
       filter: {
         ...cookieValues?.filter,
         expense: {
-          id: expense.id,
-          name: expense?.name,
+          id: expenseCreate.id,
+          name: expenseCreate?.name,
         },
       },
     };
     cookies.set(keyCookies, newCookieValues);
-  }
-
-  async function getExpense(expenseId: string) {
-    const cookieValues: CookieValuesType = cookies.get(keyCookies);
-
-    const { data: expenseGet } = await instances.get("api/v2/expense", {
-      params: {
-        id: expenseId,
-        institutionCreateAt: cookieValues?.filter?.dateSelected,
-      },
-    });
-
-    persistExpenseCookie(expenseGet);
-    getFirstInstitution(expenseGet.institutions);
-    recalculate(expenseGet);
-    setIsLoading(false);
-  }
-
-  async function createExpense(userEmail: string) {
-    const { data: expenseCreate } = await instances.post("api/v2/expense", {
-      name: "default",
-      userEmail: userEmail,
-    });
-
-    persistExpenseCookie(expenseCreate);
 
     setExpense(expenseCreate);
     setInstitution(null);
@@ -161,7 +144,7 @@ function Home() {
     const isExpenseExist = user?.expense?.name;
 
     //pegamos o gasto, caso ela ja tenha
-    if (isExpenseExist) return getExpense(user.expense.id);
+    if (isExpenseExist) return findExpense(user.expense.id);
 
     //criamos um gasto, caso ela não tenha
     return createExpense(user.email);

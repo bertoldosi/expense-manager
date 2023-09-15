@@ -48,7 +48,7 @@ function InstitutionMenuFilter({
 }: InstitutionMenuFilterType) {
   const cookies = new Cookies();
 
-  const { setExpense, getFirstInstitution } = useContext(
+  const { setExpense, getFirstInstitution, getExpense } = useContext(
     userContext
   ) as userContextType;
 
@@ -73,17 +73,11 @@ function InstitutionMenuFilter({
     };
     cookies.set(keyCookies, newCookieValues);
 
-    const { data: expenseGet } = await instances.get("api/v2/expense", {
-      params: {
-        id: cookieValues?.filter?.expense?.id,
-        institutionCreateAt: dateSelected,
-      },
-    });
+    const expenseId = cookieValues?.filter?.expense?.id;
+    const institutionCreateAt = dateSelected;
 
-    setExpense(expenseGet);
-    getFirstInstitution(expenseGet.institutions);
+    getExpense(expenseId, institutionCreateAt);
     setOptionsModalVisible(false);
-
     setIsLoading(false);
   }
 
