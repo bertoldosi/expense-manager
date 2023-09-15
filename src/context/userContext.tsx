@@ -1,26 +1,9 @@
 import Cookies from "universal-cookie";
+
 import React, { ReactNode, createContext, useMemo, useState } from "react";
-import institutionCalculateTotalAmountInstitution from "@helpers/institutionCalculateTotalAmountInstitution";
-import getTotalInstitutionPerCategory from "@helpers/getTotalInstitutionPerCategory";
 import expenseCalculateCategoryTotalPerDate from "@helpers/expenseCalculateCategoryTotalPerDate";
 import extractUniqueCategoriesWithSum from "@helpers/extractUniqueCategoriesWithSum";
 import calculateInstitution from "@helpers/calculateInstitution";
-import instances from "@lib/axios-instance-internal";
-
-interface CategoryType {
-  category: string;
-  total: number;
-}
-
-interface TotalPerDateType {
-  date: string;
-  total: number;
-}
-
-interface CategoryTotalPerDateType {
-  date: string;
-  categoryTotals: CategoryType[];
-}
 
 interface ShoppingType {
   id: string;
@@ -35,19 +18,14 @@ interface ShoppingType {
 interface InstitutionType {
   id: string;
   name: string;
-  amount?: string | null;
-  totalAmount?: number;
-  categoryTotals?: CategoryType[];
-  shoppings: ShoppingType[];
   createAt: string;
+  shoppings: ShoppingType[] | null;
 }
 
 interface ExpenseType {
   id: string;
   name: string;
-  totalPerDate: TotalPerDateType[];
-  categoryTotalPerDate: CategoryTotalPerDateType[];
-  institutions?: InstitutionType[];
+  institutions: InstitutionType[] | null;
 }
 
 interface CategorieType {
@@ -56,10 +34,10 @@ interface CategorieType {
 }
 
 interface UserType {
-  id?: string;
+  id: string;
   email: string;
   name: string;
-  expense: ExpenseType[];
+  expense: ExpenseType[] | null;
 }
 
 export interface userContextType {
