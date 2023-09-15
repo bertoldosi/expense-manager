@@ -1,4 +1,7 @@
-import { CategoryType } from "@interfaces/*";
+export type CategoryType = {
+  category: string;
+  total: number;
+};
 
 export type ShoppingType = {
   id: string;
@@ -13,10 +16,11 @@ export type ShoppingType = {
 interface InstitutionType {
   shoppings: ShoppingType[];
 }
-function institutionCalculateCategoryTotals(
+
+function getTotalInstitutionPerCategory(
   institution: InstitutionType
 ): CategoryType[] {
-  if (institution.shoppings?.length) {
+  if (institution?.shoppings?.length) {
     const categoryTotals: { [category: string]: number } =
       institution.shoppings.reduce((totals, shopping) => {
         const category = shopping.category;
@@ -48,4 +52,37 @@ function institutionCalculateCategoryTotals(
   return [];
 }
 
-export default institutionCalculateCategoryTotals;
+function institutionCalculateTotalAmountInstitution(
+  institution: InstitutionType
+): number {
+  if (institution?.shoppings?.length) {
+    const totalAmount = institution.shoppings.reduce((sum, shopping) => {
+      //somando apenas as compras em aberto
+      if (shopping.paymentStatus === "open") {
+        return sum + parseFloat(shopping.amount);
+      } else {
+        return sum;
+      }
+    }, 0);
+
+    return totalAmount;
+  }
+
+  return 0;
+}
+
+function calculateInstitution(institution: InstitutionType) {
+  const institutionTotalAmount =
+    institutionCalculateTotalAmountInstitution(institution);
+  const institutionCategoryTotals = getTotalInstitutionPerCategory(institution);
+
+  const newInstitution = {
+    ...institution,
+    categoryTotals: institutionCategoryTotals,
+    totalAmount: institutionTotalAmount,
+  };
+
+  return newInstitution;
+}
+
+export default calculateInstitution;

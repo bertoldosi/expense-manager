@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import Cookies from "universal-cookie";
 import { useFormik } from "formik";
-import { v4 as uuidv4 } from "uuid";
 import ObjectId from "mongo-objectid";
 
 import Input from "@commons/Input";
@@ -24,18 +23,6 @@ interface ShoppingCreateType {
   paymentStatus: string;
   selected?: boolean;
   institutionId?: string;
-}
-interface FilterType {
-  institution: {
-    id: string;
-  };
-  expense: {
-    id: string;
-  };
-
-  institutions: {
-    createAt: string;
-  };
 }
 
 const INITIAL_SHOPPING = {
@@ -82,17 +69,13 @@ function Shopping() {
     setExpense(newExpense);
     recalculate(newExpense, newInstitution);
 
-    await instances
-      .post("api/shopping", {
-        institutionId: institution?.id,
-        shopping: {
-          ...shopping,
-          id: shoppingId,
-        },
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    await instances.post("api/v2/shopping", {
+      institutionId: institution?.id,
+      shopping: {
+        ...shopping,
+        id: shoppingId,
+      },
+    });
 
     if (!isMobile) {
       focusInput("description");

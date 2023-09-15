@@ -41,8 +41,13 @@ function Home() {
   const cookies = new Cookies();
 
   const { data: session } = useSession();
-  const { expense, setExpense, setInstitution, getFirstInstitution } =
-    useContext(userContext) as userContextType;
+  const {
+    expense,
+    setExpense,
+    setInstitution,
+    getFirstInstitution,
+    recalculate,
+  } = useContext(userContext) as userContextType;
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [valueYear, setValueYear] = useState<number>(() => {
@@ -125,7 +130,7 @@ function Home() {
 
     persistExpenseCookie(expenseGet);
     getFirstInstitution(expenseGet.institutions);
-    setExpense(expenseGet);
+    recalculate(expenseGet);
     setIsLoading(false);
   }
 

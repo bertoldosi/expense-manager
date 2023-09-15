@@ -26,6 +26,7 @@ interface ExpenseType {
 }
 
 function expenseCalculateCategoryTotalPerDate(expense: ExpenseType) {
+  console.log(expense);
   const totalPerDate: any = [];
   const categoryTotalPerDate: any = [];
 

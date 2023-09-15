@@ -1,5 +1,5 @@
 import prisma from "@services/prisma";
-import institutionCalculateCategoryTotals from "@helpers/institutionCalculateCategoryTotals";
+import institutionCalculateCategoryTotals from "@helpers/getTotalInstitutionPerCategory";
 import institutionCalculateTotalAmountInstitution from "@helpers/institutionCalculateTotalAmountInstitution";
 
 async function updateInstitutionTotals(institutionId: string) {

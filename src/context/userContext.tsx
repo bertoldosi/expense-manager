@@ -1,9 +1,11 @@
 import Cookies from "universal-cookie";
 import React, { ReactNode, createContext, useMemo, useState } from "react";
 import institutionCalculateTotalAmountInstitution from "@helpers/institutionCalculateTotalAmountInstitution";
-import institutionCalculateCategoryTotals from "@helpers/institutionCalculateCategoryTotals";
+import getTotalInstitutionPerCategory from "@helpers/getTotalInstitutionPerCategory";
 import expenseCalculateCategoryTotalPerDate from "@helpers/expenseCalculateCategoryTotalPerDate";
 import extractUniqueCategoriesWithSum from "@helpers/extractUniqueCategoriesWithSum";
+import calculateInstitution from "@helpers/calculateInstitution";
+import instances from "@lib/axios-instance-internal";
 
 interface CategoryType {
   category: string;
@@ -36,7 +38,7 @@ interface InstitutionType {
   amount?: string | null;
   totalAmount?: number;
   categoryTotals?: CategoryType[];
-  shoppings?: ShoppingType[] | null;
+  shoppings: ShoppingType[];
   createAt: string;
 }
 
@@ -104,14 +106,26 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
 
   function getInstitution() {}
 
-  function recalculate(expense: ExpenseType, newInstitution: InstitutionType) {
-    // const totalAmount =
-    //   institutionCalculateTotalAmountInstitution(newInstitution);
-    // const categoryTotals = institutionCalculateCategoryTotals(newInstitution);
-    // const expenseTotals = expenseCalculateCategoryTotalPerDate(expense);
-    // console.log(expense);
-    // console.log(categoryTotals);
-    // setExpense(expenseTotals);
+  async function recalculate(
+    expense: ExpenseType,
+    institution: InstitutionType
+  ) {
+    const expenseCalculated = expenseCalculateCategoryTotalPerDate(expense);
+    const institutionCalculeted = calculateInstitution(institution);
+
+    const newExpense = {
+      ...expenseCalculated,
+      institutions: expenseCalculated.institutions.map((mapInstitution) => {
+        if (mapInstitution.id === institution?.id) {
+          return institutionCalculeted;
+        }
+
+        return mapInstitution;
+      }),
+    };
+
+    setInstitution(institutionCalculeted);
+    setExpense(newExpense);
   }
 
   function toggleSelectedInstitution(institution?: InstitutionType) {
