@@ -27,7 +27,6 @@ function ShoppingTable() {
     useContext(userContext) as userContextType;
 
   function onChangeShopping(ev: React.ChangeEvent<HTMLInputElement>) {
-    console.log("aqui");
     const { id, name, value, checked } = ev.target;
     if (name != "selected") {
       setIdShoppingUpdate(id);
@@ -94,18 +93,15 @@ function ShoppingTable() {
 
     shopping.amount = shopping.amount.replace(",", "");
 
+    recalculate(expenseUpdate, institutionUpdate);
+
     async function requestUpdate() {
       return await instances
-        .put("api/shopping", {
+        .put("api/v2/shopping", {
           ...shopping,
           amount: shopping.amount.replace(/,/g, ""),
         })
-        .then(() => {
-          setInstitution(institutionUpdate);
-          setExpense(expenseUpdate);
-          recalculate(expenseUpdate);
-        })
-        .catch(() => {
+        .catch((err) => {
           setInstitution(institutionOld);
           setExpense(expenseOld);
           recalculate(expenseOld);

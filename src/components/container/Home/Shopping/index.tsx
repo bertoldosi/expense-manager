@@ -36,8 +36,9 @@ function Shopping() {
   const cookies = new Cookies();
   const { isMobile } = useIsMobile();
 
-  const { setInstitution, institution, setExpense, expense, recalculate } =
-    useContext(userContext) as userContextType;
+  const { institution, expense, recalculate } = useContext(
+    userContext
+  ) as userContextType;
 
   async function createShopping(shopping: ShoppingCreateType) {
     shopping.amount = shopping.amount.replace(",", "");
@@ -65,8 +66,6 @@ function Shopping() {
       ),
     };
 
-    setInstitution(newInstitution);
-    setExpense(newExpense);
     recalculate(newExpense, newInstitution);
 
     await instances.post("api/v2/shopping", {
