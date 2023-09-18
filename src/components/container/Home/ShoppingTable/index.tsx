@@ -102,9 +102,7 @@ function ShoppingTable() {
           amount: shopping.amount.replace(/,/g, ""),
         })
         .catch((err) => {
-          setInstitution(institutionOld);
-          setExpense(expenseOld);
-          recalculate(expenseOld);
+          recalculate(expenseOld, institutionOld);
 
           throw new Error(
             "Houve algum erro ao tentar atualizar o item, tente novamente mais tarde!"

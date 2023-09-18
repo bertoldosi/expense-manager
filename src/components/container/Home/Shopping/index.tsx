@@ -41,6 +41,9 @@ function Shopping() {
   ) as userContextType;
 
   async function createShopping(shopping: ShoppingCreateType) {
+    const institutionOld = institution;
+    const expenseOld = expense;
+
     shopping.amount = shopping.amount.replace(",", "");
     const uuid = new ObjectId().hex;
     const shoppingId = uuid;
@@ -68,13 +71,17 @@ function Shopping() {
 
     recalculate(newExpense, newInstitution);
 
-    await instances.post("api/v2/shopping", {
-      institutionId: institution?.id,
-      shopping: {
-        ...shopping,
-        id: shoppingId,
-      },
-    });
+    await instances
+      .post("api/v2/shopping", {
+        institutionId: institution?.id,
+        shopping: {
+          ...shopping,
+          id: shoppingId,
+        },
+      })
+      .catch(() => {
+        recalculate(expenseOld, institutionOld);
+      });
 
     if (!isMobile) {
       focusInput("description");
