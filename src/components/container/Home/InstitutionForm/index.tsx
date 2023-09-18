@@ -33,13 +33,9 @@ const keyCookies = "expense-manager";
 function InstitutionForm({ exitModal, institution }: InstitutionFormProps) {
   const cookies = new Cookies();
 
-  const {
-    setExpense,
-    setInstitution,
-    expense,
-    toggleSelectedInstitution,
-    getFirstInstitution,
-  } = useContext(userContext) as userContextType;
+  const { getExpense, toggleSelectedInstitution } = useContext(
+    userContext
+  ) as userContextType;
 
   async function updateInstitution(
     dataForm: DataFormType,
@@ -65,15 +61,10 @@ function InstitutionForm({ exitModal, institution }: InstitutionFormProps) {
           throw error;
         });
 
-      const { data: expenseGet } = await instances.get("api/v2/expense", {
-        params: {
-          id: cookieValues?.filter?.expense?.id,
-          institutionCreateAt: cookieValues?.filter?.dateSelected,
-        },
-      });
+      const expenseId = cookieValues?.filter?.expense?.id;
+      const institutionCreateAt = cookieValues?.filter?.dateSelected;
 
-      setExpense(expenseGet);
-      getFirstInstitution(expenseGet.institutions);
+      getExpense(expenseId, institutionCreateAt);
 
       if (exitModal) exitModal();
 
@@ -84,6 +75,8 @@ function InstitutionForm({ exitModal, institution }: InstitutionFormProps) {
   }
 
   async function createInstitution(dataForm: DataFormType, filter: FilterType) {
+    const cookieValues = cookies.get(keyCookies);
+
     async function requestCreate() {
       return await instances
         .post("api/v2/institution", {
@@ -92,13 +85,10 @@ function InstitutionForm({ exitModal, institution }: InstitutionFormProps) {
           createAt: filter?.dateSelected,
         })
         .then(async ({ data: institutionCreate }) => {
-          setInstitution(institutionCreate);
-          setExpense({
-            ...expense,
-            institutions: expense?.institutions?.length
-              ? [...expense?.institutions, institutionCreate]
-              : [institutionCreate],
-          });
+          const expenseId = cookieValues?.filter?.expense?.id;
+          const institutionCreateAt = cookieValues?.filter?.dateSelected;
+
+          getExpense(expenseId, institutionCreateAt);
           toggleSelectedInstitution(institutionCreate);
           if (exitModal) exitModal();
         })
