@@ -115,27 +115,21 @@ function ShoppingTableHeader() {
       ),
     };
 
-    setInstitution(institutionUpdate);
-    setExpense(expenseUpdate);
-    recalculate(expenseUpdate);
+    recalculate(expenseUpdate, institutionUpdate);
+    setValueSelectingAllShoppings(false);
+    onSubmitFilterShopping.resetForm();
 
     /* persistindo as informações no banco */
     async function requestDelete() {
       return await instances
-        .delete("api/shopping", {
+        .delete("api/v2/shopping", {
           data: {
             shoppings: shoppingsSeleceted,
           },
         })
-        .then(() => {
-          setValueSelectingAllShoppings(false);
-          onSubmitFilterShopping.resetForm();
-        })
+
         .catch(() => {
-          /* alterando as informações locais para o stado anterior */
-          setInstitution(institutionOld);
-          setExpense(expenseOld);
-          recalculate(expenseOld);
+          recalculate(expenseOld, institutionOld);
 
           throw new Error(
             "Houve algum erro ao tentar deletar o(s) item(s), tente novamente mais tarde!"
