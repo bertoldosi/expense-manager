@@ -30,14 +30,8 @@ const INITIAL_OPTIONS = {
 function ShoppingTableHeader() {
   const router = useRouter();
 
-  const {
-    institution,
-    setInstitution,
-    expense,
-    setExpense,
-    recalculate,
-    categories,
-  } = useContext(userContext) as userContextType;
+  const { institution, setInstitution, expense, recalculate, categories } =
+    useContext(userContext) as userContextType;
 
   const [isModalFilterVisible, setIsModalFilterVisible] =
     useState<boolean>(false);
@@ -145,7 +139,7 @@ function ShoppingTableHeader() {
 
     async function requestFilter() {
       return await instances
-        .get("api/shopping", {
+        .get("api/v2/shopping", {
           params: {
             category: category,
             institutionId: institution?.id,

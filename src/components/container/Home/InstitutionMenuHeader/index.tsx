@@ -10,10 +10,6 @@ function InstitutionMenuHeader({}: PropsType) {
     userContext
   ) as userContextType;
 
-  useEffect(() => {
-    console.log(institution);
-  }, [institution]);
-
   return (
     <Scontainer>
       <SmenuHeader>
