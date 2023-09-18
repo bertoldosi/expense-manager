@@ -38,7 +38,7 @@ const keyCookies = "expense-manager";
 export const Institution = () => {
   const cookies = new Cookies();
 
-  const { institution, getFirstInstitution, setExpense, expense } = useContext(
+  const { institution, getExpense, expense } = useContext(
     userContext
   ) as userContextType;
 
@@ -69,15 +69,9 @@ export const Institution = () => {
         },
       });
 
-      const { data: expenseGet } = await instances.get("api/v2/expense", {
-        params: {
-          id: cookieValues?.filter?.expense?.id,
-          institutionCreateAt: cookieValues?.filter?.dateSelected,
-        },
-      });
-
-      setExpense(expenseGet);
-      getFirstInstitution(expenseGet.institutions);
+      const expenseId = cookieValues?.filter?.expense?.id;
+      const institutionCreateAt = cookieValues?.filter?.dateSelected;
+      getExpense(expenseId, institutionCreateAt);
 
       return;
     }

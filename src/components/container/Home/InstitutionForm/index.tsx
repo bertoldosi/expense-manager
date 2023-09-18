@@ -12,6 +12,8 @@ import { Sform } from "./styles";
 import { customToast } from "@commons/CustomToast";
 import { ExpenseType, InstitutionType } from "@interfaces/*";
 import { userContext, userContextType } from "@context/userContext";
+import { focusInput } from "@helpers/focusInput";
+import useIsMobile from "@hooks/useIsMobile";
 
 const INITIAL_INSTITUTION = {
   name: "",
@@ -32,6 +34,7 @@ const keyCookies = "expense-manager";
 
 function InstitutionForm({ exitModal, institution }: InstitutionFormProps) {
   const cookies = new Cookies();
+  const { isMobile } = useIsMobile();
 
   const { getExpense, toggleSelectedInstitution } = useContext(
     userContext
@@ -91,6 +94,9 @@ function InstitutionForm({ exitModal, institution }: InstitutionFormProps) {
           getExpense(expenseId, institutionCreateAt);
           toggleSelectedInstitution(institutionCreate);
           if (exitModal) exitModal();
+          if (!isMobile) {
+            focusInput("description");
+          }
         })
         .catch((error) => {
           if (error.response.status === 405) {
