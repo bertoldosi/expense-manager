@@ -2,9 +2,11 @@ import * as yup from "yup";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import createShopping from "./createShopping";
+import updateShopping from "./updateShopping";
 
 enum HttpMethod {
   POST = "POST",
+  PUT = "PUT",
 }
 
 export const shoppingSchema = yup.object().shape({
@@ -26,6 +28,10 @@ export default async function handler(
   switch (method) {
     case HttpMethod.POST:
       await createShopping(req, res);
+      break;
+
+    case HttpMethod.PUT:
+      await updateShopping(req, res);
       break;
 
     default:
