@@ -98,8 +98,8 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
   const [categories, setCategories] = useState<CategorieType[]>([]);
 
   async function recalculate(
-    expense: ExpenseType,
-    institution: InstitutionType
+    expense: ExpenseType | null,
+    institution: InstitutionType | null
   ) {
     const institutionCalculeted = await calculateInstitution(institution);
 
@@ -155,7 +155,7 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
   function toggleSelectedInstitution(institution: InstitutionType | null) {
     const cookieValues = cookies.get(keyCookie);
 
-    setInstitution(institution);
+    recalculate(expense, institution);
 
     const newCookieValues = {
       ...cookieValues,
