@@ -3,10 +3,12 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 import createShopping from "./createShopping";
 import updateShopping from "./updateShopping";
+import deleteShopping from "./deleteShopping";
 
 enum HttpMethod {
   POST = "POST",
   PUT = "PUT",
+  DELETE = "DELETE",
 }
 
 export const shoppingSchema = yup.object().shape({
@@ -32,6 +34,10 @@ export default async function handler(
 
     case HttpMethod.PUT:
       await updateShopping(req, res);
+      break;
+
+    case HttpMethod.DELETE:
+      await deleteShopping(req, res);
       break;
 
     default:
