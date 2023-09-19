@@ -10,7 +10,6 @@ import InstitutionMenuHeader from "@containers/Home/InstitutionMenuHeader";
 import { Saside, Ssection, Swrapper } from "./styles";
 
 import InstitutionForm from "../InstitutionForm";
-import { InstitutionType } from "@interfaces/*";
 import instances from "@lib/axios-instance-internal";
 import { customToast } from "@commons/CustomToast";
 import Shopping from "@containers/Home/Shopping";
@@ -20,9 +19,14 @@ import moment from "moment";
 import orderByCategory from "@helpers/orderByCategory";
 import { userContext, userContextType } from "@context/userContext";
 
+import { InstitutionInterface } from "@interfaces/*";
+
 interface CategoryTotalsType {
   category: string;
   total: number;
+}
+interface InstitutionType extends InstitutionInterface {
+  categoryTotals?: CategoryTotalsType[];
 }
 interface CategoryTotalsMonthType {
   date: string;
@@ -59,7 +63,12 @@ export const Institution = () => {
     setInstitutionUpdate(null);
   }
 
-  async function deleteInstitution(institution: InstitutionType) {
+  async function updateInstitution(institutionData) {
+    setInstitutionUpdate(institutionData);
+    openModal();
+  }
+
+  async function deleteInstitution(institution) {
     const cookieValues = cookies.get(keyCookies);
 
     async function requestDelete() {
@@ -79,12 +88,7 @@ export const Institution = () => {
     await customToast(requestDelete);
   }
 
-  async function updateInstitution(institutionData: InstitutionType) {
-    setInstitutionUpdate(institutionData);
-    openModal();
-  }
-
-  async function report(institutions: InstitutionType[] | undefined) {
+  async function report(institutions) {
     const doc = new jsPDF();
 
     if (institutions?.length) {
@@ -125,7 +129,7 @@ export const Institution = () => {
       institutions?.map((institution: InstitutionType, index) => {
         institution.shoppings?.sort(orderByCategory);
 
-        const categoryTotalsTable = institution.categoryTotals?.map(
+        const categoryTotalsTable = institution?.categoryTotals?.map(
           (categoryTotal) => {
             const category = categoryTotal.category;
             const total = formatMorney(categoryTotal.total);
@@ -158,7 +162,10 @@ export const Institution = () => {
     }
   }
 
-  function getCategoryTotalsMonthAndTotalsMonth(categoryTotals, totalsMonth) {
+  function getCategoryTotalsMonthAndTotalsMonth(
+    categoryTotals: CategoryTotalsMonthType[],
+    totalsMonth: TotalsMonthType[]
+  ) {
     const { filter } = cookies.get("expense-manager");
 
     const categoryTotalsFilter = categoryTotals.find(

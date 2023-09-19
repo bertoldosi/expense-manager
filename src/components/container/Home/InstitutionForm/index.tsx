@@ -10,10 +10,14 @@ import Input from "@commons/Input";
 
 import { Sform } from "./styles";
 import { customToast } from "@commons/CustomToast";
-import { ExpenseType, InstitutionType } from "@interfaces/*";
 import { userContext, userContextType } from "@context/userContext";
 import { focusInput } from "@helpers/focusInput";
 import useIsMobile from "@hooks/useIsMobile";
+
+import { ExpenseInterface, InstitutionInterface } from "@interfaces/*";
+
+interface ExpenseType extends ExpenseInterface {}
+interface InstitutionType extends InstitutionInterface {}
 
 const INITIAL_INSTITUTION = {
   name: "",

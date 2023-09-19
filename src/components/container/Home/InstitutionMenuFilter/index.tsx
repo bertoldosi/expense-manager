@@ -4,8 +4,6 @@ import Cookies from "universal-cookie";
 import { BsChevronDown } from "@icons/BsChevronDown";
 import { Modal } from "@commons/Modal";
 
-import instances from "@lib/axios-instance-internal";
-
 import { Scontainer, Sdate } from "./styles";
 import { SelectDate } from "@commons/SelectDate";
 import {
@@ -48,9 +46,7 @@ function InstitutionMenuFilter({
 }: InstitutionMenuFilterType) {
   const cookies = new Cookies();
 
-  const { setExpense, getFirstInstitution, getExpense } = useContext(
-    userContext
-  ) as userContextType;
+  const { getExpense } = useContext(userContext) as userContextType;
 
   const { theme } = useContext(UserContextConfig) as UserContextConfigType;
 

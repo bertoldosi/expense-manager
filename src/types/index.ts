@@ -10,17 +10,17 @@ export type InstitutionInterface = {
   id: string;
   name: string;
   createAt: string;
-  shoppings: ShoppingInterface[] | null;
+  shoppings?: ShoppingInterface[];
 };
 
 export type ExpenseInterface = {
   id: string;
   name: string;
-  institutions: InstitutionInterface[] | null;
+  institutions?: InstitutionInterface[];
 };
 
 export type UserInterface = {
   email: string;
   name: string;
-  expense: ExpenseInterface;
+  expense?: ExpenseInterface;
 };

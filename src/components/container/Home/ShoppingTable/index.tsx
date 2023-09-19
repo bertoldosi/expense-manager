@@ -5,7 +5,6 @@ import ShoppingTableHeader from "@containers/Home/ShoppingTableHeader";
 import InputTable from "@commons/InputTable";
 
 import { NoResult, Scontent, SrowTable } from "./styles";
-import { InstitutionType, ShoppingType } from "@interfaces/*";
 import instances from "@lib/axios-instance-internal";
 import { customToast } from "@commons/CustomToast";
 import { formatedInputValue } from "@helpers/formatedInputValue";
@@ -13,18 +12,22 @@ import InputSelectTable from "@commons/InputSelectTable ";
 import { Button } from "@commons/Button";
 import { userContext, userContextType } from "@context/userContext";
 
+import { InstitutionInterface, ShoppingInterface } from "@interfaces/*";
+
+interface InstitutionType extends InstitutionInterface {}
+interface ShoppingType extends ShoppingInterface {}
+
 const options = [
   { label: "Aberto", value: "open" },
   { label: "Pago", value: "closed" },
 ];
 
 function ShoppingTable() {
-  const cookies = new Cookies();
-
   const [idShoppingUpdate, setIdShoppingUpdate] = useState<string>("");
 
-  const { institution, setInstitution, expense, setExpense, recalculate } =
-    useContext(userContext) as userContextType;
+  const { institution, setInstitution, expense, recalculate } = useContext(
+    userContext
+  ) as userContextType;
 
   function onChangeShopping(ev: React.ChangeEvent<HTMLInputElement>) {
     const { id, name, value, checked } = ev.target;
@@ -80,15 +83,13 @@ function ShoppingTable() {
     };
     const expenseUpdate = {
       ...expense,
-      institutions: expense?.institutions?.map(
-        (mapInstitution: InstitutionType) => {
-          if (mapInstitution.id == institutionUpdate?.id) {
-            return institutionUpdate;
-          }
-
-          return mapInstitution;
+      institutions: expense?.institutions?.map((mapInstitution) => {
+        if (mapInstitution.id == institutionUpdate?.id) {
+          return institutionUpdate;
         }
-      ),
+
+        return mapInstitution;
+      }),
     };
 
     shopping.amount = shopping.amount.replace(",", "");

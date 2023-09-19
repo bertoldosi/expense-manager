@@ -13,8 +13,11 @@ import instances from "@lib/axios-instance-internal";
 import { formatedInputValue } from "@helpers/formatedInputValue";
 import { focusInput } from "@helpers/focusInput";
 import useIsMobile from "@hooks/useIsMobile";
-import { InstitutionType } from "@interfaces/*";
 import { userContext, userContextType } from "@context/userContext";
+
+import { InstitutionInterface } from "@interfaces/*";
+
+interface InstitutionType extends InstitutionInterface {}
 
 interface ShoppingCreateType {
   description: string;
@@ -58,15 +61,13 @@ function Shopping() {
     };
     const newExpense = {
       ...expense,
-      institutions: expense?.institutions?.map(
-        (mapInstitution: InstitutionType) => {
-          if (mapInstitution.id == newInstitution?.id) {
-            return newInstitution;
-          }
-
-          return mapInstitution;
+      institutions: expense?.institutions?.map((mapInstitution) => {
+        if (mapInstitution.id == newInstitution?.id) {
+          return newInstitution;
         }
-      ),
+
+        return mapInstitution;
+      }),
     };
 
     recalculate(newExpense, newInstitution);
