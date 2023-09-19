@@ -11,23 +11,12 @@ import { useSession } from "next-auth/react";
 import { userContext, userContextType } from "@context/userContext";
 import instances from "@lib/axios-instance-internal";
 import { Loading } from "@commons/Loading";
+import { InstitutionInterface, UserInterface } from "@interfaces/*";
 
-interface InstitutionType {
-  id: string;
-  name: string;
+interface InstitutionType extends InstitutionInterface {}
+interface GetUserResponseType {
+  data: UserInterface;
 }
-interface ExpenseType {
-  id: string;
-  name: string;
-  institutions: InstitutionType[];
-}
-interface getUserResponseType {
-  data: {
-    email: string;
-    expense: ExpenseType;
-  };
-}
-
 interface CookieValuesType {
   filter: {
     dateSelected: string;
@@ -41,8 +30,9 @@ function Home() {
   const cookies = new Cookies();
 
   const { data: session } = useSession();
-  const { expense, setExpense, setInstitution, getExpense, recalculate } =
-    useContext(userContext) as userContextType;
+  const { expense, setExpense, setInstitution, getExpense } = useContext(
+    userContext
+  ) as userContextType;
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [valueYear, setValueYear] = useState<number>(() => {
@@ -131,7 +121,7 @@ function Home() {
   }
 
   async function getUser(email: string) {
-    const { data: user }: getUserResponseType = await instances.get(
+    const { data: user }: GetUserResponseType = await instances.get(
       "/api/v2/user",
       {
         params: {
