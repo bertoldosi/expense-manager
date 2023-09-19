@@ -25,8 +25,20 @@ interface CategoryTotalsType {
   category: string;
   total: number;
 }
+interface ShoppingType {
+  id: string;
+  description: string;
+  category: string;
+  amount: string;
+  paymentStatus: string;
+  createAt: string;
+  institutionId: string;
+}
 interface InstitutionType extends InstitutionInterface {
-  categoryTotals?: CategoryTotalsType[];
+  totalAmount?: number;
+  expenseId?: string;
+  categoryTotals?: CategoryTotalsType[] | null | undefined;
+  shoppings?: ShoppingType[];
 }
 interface CategoryTotalsMonthType {
   date: string;
