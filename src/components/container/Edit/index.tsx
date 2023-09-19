@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { Scontainer, Sform, Srepeat } from "./styles";
-import { ShoppingType } from "@interfaces/*";
 import { Card } from "@commons/Card";
 import { formatMorney } from "@helpers/formatMorney";
 import Input from "@commons/Input";
@@ -16,6 +15,10 @@ import { formatedInputValue } from "@helpers/formatedInputValue";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { userContext, userContextType } from "@context/userContext";
+
+import { ShoppingInterface } from "@interfaces/*";
+
+interface ShoppingType extends ShoppingInterface {}
 
 interface ShoppingUpdateType {
   description: string;

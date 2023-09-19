@@ -11,11 +11,14 @@ import { useSession } from "next-auth/react";
 import { userContext, userContextType } from "@context/userContext";
 import instances from "@lib/axios-instance-internal";
 import { Loading } from "@commons/Loading";
-import { InstitutionInterface, UserInterface } from "@interfaces/*";
+import { ExpenseInterface, InstitutionInterface } from "@interfaces/*";
 
 interface InstitutionType extends InstitutionInterface {}
 interface GetUserResponseType {
-  data: UserInterface;
+  data: {
+    email: string;
+    expense: ExpenseInterface;
+  };
 }
 interface CookieValuesType {
   filter: {
@@ -131,10 +134,10 @@ function Home() {
     );
 
     // verificamos se o usuario ja tem um gasto cadastrado
-    const isExpenseExist = user?.expense?.name;
+    const isExpenseExist = user?.expense?.id;
 
     //pegamos o gasto, caso ela ja tenha
-    if (isExpenseExist) return findExpense(user.expense.id);
+    if (isExpenseExist) return findExpense(user?.expense?.id);
 
     //criamos um gasto, caso ela não tenha
     return createExpense(user.email);

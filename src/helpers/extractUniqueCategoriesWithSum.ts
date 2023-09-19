@@ -1,7 +1,5 @@
-import { InstitutionType } from "@interfaces/*";
-
 function extractUniqueCategoriesWithSum(
-  institution: InstitutionType
+  institution
 ): { category: string; total: string }[] {
   const categories: { [category: string]: number } = {};
 

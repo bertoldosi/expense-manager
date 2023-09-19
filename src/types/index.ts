@@ -22,5 +22,5 @@ export type ExpenseInterface = {
 export type UserInterface = {
   email: string;
   name: string;
-  expense?: ExpenseInterface;
+  expense?: ExpenseInterface | undefined;
 };

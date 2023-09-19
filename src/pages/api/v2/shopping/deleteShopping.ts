@@ -1,7 +1,10 @@
 import handleError from "@helpers/handleError";
 import prisma from "@services/prisma";
-import { ShoppingType } from "@interfaces/*";
 import { NextApiRequest, NextApiResponse } from "next";
+
+import { ShoppingInterface } from "@interfaces/*";
+
+interface ShoppingType extends ShoppingInterface {}
 
 interface DeleteShoppingsType {
   shoppings: ShoppingType[];

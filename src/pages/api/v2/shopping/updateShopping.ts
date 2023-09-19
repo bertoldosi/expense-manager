@@ -1,10 +1,12 @@
 import * as yup from "yup";
 import prisma from "@services/prisma";
 import handleError from "@helpers/handleError";
-import { ShoppingType } from "@interfaces/*";
 import { NextApiRequest, NextApiResponse } from "next";
 import { shoppingSchema } from ".";
 
+import { ShoppingInterface } from "@interfaces/*";
+
+interface ShoppingType extends ShoppingInterface {}
 interface UpdateShoppingType {
   id?: string;
   description?: string;

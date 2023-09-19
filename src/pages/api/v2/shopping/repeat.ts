@@ -135,7 +135,6 @@ async function repeatShoppings(req: NextApiRequest, res: NextApiResponse) {
             data: {
               name: institution.name,
               createAt: institution.createAt,
-              totalAmount: institution.totalAmount,
               expenseId: institution.expenseId,
               shoppings: {
                 createMany: {

@@ -1,9 +1,12 @@
 import handleError from "@helpers/handleError";
-import { ShoppingType } from "@interfaces/*";
 import prisma from "@services/prisma";
 
 import { NextApiRequest, NextApiResponse } from "next";
 import { shoppingSchema } from ".";
+
+import { ShoppingInterface } from "@interfaces/*";
+
+interface ShoppingType extends ShoppingInterface {}
 
 interface CreateShoppingType {
   shopping: ShoppingType;
