@@ -7,11 +7,11 @@ import { customToast } from "@commons/CustomToast";
 import { Button } from "@commons/Button";
 import { Modal } from "@commons/Modal";
 
-import { InstitutionType, ShoppingType } from "@interfaces/*";
 import { schemaFilter } from "./validations";
 import InputTable from "@commons/InputTable";
 import { Filter } from "@icons/Filter";
 import InputSelect from "@commons/InputSelect";
+import { userContext, userContextType } from "@context/userContext";
 
 import {
   SbuttonsOptions,
@@ -21,7 +21,11 @@ import {
   Sfilter,
   SselectingAll,
 } from "./styles";
-import { userContext, userContextType } from "@context/userContext";
+
+import { InstitutionInterface, ShoppingInterface } from "@interfaces/*";
+
+interface InstitutionType extends InstitutionInterface {}
+interface ShoppingType extends ShoppingInterface {}
 
 const INITIAL_OPTIONS = {
   category: "all",
@@ -98,15 +102,13 @@ function ShoppingTableHeader() {
 
     const expenseUpdate = {
       ...expense,
-      institutions: expense?.institutions?.map(
-        (mapInstitution: InstitutionType) => {
-          if (mapInstitution.id == institutionUpdate?.id) {
-            return institutionUpdate;
-          }
-
-          return mapInstitution;
+      institutions: expense?.institutions?.map((mapInstitution) => {
+        if (mapInstitution.id == institutionUpdate.id) {
+          return institutionUpdate;
         }
-      ),
+
+        return mapInstitution;
+      }),
     };
 
     recalculate(expenseUpdate, institutionUpdate);
