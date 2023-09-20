@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { Scontainer, Sform, Srepeat } from "./styles";
-import { ShoppingType } from "@interfaces/*";
 import { Card } from "@commons/Card";
 import { formatMorney } from "@helpers/formatMorney";
 import Input from "@commons/Input";
@@ -11,12 +10,15 @@ import { useFormik } from "formik";
 import { toast } from "react-toastify";
 import { schemaUpdate } from "./validations";
 import instances from "@lib/axios-instance-internal";
-import Cookies from "universal-cookie";
-import { userContextData, userContextDataType } from "@context/userContextData";
 import { customToast } from "@commons/CustomToast";
 import { formatedInputValue } from "@helpers/formatedInputValue";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { userContext, userContextType } from "@context/userContext";
+
+import { ShoppingInterface } from "@interfaces/*";
+
+interface ShoppingType extends ShoppingInterface {}
 
 interface ShoppingUpdateType {
   description: string;
@@ -58,9 +60,10 @@ const INITIAL_OPTIONS_REPEAT = [
 
 function Edit() {
   const router = useRouter();
-  const { getInstitution, getExpense } = useContext(
-    userContextData
-  ) as userContextDataType;
+
+  const { institution, setInstitution } = useContext(
+    userContext
+  ) as userContextType;
 
   const [shoppingsEdit, setShoppingsEdit] = useState<ShoppingType[] | []>([]);
 
@@ -74,17 +77,6 @@ function Edit() {
 
     validationSchema: schemaUpdate,
   });
-
-  async function fethInstitutionAndExpense() {
-    const cookies = new Cookies();
-    const cookieValues = cookies.get("expense-manager");
-
-    await getInstitution(cookieValues?.filter?.institution?.id);
-    await getExpense(
-      cookieValues?.filter.expense.id,
-      cookieValues?.filter.institutions.createAt
-    );
-  }
 
   async function updateAllShoppings(values: ShoppingUpdateType) {
     const isNewInput =
@@ -112,19 +104,26 @@ function Edit() {
       });
 
       const requestUpdate = async () => {
-        return await instances
-          .put("api/shopping", {
-            shoppings: newShoppings,
-          })
-          .then(async () => {
-            await fethInstitutionAndExpense();
-          });
+        return await instances.put("api/v2/shopping", {
+          shoppings: newShoppings,
+        });
       };
       await customToast(requestUpdate);
 
       if (values.repeat) {
         await repeatShoppings(values.repeat, newShoppings);
       }
+
+      //remover seleção dos itens
+      setInstitution((prevInstitution) => {
+        return {
+          ...prevInstitution,
+          shoppings: prevInstitution.shoppings.map((mapShopping) => ({
+            ...mapShopping,
+            selected: false,
+          })),
+        };
+      });
 
       router.push("/");
     } else {
@@ -137,14 +136,11 @@ function Edit() {
     newShoppings: ShoppingType[]
   ) {
     const requestRepeat = async () => {
-      return await instances
-        .post("api/shopping/repeat", {
-          repeat: Number(numberRepeat),
-          shoppings: newShoppings,
-        })
-        .then(async () => {
-          await fethInstitutionAndExpense();
-        });
+      return await instances.post("api/v2/shopping/repeat", {
+        repeat: Number(numberRepeat),
+        shoppings: newShoppings,
+        institution,
+      });
     };
 
     await customToast(

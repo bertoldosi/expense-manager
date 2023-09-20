@@ -1,59 +1,26 @@
-export type UserType = {
-  id?: string;
-  email: string;
-  name: string;
-  expenses: ExpenseType[];
-};
-
-interface TotalPerDateType {
-  date: string;
-  total: number;
-}
-
-interface CategoryTotalPerDateType {
-  date: string;
-  categoryTotals: CategoryType[];
-}
-
-export type ExpenseType = {
-  id: string;
-  name: string;
-  totalPerDate: TotalPerDateType[];
-  categoryTotalPerDate: CategoryTotalPerDateType[];
-  institutions?: InstitutionType[];
-};
-
-export type InstitutionType = {
-  id: string;
-  name: string;
-  amount?: string | null;
-  totalAmount?: number;
-  categoryTotals?: CategoryType[];
-  shoppings?: ShoppingType[] | null;
-  createAt: string;
-};
-
-export type ShoppingType = {
+export type ShoppingInterface = {
   id: string;
   description: string;
   amount: string;
   category: string;
   paymentStatus: string;
-  selected?: boolean;
-  institutionId?: string;
 };
 
-export type CategoryType = {
-  category: string;
-  total: number;
+export type InstitutionInterface = {
+  id: string;
+  name: string;
+  createAt: string;
+  shoppings?: ShoppingInterface[];
 };
 
-export type CategoryTotalsMonthType = {
-  date: string;
-  categoryTotals: CategoryType[];
+export type ExpenseInterface = {
+  id: string;
+  name: string;
+  institutions?: InstitutionInterface[];
 };
 
-export type TotalAmountType = {
-  date: string;
-  total: number;
+export type UserInterface = {
+  email: string;
+  name: string;
+  expense?: ExpenseInterface | undefined;
 };

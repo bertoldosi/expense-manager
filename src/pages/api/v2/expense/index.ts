@@ -1,15 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
-import getExpense from "./getExpense";
 import createExpense from "./createExpense";
-import updateExpense from "./updateExpense";
-import deleteExpense from "./deleteExpense";
+import getExpense from "./getExpense";
 
 enum HttpMethod {
   GET = "GET",
   POST = "POST",
-  PUT = "PUT",
-  DELETE = "DELETE",
 }
 
 export default async function handler(
@@ -19,20 +15,12 @@ export default async function handler(
   const method = req.method as HttpMethod;
 
   switch (method) {
-    case HttpMethod.GET:
-      await getExpense(req, res);
-      break;
-
     case HttpMethod.POST:
       await createExpense(req, res);
       break;
 
-    case HttpMethod.PUT:
-      await updateExpense(req, res);
-      break;
-
-    case HttpMethod.DELETE:
-      await deleteExpense(req, res);
+    case HttpMethod.GET:
+      await getExpense(req, res);
       break;
 
     default:

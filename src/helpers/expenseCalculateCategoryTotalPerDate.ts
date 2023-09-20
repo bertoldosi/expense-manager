@@ -1,31 +1,4 @@
-interface CategoryTotalsType {
-  category: string;
-  total: number;
-}
-
-interface TotalPerDateType {
-  date: string;
-  total: number;
-}
-
-interface CategoryTotalPerDateType {
-  date: string;
-  categoryTotals: CategoryTotalsType[];
-}
-
-interface InstitutionType {
-  createAt: string;
-  totalAmount: number;
-  categoryTotals: CategoryTotalsType[];
-}
-
-interface ExpenseType {
-  totalPerDate: any;
-  categoryTotalPerDate: any;
-  institutions: any;
-}
-
-function expenseCalculateCategoryTotalPerDate(expense: ExpenseType) {
+function expenseCalculateCategoryTotalPerDate(expense: any) {
   const totalPerDate: any = [];
   const categoryTotalPerDate: any = [];
 

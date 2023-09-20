@@ -1,10 +1,12 @@
 import handleError from "@helpers/handleError";
-import { ShoppingType } from "@interfaces/*";
 import prisma from "@services/prisma";
 
 import { NextApiRequest, NextApiResponse } from "next";
 import { shoppingSchema } from ".";
-import updateInstitutionAndExpense from "./updateInstitutionAndExpense";
+
+import { ShoppingInterface } from "@interfaces/*";
+
+interface ShoppingType extends ShoppingInterface {}
 
 interface CreateShoppingType {
   shopping: ShoppingType;
@@ -22,8 +24,6 @@ async function createShopping(req: NextApiRequest, res: NextApiResponse) {
         institutionId,
       },
     });
-
-    await updateInstitutionAndExpense(institutionId);
 
     return res.status(200).json(shoppingUpdate);
   } catch (err) {

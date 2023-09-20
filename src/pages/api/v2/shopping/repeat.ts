@@ -1,12 +1,16 @@
-import handleError from "@helpers/handleError";
 import prisma from "@services/prisma";
-
+import handleError from "@helpers/handleError";
 import { NextApiRequest, NextApiResponse } from "next";
-import updateInstitutionAndExpense from "./updateInstitutionAndExpense";
+import ObjectId from "mongo-objectid";
+
+enum HttpMethod {
+  POST = "POST",
+}
 
 interface RepeatShoppingType {
   repeat: number;
   shoppings: ShoppingType[];
+  institution: InstitutionType;
 }
 
 interface CategoryTotal {
@@ -15,6 +19,7 @@ interface CategoryTotal {
 }
 
 interface ShoppingType {
+  id: string;
   description: string;
   amount: string;
   category: string;
@@ -32,12 +37,15 @@ interface InstitutionType {
 }
 
 function generateRepeatedData(
-  initialInstitution: any,
+  initialInstitution: InstitutionType,
   initialShoppings: ShoppingType[],
   repeat: number
 ): InstitutionType[] {
   const shoppings = initialShoppings.map((shopping) => {
+    const uuid = new ObjectId().hex;
+
     return {
+      id: uuid,
       description: shopping.description,
       amount: shopping.amount,
       category: shopping.category,
@@ -83,17 +91,14 @@ function generateRepeatedData(
 }
 
 async function repeatShoppings(req: NextApiRequest, res: NextApiResponse) {
-  const { repeat, shoppings } = req.body as unknown as RepeatShoppingType;
-
-  const institutionId = shoppings[0].institutionId;
-  const institution = await prisma.institution.findUnique({
-    where: {
-      id: institutionId,
-    },
-  });
+  const {
+    repeat,
+    shoppings,
+    institution: institutionRepeat,
+  } = req.body as unknown as RepeatShoppingType;
 
   const institutionsRepeat = generateRepeatedData(
-    institution,
+    institutionRepeat,
     shoppings,
     repeat
   );
@@ -124,15 +129,12 @@ async function repeatShoppings(req: NextApiRequest, res: NextApiResponse) {
             },
           });
 
-          await updateInstitutionAndExpense(institutionId);
-
           return institutionUpdate;
         } else {
           const institutionCreate = await prisma.institution.create({
             data: {
               name: institution.name,
               createAt: institution.createAt,
-              totalAmount: institution.totalAmount,
               expenseId: institution.expenseId,
               shoppings: {
                 createMany: {
@@ -141,8 +143,6 @@ async function repeatShoppings(req: NextApiRequest, res: NextApiResponse) {
               },
             },
           });
-
-          await updateInstitutionAndExpense(institutionCreate.id);
 
           return institutionCreate;
         }
@@ -166,16 +166,20 @@ async function repeatShoppings(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-async function handle(req: NextApiRequest, res: NextApiResponse) {
-  const { shoppings } = req.body as unknown as RepeatShoppingType;
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const method = req.method as HttpMethod;
 
-  if (shoppings.length) {
-    return await repeatShoppings(req, res);
+  switch (method) {
+    case HttpMethod.POST:
+      await repeatShoppings(req, res);
+      break;
+
+    default:
+      return res
+        .status(404)
+        .json({ error: "Not Found! Sorry, 'post' method request only" });
   }
-
-  return res.status(400).json({
-    error: "Missing 'shopping list' in the request query.",
-  });
 }
-
-export default handle;

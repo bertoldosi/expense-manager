@@ -23,7 +23,7 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
       return res.status(200).send(user);
     } catch (err) {
       console.log(err);
-      handleError(res, err);
+      return handleError(res, err);
     }
   }
 

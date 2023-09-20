@@ -1,24 +1,43 @@
 import React, { useContext, useEffect, useState } from "react";
 import Cookies from "universal-cookie";
+import moment from "moment";
 
 import { Institution } from "@containers/Home/Institution";
 import WithoutInstitution from "@containers/Home/Institution/WithoutInstitution";
-import { userContextData, userContextDataType } from "@context/userContextData";
 
 import { Scontainer } from "./styles";
 import InstitutionMenuFilter from "./InstitutionMenuFilter";
-import instances from "@lib/axios-instance-internal";
-import { ExpenseType } from "@interfaces/*";
 import { useSession } from "next-auth/react";
-import moment from "moment";
+import { userContext, userContextType } from "@context/userContext";
+import instances from "@lib/axios-instance-internal";
+import { Loading } from "@commons/Loading";
+import { ExpenseInterface, InstitutionInterface } from "@interfaces/*";
+
+interface InstitutionType extends InstitutionInterface {}
+interface GetUserResponseType {
+  data: {
+    email: string;
+    expense: ExpenseInterface;
+  };
+}
+interface CookieValuesType {
+  filter: {
+    dateSelected: string;
+    institution: InstitutionType;
+  };
+}
+
+const keyCookies = "expense-manager";
 
 function Home() {
   const cookies = new Cookies();
+
   const { data: session } = useSession();
+  const { expense, setExpense, setInstitution, getExpense } = useContext(
+    userContext
+  ) as userContextType;
 
-  const { expense, setExpense, setSelectedInstitution, getInstitution } =
-    useContext(userContextData) as userContextDataType;
-
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [valueYear, setValueYear] = useState<number>(() => {
     const date = moment().format("DD/MM/YYYY");
     const [_day, _month, year] = date.split("/");
@@ -32,129 +51,129 @@ function Home() {
     return month;
   });
 
-  async function persistData(expense: ExpenseType) {
-    const cookieValues = cookies.get("expense-manager");
-    setExpense(expense);
+  function addDateState(date: string) {
+    const [_day, month, year] = date.split("/");
 
-    const firstInstitution = expense.institutions?.length
-      ? expense.institutions[0]
-      : null;
+    setValueYear(Number(year));
+    setValueMonth(month);
+  }
 
-    const cookiesData = {
+  function getDateNow() {
+    const cookieValues = cookies.get(keyCookies);
+    const date = moment().format("DD/MM/YYYY");
+    const [_day, month, year] = date.split("/");
+    const dateSelected = `01/${month}/${year}`;
+
+    const newCookieValues = {
+      ...cookieValues,
       filter: {
-        expense: {
-          id: expense.id,
-          name: expense.name,
-        },
-        institution: firstInstitution && {
-          id: firstInstitution.id,
-          name: firstInstitution.name,
-        },
-        institutions: {
-          createAt: cookieValues.filter.institutions.createAt,
-        },
+        ...cookieValues?.filter,
+        dateSelected,
       },
     };
 
-    if (firstInstitution) {
-      setSelectedInstitution(firstInstitution);
-      await getInstitution(firstInstitution.id);
-    }
-
-    cookies.set("expense-manager", cookiesData);
+    setValueYear(Number(year));
+    setValueMonth(month);
+    cookies.set(keyCookies, newCookieValues);
   }
 
-  async function fethExpense(userEmail: string) {
-    const cookieValues = cookies.get("expense-manager");
+  function initializationDate() {
+    const cookieValues = cookies.get(keyCookies);
+    const createAt = cookieValues?.filter?.dateSelected;
 
-    const { data: user } = await instances.get("api/user", {
-      params: {
-        email: userEmail,
-      },
+    // caso exista uma data já selecionada, salvamos localmente
+    if (createAt) {
+      return addDateState(createAt);
+    }
+
+    // caso não exista uma data já selecionada, pegamos a data atual e salvamos localmente
+    getDateNow();
+  }
+
+  async function findExpense(expenseId: string) {
+    const cookieValues: CookieValuesType = cookies.get(keyCookies);
+    const institutionCreateAt = cookieValues?.filter?.dateSelected;
+
+    getExpense(expenseId, institutionCreateAt);
+    setIsLoading(false);
+  }
+
+  async function createExpense(userEmail: string) {
+    const cookieValues = cookies.get(keyCookies);
+
+    const { data: expenseCreate } = await instances.post("api/v2/expense", {
+      name: "default",
+      userEmail: userEmail,
     });
 
-    if (user?.expense) {
-      const { data: expense } = await instances.get("api/expense", {
-        params: {
-          id: user.expense.id,
-          institutionsCreateAt: cookieValues.filter.institutions.createAt,
+    const newCookieValues = {
+      ...cookieValues,
+      filter: {
+        ...cookieValues?.filter,
+        expense: {
+          id: expenseCreate.id,
+          name: expenseCreate?.name,
         },
-      });
-      await persistData(expense);
-    } else {
-      const { data: expense } = await instances.post("api/expense", {
-        name: "default",
-        userEmail,
-      });
+      },
+    };
+    cookies.set(keyCookies, newCookieValues);
 
-      await persistData(expense);
-    }
+    setExpense(expenseCreate);
+    setInstitution(null);
+    setIsLoading(false);
   }
 
-  async function setDateFilter() {
-    const cookieValues = cookies.get("expense-manager");
-
-    if (cookieValues?.filter?.institutions?.createAt) {
-      const fullDateCookies = cookieValues?.filter?.institutions?.createAt;
-
-      const [_day, month, year] = fullDateCookies.split("/");
-
-      setValueYear(Number(year));
-      setValueMonth(month);
-    } else {
-      const date = moment().format("DD/MM/YYYY");
-      const [_day, month, year] = date.split("/");
-
-      const newCookies = {
-        ...cookieValues,
-        filter: {
-          ...cookieValues?.filter,
-          institutions: {
-            createAt: `01/${month}/${year}`,
-          },
+  async function getUser(email: string) {
+    const { data: user }: GetUserResponseType = await instances.get(
+      "/api/v2/user",
+      {
+        params: {
+          email: email,
         },
-      };
+      }
+    );
 
-      cookies.set("expense-manager", newCookies);
+    // verificamos se o usuario ja tem um gasto cadastrado
+    const isExpenseExist = user?.expense?.id;
 
-      setValueYear(Number(year));
-      setValueMonth(month);
-    }
+    //pegamos o gasto, caso ela ja tenha
+    if (isExpenseExist) return findExpense(user?.expense?.id);
+
+    //criamos um gasto, caso ela não tenha
+    return createExpense(user.email);
   }
 
   useEffect(() => {
-    setDateFilter();
+    initializationDate();
   }, []);
 
   useEffect(() => {
-    if (session?.user?.email) {
-      fethExpense(session.user.email);
+    const userEmail = session?.user?.email;
+    if (userEmail) {
+      getUser(userEmail);
     }
-  }, [session?.user]);
-
-  if (expense?.institutions?.length) {
-    return (
-      <Scontainer>
-        <InstitutionMenuFilter
-          valueMonth={valueMonth}
-          valueYear={valueYear}
-          setValueMonth={setValueMonth}
-          setValueYear={setValueYear}
-        />
-        <Institution />
-      </Scontainer>
-    );
-  }
+  }, [session]);
 
   return (
     <Scontainer>
-      <InstitutionMenuFilter
-        valueMonth={valueMonth}
-        valueYear={valueYear}
-        setValueMonth={setValueMonth}
-        setValueYear={setValueYear}
-      />
-      <WithoutInstitution />
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <>
+          <InstitutionMenuFilter
+            valueMonth={valueMonth}
+            valueYear={valueYear}
+            setValueMonth={setValueMonth}
+            setValueYear={setValueYear}
+            setIsLoading={setIsLoading}
+          />
+          {expense?.institutions?.length ? (
+            <Institution />
+          ) : (
+            <WithoutInstitution />
+          )}
+        </>
+      )}
     </Scontainer>
   );
 }

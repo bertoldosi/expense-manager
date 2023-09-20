@@ -52,33 +52,29 @@ model User {
 }
 
 model Expense {
-  id                   String        @id @default(auto()) @map("_id") @db.ObjectId
-  name                 String
-  totalPerDate         Json[]
-  categoryTotalPerDate Json[]
-  createAt             DateTime?     @default(now())
-  institutions         Institution[]
-  user                 User          @relation(fields: [userId], references: [id])
-  userId               String        @unique @db.ObjectId
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  createAt     DateTime?     @default(now())
+  institutions Institution[]
+  user         User          @relation(fields: [userId], references: [id])
+  userId       String        @unique @db.ObjectId
 
   @@map("expenses")
 }
 
 model Institution {
-  id             String     @id @default(auto()) @map("_id") @db.ObjectId
-  name           String
-  createAt       String
-  totalAmount    Float?
-  categoryTotals Json[]
-  expense        Expense?   @relation(fields: [expenseId], references: [id])
-  expenseId      String?    @db.ObjectId
-  shoppings      Shopping[]
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  createAt  String
+  expense   Expense?   @relation(fields: [expenseId], references: [id])
+  expenseId String?    @db.ObjectId
+  shoppings Shopping[]
 
   @@map("institutions")
 }
 
 model Shopping {
-  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  id            String       @id @map("_id") @db.ObjectId
   description   String
   category      String
   amount        String

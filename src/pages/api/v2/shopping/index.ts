@@ -1,13 +1,14 @@
 import * as yup from "yup";
 import { NextApiRequest, NextApiResponse } from "next";
-import getShopping from "./getShopping";
+
 import createShopping from "./createShopping";
+import getShopping from "./getShopping";
 import updateShopping from "./updateShopping";
 import deleteShopping from "./deleteShopping";
 
 enum HttpMethod {
-  GET = "GET",
   POST = "POST",
+  GET = "GET",
   PUT = "PUT",
   DELETE = "DELETE",
 }
@@ -29,12 +30,12 @@ export default async function handler(
   const method = req.method as HttpMethod;
 
   switch (method) {
-    case HttpMethod.GET:
-      await getShopping(req, res);
-      break;
-
     case HttpMethod.POST:
       await createShopping(req, res);
+      break;
+
+    case HttpMethod.GET:
+      await getShopping(req, res);
       break;
 
     case HttpMethod.PUT:

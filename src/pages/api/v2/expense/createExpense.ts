@@ -15,17 +15,11 @@ async function createExpense(req: NextApiRequest, res: NextApiResponse) {
       where: {
         email: userEmail,
       },
-      include: {
-        expense: true,
-      },
     });
 
-    if (!user) {
+    const isUserExist = !user;
+    if (isUserExist) {
       return res.status(405).send("User not exist!");
-    }
-
-    if (user?.expense) {
-      return res.status(405).send("User already has expense!");
     }
 
     const expense = await prisma.expense.create({
@@ -34,13 +28,28 @@ async function createExpense(req: NextApiRequest, res: NextApiResponse) {
         userId: user.id,
       },
       include: {
-        user: true,
+        user: {
+          include: {
+            expense: {
+              include: {
+                institutions: {
+                  include: {
+                    shoppings: {
+                      orderBy: {
+                        createAt: "desc",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
     return res.status(200).send(expense);
   } catch (err) {
-    console.log(err);
     return handleError(res, err);
   }
 }

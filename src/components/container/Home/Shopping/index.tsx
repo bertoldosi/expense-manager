@@ -1,6 +1,7 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import Cookies from "universal-cookie";
 import { useFormik } from "formik";
+import ObjectId from "mongo-objectid";
 
 import Input from "@commons/Input";
 import { Button } from "@commons/Button";
@@ -9,11 +10,14 @@ import ShoppingTable from "@containers/Home/ShoppingTable";
 import { Scontent, Sheader } from "./styles";
 import validationSchema from "@containers/Home/Shopping/validations";
 import instances from "@lib/axios-instance-internal";
-import { userContextData, userContextDataType } from "@context/userContextData";
-import { customToast } from "@commons/CustomToast";
 import { formatedInputValue } from "@helpers/formatedInputValue";
 import { focusInput } from "@helpers/focusInput";
 import useIsMobile from "@hooks/useIsMobile";
+import { userContext, userContextType } from "@context/userContext";
+
+import { InstitutionInterface } from "@interfaces/*";
+
+interface InstitutionType extends InstitutionInterface {}
 
 interface ShoppingCreateType {
   description: string;
@@ -22,18 +26,6 @@ interface ShoppingCreateType {
   paymentStatus: string;
   selected?: boolean;
   institutionId?: string;
-}
-interface FilterType {
-  institution: {
-    id: string;
-  };
-  expense: {
-    id: string;
-  };
-
-  institutions: {
-    createAt: string;
-  };
 }
 
 const INITIAL_SHOPPING = {
@@ -47,33 +39,54 @@ function Shopping() {
   const cookies = new Cookies();
   const { isMobile } = useIsMobile();
 
-  const { getInstitution, getExpense } = useContext(
-    userContextData
-  ) as userContextDataType;
+  const { institution, expense, recalculate } = useContext(
+    userContext
+  ) as userContextType;
 
-  async function createShopping(
-    shopping: ShoppingCreateType,
-    filter: FilterType
-  ) {
-    async function requestCreate() {
-      return await instances
-        .post("api/shopping", {
-          shopping: {
-            ...shopping,
-            amount: shopping.amount.replace(/,/g, ""),
-          },
-          institutionId: filter.institution.id,
-        })
-        .then(() => {
-          if (!isMobile) {
-            focusInput("description");
-          }
-          getInstitution(filter.institution.id);
-          getExpense(filter.expense.id, filter.institutions.createAt);
-        });
+  async function createShopping(shopping: ShoppingCreateType) {
+    const institutionOld = institution;
+    const expenseOld = expense;
+
+    shopping.amount = shopping.amount.replace(",", "");
+    const uuid = new ObjectId().hex;
+    const shoppingId = uuid;
+
+    const newShopping = { ...shopping, id: shoppingId };
+
+    const newInstitution = {
+      ...institution,
+      shoppings: institution?.shoppings?.length
+        ? [newShopping, ...institution.shoppings]
+        : [newShopping],
+    };
+    const newExpense = {
+      ...expense,
+      institutions: expense?.institutions?.map((mapInstitution) => {
+        if (mapInstitution.id == newInstitution?.id) {
+          return newInstitution;
+        }
+
+        return mapInstitution;
+      }),
+    };
+
+    recalculate(newExpense, newInstitution);
+
+    await instances
+      .post("api/v2/shopping", {
+        institutionId: institution?.id,
+        shopping: {
+          ...shopping,
+          id: shoppingId,
+        },
+      })
+      .catch(() => {
+        recalculate(expenseOld, institutionOld);
+      });
+
+    if (!isMobile) {
+      focusInput("description");
     }
-
-    await customToast(requestCreate);
   }
 
   const onSubmitShopping = useFormik({
@@ -86,7 +99,7 @@ function Shopping() {
         category: values.category ? values.category : "sem",
       };
 
-      await createShopping(shopping, filter);
+      await createShopping(shopping);
 
       onSubmitShopping.resetForm();
     },

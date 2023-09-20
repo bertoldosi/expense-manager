@@ -15,9 +15,7 @@ import {
   Swrapper,
 } from "./styles";
 
-import { userContextData, userContextDataType } from "@context/userContextData";
 import InstitutionForm from "../InstitutionForm";
-import { InstitutionType } from "@interfaces/*";
 import instances from "@lib/axios-instance-internal";
 import { customToast } from "@commons/CustomToast";
 import Shopping from "@containers/Home/Shopping";
@@ -25,12 +23,30 @@ import Cookies from "universal-cookie";
 import { formatMorney } from "@helpers/formatMorney";
 import moment from "moment";
 import orderByCategory from "@helpers/orderByCategory";
-import InputSelect from "@commons/InputSelect";
+import { userContext, userContextType } from "@context/userContext";
+
+import { InstitutionInterface } from "@interfaces/*";
 import { useFormik } from "formik";
+import InputSelect from "@commons/InputSelect";
 
 interface CategoryTotalsType {
   category: string;
   total: number;
+}
+interface ShoppingType {
+  id: string;
+  description: string;
+  category: string;
+  amount: string;
+  paymentStatus: string;
+  createAt: string;
+  institutionId: string;
+}
+interface InstitutionType extends InstitutionInterface {
+  totalAmount?: number;
+  expenseId?: string;
+  categoryTotals?: CategoryTotalsType[] | null | undefined;
+  shoppings?: ShoppingType[];
 }
 interface CategoryTotalsMonthType {
   date: string;
@@ -45,11 +61,14 @@ const INITIAL_OPTIONS = {
   category: "all",
 };
 
+const keyCookies = "expense-manager";
+
 export const Institution = () => {
   const cookies = new Cookies();
 
-  const { getExpense, institution, setInstitution, expense, categories } =
-    useContext(userContextData) as userContextDataType;
+  const { institution, getExpense, expense } = useContext(
+    userContext
+  ) as userContextType;
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [isModalReportVisible, setIsModalReportVisible] =
@@ -70,48 +89,32 @@ export const Institution = () => {
     setInstitutionUpdate(null);
   }
 
-  async function deleteInstitution(institution: InstitutionType) {
-    async function requestDelete() {
-      return await instances
-        .delete("api/institution", {
-          params: {
-            institutionId: institution.id,
-          },
-        })
-        .then(async () => {
-          const { filter } = cookies.get("expense-manager");
+  async function updateInstitution(institutionData) {
+    setInstitutionUpdate(institutionData);
+    openModal();
+  }
 
-          await getExpense(filter?.expense?.id, filter.institutions.createAt);
-          setInstitution(null);
-        });
+  async function deleteInstitution(institution) {
+    const cookieValues = cookies.get(keyCookies);
+
+    async function requestDelete() {
+      await instances.delete("api/v2/institution", {
+        params: {
+          id: institution.id,
+        },
+      });
+
+      const expenseId = cookieValues?.filter?.expense?.id;
+      const institutionCreateAt = cookieValues?.filter?.dateSelected;
+      getExpense(expenseId, institutionCreateAt);
+
+      return;
     }
 
     await customToast(requestDelete);
   }
 
-  async function updateInstitution(institutionData: InstitutionType) {
-    setInstitutionUpdate(institutionData);
-    openModal();
-  }
-
-  function getCategoryTotalsMonthAndTotalsMonth(categoryTotals, totalsMonth) {
-    const { filter } = cookies.get("expense-manager");
-
-    const categoryTotalsFilter = categoryTotals.find(
-      (categoryTotal: any) =>
-        categoryTotal.date === filter.institutions.createAt
-    );
-
-    const totalMonthFilter = totalsMonth.find(
-      (categoryTotalPerDate) =>
-        categoryTotalPerDate.date === filter.institutions.createAt
-    );
-
-    setCategoryTotalsMonth(categoryTotalsFilter);
-    setTotalsMonth(totalMonthFilter);
-  }
-
-  function reportAll(institutions: InstitutionType[] | undefined) {
+  function reportAll(institutions) {
     const doc = new jsPDF();
 
     if (institutions?.length) {
@@ -185,10 +188,7 @@ export const Institution = () => {
     }
   }
 
-  function reportCategory(
-    categoty: string,
-    institutions: InstitutionType[] | undefined
-  ) {
+  function reportCategory(categoty, institutions) {
     const doc = new jsPDF();
 
     if (institutions?.length) {
@@ -232,7 +232,7 @@ export const Institution = () => {
         );
 
         //Tabela de gastos
-        if (institution.shoppings?.length) {
+        if (institution?.shoppings?.length) {
           autoTable(doc, {
             theme: "plain",
             head: [[`${institution.name}`]],
@@ -274,9 +274,7 @@ export const Institution = () => {
 
       const cookiesValues = cookies.get("expense-manager");
 
-      doc.save(
-        `relatorio ${categoty} ${cookiesValues.filter.institutions.createAt}`
-      );
+      doc.save(`relatorio ${categoty} ${cookiesValues?.filter?.dateSelected}`);
     }
   }
 
@@ -290,6 +288,24 @@ export const Institution = () => {
       return reportCategory(values.category, expense?.institutions);
     },
   });
+  function getCategoryTotalsMonthAndTotalsMonth(
+    categoryTotals: CategoryTotalsMonthType[],
+    totalsMonth: TotalsMonthType[]
+  ) {
+    const { filter } = cookies.get("expense-manager");
+
+    const categoryTotalsFilter = categoryTotals.find(
+      (categoryTotal: any) => categoryTotal.date === filter.dateSelected
+    );
+
+    const totalMonthFilter = totalsMonth.find(
+      (categoryTotalPerDate) =>
+        categoryTotalPerDate.date === filter.dateSelected
+    );
+
+    setCategoryTotalsMonth(categoryTotalsFilter);
+    setTotalsMonth(totalMonthFilter);
+  }
 
   useEffect(() => {
     if (expense?.categoryTotalPerDate && expense?.totalPerDate) {
