@@ -7,7 +7,13 @@ import { Button } from "@commons/Button";
 import InstitutionMenuCard from "@containers/Home/InstitutionMenuCard";
 import InstitutionMenuHeader from "@containers/Home/InstitutionMenuHeader";
 
-import { Saside, Ssection, Swrapper } from "./styles";
+import {
+  Saside,
+  ScontentModal,
+  Sfilterform,
+  Ssection,
+  Swrapper,
+} from "./styles";
 
 import InstitutionForm from "../InstitutionForm";
 import instances from "@lib/axios-instance-internal";
@@ -20,6 +26,8 @@ import orderByCategory from "@helpers/orderByCategory";
 import { userContext, userContextType } from "@context/userContext";
 
 import { InstitutionInterface } from "@interfaces/*";
+import { useFormik } from "formik";
+import InputSelect from "@commons/InputSelect";
 
 interface CategoryTotalsType {
   category: string;
@@ -49,6 +57,10 @@ interface TotalsMonthType {
   total: number;
 }
 
+const INITIAL_OPTIONS = {
+  category: "all",
+};
+
 const keyCookies = "expense-manager";
 
 export const Institution = () => {
@@ -59,6 +71,8 @@ export const Institution = () => {
   ) as userContextType;
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [isModalReportVisible, setIsModalReportVisible] =
+    useState<boolean>(false);
   const [institutionUpdate, setInstitutionUpdate] =
     useState<InstitutionType | null>(null);
 
@@ -100,7 +114,7 @@ export const Institution = () => {
     await customToast(requestDelete);
   }
 
-  async function report(institutions) {
+  function reportAll(institutions) {
     const doc = new jsPDF();
 
     if (institutions?.length) {
@@ -141,7 +155,7 @@ export const Institution = () => {
       institutions?.map((institution: InstitutionType, index) => {
         institution.shoppings?.sort(orderByCategory);
 
-        const categoryTotalsTable = institution?.categoryTotals?.map(
+        const categoryTotalsTable = institution.categoryTotals?.map(
           (categoryTotal) => {
             const category = categoryTotal.category;
             const total = formatMorney(categoryTotal.total);
@@ -174,6 +188,106 @@ export const Institution = () => {
     }
   }
 
+  function reportCategory(categoty, institutions) {
+    const doc = new jsPDF();
+
+    if (institutions?.length) {
+      const categotyTotalsCategoryTable = new Array();
+      categotyTotalsMonth?.categoryTotals.map((findCategoryTotal) => {
+        if (findCategoryTotal.category === categoty) {
+          return categotyTotalsCategoryTable.push(
+            "TOTAL A PAGAR",
+            formatMorney(findCategoryTotal.total)
+          );
+        }
+      });
+
+      const institutionsByCategory = new Array();
+      institutions.map((mapInstitution) => {
+        const shoppingByCategory = mapInstitution?.shoppings?.filter(
+          (mapShopping) => mapShopping.category === categoty
+        );
+
+        institutionsByCategory.push({
+          ...mapInstitution,
+          shoppings: shoppingByCategory,
+        });
+      });
+
+      //Exibindo as tabelas de gastos de cada mês
+      institutionsByCategory?.map((institution: InstitutionType, index) => {
+        const shoppingsTable = institution.shoppings?.map((shopping) => {
+          const amount =
+            shopping.paymentStatus === "open"
+              ? "+ " + `${formatMorney(shopping.amount)}`
+              : "- " + `${formatMorney(shopping.amount)}`;
+          const description = shopping.description;
+          const category = shopping.category;
+          const status = shopping.paymentStatus === "open" ? "Aberto" : "Pago";
+          return [description, amount, category, status];
+        });
+
+        const totalInstitutionByCategory = institution.categoryTotals?.find(
+          (findCategoryTotal) => findCategoryTotal.category === categoty
+        );
+
+        //Tabela de gastos
+        if (institution?.shoppings?.length) {
+          autoTable(doc, {
+            theme: "plain",
+            head: [[`${institution.name}`]],
+            body: [],
+            showHead: "firstPage",
+          });
+
+          autoTable(doc, {
+            theme: "striped",
+            head: [["Descrição", "Valor", "Responsavel", "Status"]],
+            body: shoppingsTable,
+            showHead: "firstPage",
+          });
+
+          autoTable(doc, {
+            theme: "striped",
+            body: [
+              [
+                `TOTAL ${institution.name}`,
+                `${formatMorney(totalInstitutionByCategory?.total || 0)}`,
+                "",
+                "",
+              ],
+            ],
+            showHead: "firstPage",
+            bodyStyles: { fontSize: 9, fontStyle: "bold" },
+          });
+        }
+      });
+
+      //Exibindo total mensal
+      autoTable(doc, {
+        theme: "plain",
+        body: [categotyTotalsCategoryTable],
+        showHead: "firstPage",
+        showFoot: "lastPage",
+        bodyStyles: { fontSize: 13, fontStyle: "bolditalic" },
+      });
+
+      const cookiesValues = cookies.get("expense-manager");
+
+      doc.save(`relatorio ${categoty} ${cookiesValues?.filter?.dateSelected}`);
+    }
+  }
+
+  const onSubmitReportShopping = useFormik({
+    initialValues: INITIAL_OPTIONS,
+    onSubmit: async (values) => {
+      if (values.category === "all") {
+        return reportAll(expense?.institutions);
+      }
+
+      return reportCategory(values.category, expense?.institutions);
+    },
+  });
   function getCategoryTotalsMonthAndTotalsMonth(
     categoryTotals: CategoryTotalsMonthType[],
     totalsMonth: TotalsMonthType[]
@@ -241,7 +355,7 @@ export const Institution = () => {
 
                     <Button
                       onClick={() => {
-                        report(expense?.institutions);
+                        setIsModalReportVisible(!isModalReportVisible);
                       }}
                       text="Baixar relatório"
                       typeButton=""
@@ -265,6 +379,33 @@ export const Institution = () => {
               exitModal={exitModal}
               institution={institutionUpdate}
             />
+          </Modal>
+
+          <Modal
+            title="Relatório"
+            isVisible={isModalReportVisible}
+            handlerIsVisible={() => {
+              setIsModalReportVisible(!isModalReportVisible);
+            }}
+          >
+            <ScontentModal>
+              <Sfilterform onSubmit={onSubmitReportShopping.handleSubmit}>
+                <InputSelect
+                  name="category"
+                  id="category"
+                  value={onSubmitReportShopping.values.category}
+                  onChange={onSubmitReportShopping.handleChange}
+                  defaultOption={{ value: "all", label: "Todos" }}
+                  options={
+                    categotyTotalsMonth?.categoryTotals.map((option) => ({
+                      value: option.category,
+                      label: option.category,
+                    })) || []
+                  }
+                />
+                <Button text="Baixar" type="submit" width="20rem" />
+              </Sfilterform>
+            </ScontentModal>
           </Modal>
         </div>
       ) : (

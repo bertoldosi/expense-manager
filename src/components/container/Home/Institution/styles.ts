@@ -65,3 +65,21 @@ export const SmenuHeader = styled.nav`
     text-align: center;
   }
 `;
+
+export const ScontentModal = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+export const Sfilterform = styled.form`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  gap: 1rem;
+
+  > button {
+    margin-top: 2rem;
+  }
+`;
