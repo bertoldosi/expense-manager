@@ -1,10 +1,10 @@
 import Cookies from "universal-cookie";
 
 import React, { ReactNode, createContext, useMemo, useState } from "react";
-import expenseCalculateCategoryTotalPerDate from "@helpers/expenseCalculateCategoryTotalPerDate";
 import extractUniqueCategoriesWithSum from "@helpers/extractUniqueCategoriesWithSum";
 import calculateInstitution from "@helpers/calculateInstitution";
 import instances from "@lib/axios-instance-internal";
+import expenseCalculate from "@helpers/expenseCalculate";
 
 interface CategoryType {
   category: string;
@@ -14,11 +14,6 @@ interface CategoryType {
 interface TotalPerDateType {
   date: string;
   total: number;
-}
-
-interface CategoryTotalPerDateType {
-  date: string;
-  categoryTotals: CategoryType[];
 }
 
 interface ShoppingType {
@@ -44,8 +39,8 @@ interface InstitutionType {
 interface ExpenseType {
   id: string;
   name: string;
-  totalPerDate: TotalPerDateType[];
-  categoryTotalPerDate: CategoryTotalPerDateType[];
+  totalPerMonth: TotalPerDateType;
+  categoryTotals: CategoryType[];
   institutions?: InstitutionType[];
 }
 
@@ -114,12 +109,10 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
       }),
     };
 
-    const expenseCalculated = await expenseCalculateCategoryTotalPerDate(
-      newExpense
-    );
+    const expenseCalculatedResult = await expenseCalculate(newExpense);
 
     setInstitution(institutionCalculeted);
-    setExpense(expenseCalculated);
+    setExpense(expenseCalculatedResult);
   }
 
   function persistExpenseCookie(expense: ExpenseType) {
@@ -148,6 +141,8 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
 
     persistExpenseCookie(expenseGet);
     const firstInstitution = getFirstInstitution(expenseGet.institutions);
+
+    console.log(expenseGet);
 
     await recalculate(expenseGet, firstInstitution);
   }

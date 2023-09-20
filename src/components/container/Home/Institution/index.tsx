@@ -52,10 +52,6 @@ interface CategoryTotalsMonthType {
   date: string;
   categoryTotals: CategoryTotalsType[];
 }
-interface TotalsMonthType {
-  date: string;
-  total: number;
-}
 
 const INITIAL_OPTIONS = {
   category: "all",
@@ -78,7 +74,6 @@ export const Institution = () => {
 
   const [categotyTotalsMonth, setCategoryTotalsMonth] =
     useState<CategoryTotalsMonthType>();
-  const [totalsMonth, setTotalsMonth] = useState<TotalsMonthType>();
 
   function openModal() {
     setIsModalVisible(!isModalVisible);
@@ -288,33 +283,6 @@ export const Institution = () => {
       return reportCategory(values.category, expense?.institutions);
     },
   });
-  function getCategoryTotalsMonthAndTotalsMonth(
-    categoryTotals: CategoryTotalsMonthType[],
-    totalsMonth: TotalsMonthType[]
-  ) {
-    const { filter } = cookies.get("expense-manager");
-
-    const categoryTotalsFilter = categoryTotals.find(
-      (categoryTotal: any) => categoryTotal.date === filter.dateSelected
-    );
-
-    const totalMonthFilter = totalsMonth.find(
-      (categoryTotalPerDate) =>
-        categoryTotalPerDate.date === filter.dateSelected
-    );
-
-    setCategoryTotalsMonth(categoryTotalsFilter);
-    setTotalsMonth(totalMonthFilter);
-  }
-
-  useEffect(() => {
-    if (expense?.categoryTotalPerDate && expense?.totalPerDate) {
-      getCategoryTotalsMonthAndTotalsMonth(
-        expense.categoryTotalPerDate,
-        expense.totalPerDate
-      );
-    }
-  }, [expense]);
 
   return (
     <Swrapper>
@@ -337,8 +305,8 @@ export const Institution = () => {
               />
               <InstitutionMenuCard
                 title="TOTAL MENSAL"
-                totalAmount={totalsMonth?.total || 0}
-                items={categotyTotalsMonth?.categoryTotals.map((categorie) => ({
+                totalAmount={expense?.totalPerMonth?.total || 0}
+                items={expense?.categoryTotals?.map((categorie) => ({
                   name: categorie.category,
                   total: categorie.total,
                 }))}
