@@ -72,9 +72,6 @@ export const Institution = () => {
   const [institutionUpdate, setInstitutionUpdate] =
     useState<InstitutionType | null>(null);
 
-  const [categotyTotalsMonth, setCategoryTotalsMonth] =
-    useState<CategoryTotalsMonthType>();
-
   function openModal() {
     setIsModalVisible(!isModalVisible);
   }
@@ -109,23 +106,21 @@ export const Institution = () => {
     await customToast(requestDelete);
   }
 
-  function reportAll(institutions) {
+  function reportAll() {
     const doc = new jsPDF();
 
-    if (institutions?.length) {
-      const totalPerDateTable = categotyTotalsMonth?.categoryTotals.map(
-        (categoryTotal) => {
-          const category = categoryTotal.category;
-          const total = formatMorney(categoryTotal.total);
+    if (expense?.institutions?.length) {
+      const totalPerDateTable = expense?.categoryTotals.map((categoryTotal) => {
+        const category = categoryTotal.category;
+        const total = formatMorney(categoryTotal.total);
 
-          return [category, total];
-        }
-      );
+        return [category, total];
+      });
 
       doc.text(`#${institution?.createAt}`, 12, 10);
 
       //Exibindo as tabelas de gastos de cada mês
-      institutions?.map((institution: InstitutionType, index) => {
+      expense.institutions?.map((institution) => {
         institution.shoppings?.sort(orderByCategory);
 
         const shoppingsTable = institution.shoppings?.map((shopping) => {
@@ -147,7 +142,7 @@ export const Institution = () => {
       });
 
       //Exibindo as tabelas totais de cada instituição
-      institutions?.map((institution: InstitutionType, index) => {
+      expense.institutions?.map((institution) => {
         institution.shoppings?.sort(orderByCategory);
 
         const categoryTotalsTable = institution.categoryTotals?.map(
@@ -183,12 +178,14 @@ export const Institution = () => {
     }
   }
 
-  function reportCategory(categoty, institutions) {
+  //AJUSTAR RELATORIOS
+
+  function reportCategory(categoty) {
     const doc = new jsPDF();
 
-    if (institutions?.length) {
+    if (expense?.institutions?.length) {
       const categotyTotalsCategoryTable = new Array();
-      categotyTotalsMonth?.categoryTotals.map((findCategoryTotal) => {
+      expense?.categoryTotals.map((findCategoryTotal) => {
         if (findCategoryTotal.category === categoty) {
           return categotyTotalsCategoryTable.push(
             "TOTAL A PAGAR",
@@ -198,7 +195,7 @@ export const Institution = () => {
       });
 
       const institutionsByCategory = new Array();
-      institutions.map((mapInstitution) => {
+      expense.institutions.map((mapInstitution) => {
         const shoppingByCategory = mapInstitution?.shoppings?.filter(
           (mapShopping) => mapShopping.category === categoty
         );
@@ -277,10 +274,10 @@ export const Institution = () => {
     initialValues: INITIAL_OPTIONS,
     onSubmit: async (values) => {
       if (values.category === "all") {
-        return reportAll(expense?.institutions);
+        return reportAll();
       }
 
-      return reportCategory(values.category, expense?.institutions);
+      return reportCategory(values.category);
     },
   });
 
@@ -365,7 +362,7 @@ export const Institution = () => {
                   onChange={onSubmitReportShopping.handleChange}
                   defaultOption={{ value: "all", label: "Todos" }}
                   options={
-                    categotyTotalsMonth?.categoryTotals.map((option) => ({
+                    expense?.categoryTotals?.map((option) => ({
                       value: option.category,
                       label: option.category,
                     })) || []
