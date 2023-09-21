@@ -231,13 +231,6 @@ export const Institution = () => {
           });
 
           autoTable(doc, {
-            theme: "plain",
-            head: [[`${institution.name}`]],
-            body: [],
-            showHead: "firstPage",
-          });
-
-          autoTable(doc, {
             theme: "striped",
             head: [["Descrição", "Valor", "Responsavel", "Status"]],
             body: shoppingsTable,
