@@ -24,8 +24,10 @@ function calculateTotalPerMonth(expense: ExpenseInterface) {
       // Percorre os shoppings em cada instituição
       if (institution.shoppings?.length) {
         institution?.shoppings?.map((shopping) => {
-          // Converte o valor de string para número e adiciona à soma total
-          total += parseFloat(shopping.amount);
+          if (shopping.paymentStatus !== "closed") {
+            // Converte o valor de string para número e adiciona à soma total
+            total += parseFloat(shopping.amount);
+          }
         });
       }
     });
