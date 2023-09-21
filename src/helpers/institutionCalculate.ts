@@ -52,9 +52,7 @@ function getTotalInstitutionPerCategory(
   return [];
 }
 
-function institutionCalculateTotalAmountInstitution(
-  institution: InstitutionType
-): number {
+function getTotalInstitution(institution: InstitutionType): number {
   if (institution?.shoppings?.length) {
     const totalAmount = institution.shoppings.reduce((sum, shopping) => {
       //somando apenas as compras em aberto
@@ -72,14 +70,13 @@ function institutionCalculateTotalAmountInstitution(
 }
 
 function institutionCalculate(institution: any) {
-  const institutionTotalAmount =
-    institutionCalculateTotalAmountInstitution(institution);
-  const institutionCategoryTotals = getTotalInstitutionPerCategory(institution);
+  const total = getTotalInstitution(institution);
+  const categoryTotals = getTotalInstitutionPerCategory(institution);
 
   const newInstitution = {
     ...institution,
-    categoryTotals: institutionCategoryTotals,
-    totalAmount: institutionTotalAmount,
+    categoryTotals,
+    total,
   };
 
   return newInstitution;

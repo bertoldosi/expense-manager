@@ -43,7 +43,7 @@ interface ShoppingType {
   institutionId: string;
 }
 interface InstitutionType extends InstitutionInterface {
-  totalAmount?: number;
+  total?: number;
   expenseId?: string;
   categoryTotals?: CategoryTotalsType[] | null | undefined;
   shoppings?: ShoppingType[];
@@ -178,8 +178,6 @@ export const Institution = () => {
     }
   }
 
-  //AJUSTAR RELATORIOS
-
   function reportCategory(categoty) {
     const doc = new jsPDF();
 
@@ -291,7 +289,7 @@ export const Institution = () => {
             <Saside>
               <InstitutionMenuCard
                 title={institution?.name}
-                totalAmount={institution.totalAmount || 0}
+                totalAmount={institution.total || 0}
                 items={institution?.categoryTotals?.map((categorie) => ({
                   name: categorie.category,
                   total: categorie.total,

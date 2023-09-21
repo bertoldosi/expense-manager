@@ -1,5 +1,6 @@
-import { ExpenseInterface } from "@interfaces/*";
+import { ExpenseInterface, InstitutionInterface } from "@interfaces/*";
 import Cookies from "universal-cookie";
+import institutionCalculate from "./institutionCalculate";
 
 interface CategoryTotalsType {
   category: string;
@@ -79,9 +80,26 @@ function calculateTotalPerCategory(expense: ExpenseInterface) {
   return categoryTotals;
 }
 
+function calculateTotalPerCategoryInInstitutions(
+  institutions: InstitutionInterface[]
+) {
+  if (institutions?.length) {
+    const institutionsCalculeted = institutions.map((mapInstitution) => {
+      const institutionCalculeted = institutionCalculate(mapInstitution);
+
+      return institutionCalculeted;
+    });
+
+    return institutionsCalculeted;
+  }
+
+  return institutions;
+}
+
 function expenseCalculate(expense) {
   return {
     ...expense,
+    institutions: calculateTotalPerCategoryInInstitutions(expense.institutions),
     totalPerMonth: calculateTotalPerMonth(expense),
     categoryTotals: calculateTotalPerCategory(expense),
   };

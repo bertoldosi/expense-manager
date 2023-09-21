@@ -30,7 +30,7 @@ interface InstitutionType {
   id: string;
   name: string;
   amount?: string | null;
-  totalAmount?: number;
+  total?: number;
   categoryTotals?: CategoryType[];
   shoppings?: ShoppingType[] | null;
   createAt: string;
@@ -141,8 +141,6 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
 
     persistExpenseCookie(expenseGet);
     const firstInstitution = getFirstInstitution(expenseGet.institutions);
-
-    console.log(expenseGet);
 
     await recalculate(expenseGet, firstInstitution);
   }
