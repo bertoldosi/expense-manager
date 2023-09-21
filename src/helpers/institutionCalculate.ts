@@ -71,7 +71,7 @@ function institutionCalculateTotalAmountInstitution(
   return 0;
 }
 
-function calculateInstitution(institution: any) {
+function institutionCalculate(institution: any) {
   const institutionTotalAmount =
     institutionCalculateTotalAmountInstitution(institution);
   const institutionCategoryTotals = getTotalInstitutionPerCategory(institution);
@@ -85,4 +85,4 @@ function calculateInstitution(institution: any) {
   return newInstitution;
 }
 
-export default calculateInstitution;
+export default institutionCalculate;

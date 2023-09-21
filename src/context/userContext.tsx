@@ -2,7 +2,7 @@ import Cookies from "universal-cookie";
 
 import React, { ReactNode, createContext, useMemo, useState } from "react";
 import extractUniqueCategoriesWithSum from "@helpers/extractUniqueCategoriesWithSum";
-import calculateInstitution from "@helpers/calculateInstitution";
+import institutionCalculate from "@helpers/institutionCalculate";
 import instances from "@lib/axios-instance-internal";
 import expenseCalculate from "@helpers/expenseCalculate";
 
@@ -96,7 +96,7 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
     expense: ExpenseType | null,
     institution: InstitutionType | null
   ) {
-    const institutionCalculeted = await calculateInstitution(institution);
+    const institutionCalculeted = await institutionCalculate(institution);
 
     const newExpense = {
       ...expense,
