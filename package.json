@@ -27,6 +27,7 @@
     "jspdf-autotable": "^3.5.31",
     "moment": "^2.29.4",
     "momment": "^0.0.1",
+    "mongo-objectid": "^1.2.2",
     "next": "^12.2.5",
     "next-auth": "^4.22.1",
     "phosphor-react": "^1.4.1",

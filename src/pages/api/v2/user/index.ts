@@ -1,11 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import repeatShoppings from "./repeatShoppings";
+
+import getUser from "./getUser";
 
 enum HttpMethod {
   GET = "GET",
-  POST = "POST",
-  PUT = "PUT",
-  DELETE = "DELETE",
 }
 
 export default async function handler(
@@ -15,13 +13,11 @@ export default async function handler(
   const method = req.method as HttpMethod;
 
   switch (method) {
-    case HttpMethod.POST:
-      await repeatShoppings(req, res);
+    case HttpMethod.GET:
+      await getUser(req, res);
       break;
 
     default:
-      return res
-        .status(404)
-        .json({ error: "Not Found! Sorry, 'post' method request only" });
+      return res.status(404).json({ error: "Not Found" });
   }
 }

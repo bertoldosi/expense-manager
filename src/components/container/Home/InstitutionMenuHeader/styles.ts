@@ -13,11 +13,6 @@ export const SmenuHeader = styled.nav`
   align-items: center;
   background-color: ${(props) => props.theme.backgroundSecondary};
   color: ${(props) => props.theme.textSecondary};
-
-  > h2 {
-    width: 100%;
-    text-align: center;
-  }
 `;
 
 export const Soptions = styled.div`

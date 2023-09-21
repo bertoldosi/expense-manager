@@ -6,32 +6,32 @@ import { NextApiRequest, NextApiResponse } from "next";
 interface UpdateInstitutionType {
   id: string;
   name: string;
-  expenseId: string;
-  createAt: string;
 }
 
+const schema = yup.object().shape({
+  name: yup.string().required(),
+});
+
 async function updateInstitution(req: NextApiRequest, res: NextApiResponse) {
-  const { id, name, expenseId, createAt } = req.body as UpdateInstitutionType;
+  const { id, name } = req.body as UpdateInstitutionType;
 
   const nameUPCASE = name.toUpperCase();
-
-  const schema = yup.object().shape({
-    name: yup.string().required(),
-  });
 
   try {
     await schema.validate(req.body, { abortEarly: false });
 
-    const institutionExists = await prisma.$transaction(async (prisma) => {
-      const existingInstitution = await prisma.institution.findFirst({
-        where: {
-          expenseId,
-          name: nameUPCASE,
-          createAt,
-        },
-      });
+    const institutionGet = await prisma.institution.findUnique({
+      where: {
+        id,
+      },
+    });
 
-      return existingInstitution;
+    const institutionExists = await prisma.institution.findFirst({
+      where: {
+        expenseId: institutionGet?.expenseId,
+        name: nameUPCASE,
+        createAt: institutionGet?.createAt,
+      },
     });
 
     if (institutionExists) {
@@ -56,15 +56,14 @@ async function updateInstitution(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function handle(req: NextApiRequest, res: NextApiResponse) {
-  const { id, name, expenseId, createAt } = req.body as UpdateInstitutionType;
+  const { id, name } = req.body as UpdateInstitutionType;
 
-  if (id && name && expenseId && createAt) {
+  if (id && name) {
     return await updateInstitution(req, res);
   }
 
   return res.status(400).json({
-    error:
-      "Missing 'id' and 'oldName' and 'newName' and 'expenseId' and 'createAt' in the request query.",
+    error: "Missing 'id' and 'oldName' and 'newName' in the request query.",
   });
 }
 

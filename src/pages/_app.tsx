@@ -7,8 +7,8 @@ import Theme from "src/styles/theme";
 
 import Layout from "@containers/Layout";
 import { Wrapped } from "@commons/Wrapped";
-import UserContextProvider from "@context/userContextConfig";
-import UserAppContextProvider from "@context/userContextData";
+import UserContextProviderConfig from "@context/userContextConfig";
+import UserContextProvider from "@context/userContext";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   const AppLayout = Component.layout || Layout;
@@ -16,7 +16,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   return (
     <SessionProvider session={session}>
       <UserContextProvider>
-        <UserAppContextProvider>
+        <UserContextProviderConfig>
           <Theme>
             <ToastContainer
               position="top-right"
@@ -37,7 +37,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
               </Wrapped>
             </AppLayout>
           </Theme>
-        </UserAppContextProvider>
+        </UserContextProviderConfig>
       </UserContextProvider>
     </SessionProvider>
   );

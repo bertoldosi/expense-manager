@@ -1,11 +1,12 @@
 import * as yup from "yup";
 import prisma from "@services/prisma";
 import handleError from "@helpers/handleError";
-import { ShoppingType } from "@interfaces/*";
 import { NextApiRequest, NextApiResponse } from "next";
 import { shoppingSchema } from ".";
-import updateInstitutionAndExpense from "./updateInstitutionAndExpense";
 
+import { ShoppingInterface } from "@interfaces/*";
+
+interface ShoppingType extends ShoppingInterface {}
 interface UpdateShoppingType {
   id?: string;
   description?: string;
@@ -36,9 +37,6 @@ async function updateShopping(req: NextApiRequest, res: NextApiResponse) {
         institution: true,
       },
     });
-
-    const institutionId = shoppingUpdate.institutionId;
-    await updateInstitutionAndExpense(institutionId);
 
     return res.status(200).send(shoppingUpdate);
   } catch (err) {
@@ -73,9 +71,6 @@ async function updateShoppings(req: NextApiRequest, res: NextApiResponse) {
           });
         })
       );
-
-      const institutionId = shoppings!![0].institutionId!!;
-      await updateInstitutionAndExpense(institutionId);
 
       return res.status(200).send("ok");
     } catch (err) {

@@ -15,9 +15,7 @@ import {
   Swrapper,
 } from "./styles";
 
-import { userContextData, userContextDataType } from "@context/userContextData";
 import InstitutionForm from "../InstitutionForm";
-import { InstitutionType } from "@interfaces/*";
 import instances from "@lib/axios-instance-internal";
 import { customToast } from "@commons/CustomToast";
 import Shopping from "@containers/Home/Shopping";
@@ -25,41 +23,54 @@ import Cookies from "universal-cookie";
 import { formatMorney } from "@helpers/formatMorney";
 import moment from "moment";
 import orderByCategory from "@helpers/orderByCategory";
-import InputSelect from "@commons/InputSelect";
+import { userContext, userContextType } from "@context/userContext";
+
+import { InstitutionInterface } from "@interfaces/*";
 import { useFormik } from "formik";
+import InputSelect from "@commons/InputSelect";
 
 interface CategoryTotalsType {
   category: string;
   total: number;
 }
+interface ShoppingType {
+  id: string;
+  description: string;
+  category: string;
+  amount: string;
+  paymentStatus: string;
+  createAt: string;
+  institutionId: string;
+}
+interface InstitutionType extends InstitutionInterface {
+  total?: number;
+  expenseId?: string;
+  categoryTotals?: CategoryTotalsType[] | null | undefined;
+  shoppings?: ShoppingType[];
+}
 interface CategoryTotalsMonthType {
   date: string;
   categoryTotals: CategoryTotalsType[];
-}
-interface TotalsMonthType {
-  date: string;
-  total: number;
 }
 
 const INITIAL_OPTIONS = {
   category: "all",
 };
 
+const keyCookies = "expense-manager";
+
 export const Institution = () => {
   const cookies = new Cookies();
 
-  const { getExpense, institution, setInstitution, expense, categories } =
-    useContext(userContextData) as userContextDataType;
+  const { institution, getExpense, expense } = useContext(
+    userContext
+  ) as userContextType;
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [isModalReportVisible, setIsModalReportVisible] =
     useState<boolean>(false);
   const [institutionUpdate, setInstitutionUpdate] =
     useState<InstitutionType | null>(null);
-
-  const [categotyTotalsMonth, setCategoryTotalsMonth] =
-    useState<CategoryTotalsMonthType>();
-  const [totalsMonth, setTotalsMonth] = useState<TotalsMonthType>();
 
   function openModal() {
     setIsModalVisible(!isModalVisible);
@@ -70,64 +81,46 @@ export const Institution = () => {
     setInstitutionUpdate(null);
   }
 
-  async function deleteInstitution(institution: InstitutionType) {
-    async function requestDelete() {
-      return await instances
-        .delete("api/institution", {
-          params: {
-            institutionId: institution.id,
-          },
-        })
-        .then(async () => {
-          const { filter } = cookies.get("expense-manager");
+  async function updateInstitution(institutionData) {
+    setInstitutionUpdate(institutionData);
+    openModal();
+  }
 
-          await getExpense(filter?.expense?.id, filter.institutions.createAt);
-          setInstitution(null);
-        });
+  async function deleteInstitution(institution) {
+    const cookieValues = cookies.get(keyCookies);
+
+    async function requestDelete() {
+      await instances.delete("api/v2/institution", {
+        params: {
+          id: institution.id,
+        },
+      });
+
+      const expenseId = cookieValues?.filter?.expense?.id;
+      const institutionCreateAt = cookieValues?.filter?.dateSelected;
+      getExpense(expenseId, institutionCreateAt);
+
+      return;
     }
 
     await customToast(requestDelete);
   }
 
-  async function updateInstitution(institutionData: InstitutionType) {
-    setInstitutionUpdate(institutionData);
-    openModal();
-  }
-
-  function getCategoryTotalsMonthAndTotalsMonth(categoryTotals, totalsMonth) {
-    const { filter } = cookies.get("expense-manager");
-
-    const categoryTotalsFilter = categoryTotals.find(
-      (categoryTotal: any) =>
-        categoryTotal.date === filter.institutions.createAt
-    );
-
-    const totalMonthFilter = totalsMonth.find(
-      (categoryTotalPerDate) =>
-        categoryTotalPerDate.date === filter.institutions.createAt
-    );
-
-    setCategoryTotalsMonth(categoryTotalsFilter);
-    setTotalsMonth(totalMonthFilter);
-  }
-
-  function reportAll(institutions: InstitutionType[] | undefined) {
+  function reportAll() {
     const doc = new jsPDF();
 
-    if (institutions?.length) {
-      const totalPerDateTable = categotyTotalsMonth?.categoryTotals.map(
-        (categoryTotal) => {
-          const category = categoryTotal.category;
-          const total = formatMorney(categoryTotal.total);
+    if (expense?.institutions?.length) {
+      const totalPerDateTable = expense?.categoryTotals.map((categoryTotal) => {
+        const category = categoryTotal.category;
+        const total = formatMorney(categoryTotal.total);
 
-          return [category, total];
-        }
-      );
+        return [category, total];
+      });
 
       doc.text(`#${institution?.createAt}`, 12, 10);
 
       //Exibindo as tabelas de gastos de cada mês
-      institutions?.map((institution: InstitutionType, index) => {
+      expense.institutions?.map((institution) => {
         institution.shoppings?.sort(orderByCategory);
 
         const shoppingsTable = institution.shoppings?.map((shopping) => {
@@ -149,7 +142,7 @@ export const Institution = () => {
       });
 
       //Exibindo as tabelas totais de cada instituição
-      institutions?.map((institution: InstitutionType, index) => {
+      expense.institutions?.map((institution) => {
         institution.shoppings?.sort(orderByCategory);
 
         const categoryTotalsTable = institution.categoryTotals?.map(
@@ -185,15 +178,12 @@ export const Institution = () => {
     }
   }
 
-  function reportCategory(
-    categoty: string,
-    institutions: InstitutionType[] | undefined
-  ) {
+  function reportCategory(categoty) {
     const doc = new jsPDF();
 
-    if (institutions?.length) {
+    if (expense?.institutions?.length) {
       const categotyTotalsCategoryTable = new Array();
-      categotyTotalsMonth?.categoryTotals.map((findCategoryTotal) => {
+      expense?.categoryTotals.map((findCategoryTotal) => {
         if (findCategoryTotal.category === categoty) {
           return categotyTotalsCategoryTable.push(
             "TOTAL A PAGAR",
@@ -203,7 +193,7 @@ export const Institution = () => {
       });
 
       const institutionsByCategory = new Array();
-      institutions.map((mapInstitution) => {
+      expense.institutions.map((mapInstitution) => {
         const shoppingByCategory = mapInstitution?.shoppings?.filter(
           (mapShopping) => mapShopping.category === categoty
         );
@@ -232,7 +222,14 @@ export const Institution = () => {
         );
 
         //Tabela de gastos
-        if (institution.shoppings?.length) {
+        if (institution?.shoppings?.length) {
+          autoTable(doc, {
+            theme: "plain",
+            head: [[`${institution.name}`]],
+            body: [],
+            showHead: "firstPage",
+          });
+
           autoTable(doc, {
             theme: "plain",
             head: [[`${institution.name}`]],
@@ -274,9 +271,7 @@ export const Institution = () => {
 
       const cookiesValues = cookies.get("expense-manager");
 
-      doc.save(
-        `relatorio ${categoty} ${cookiesValues.filter.institutions.createAt}`
-      );
+      doc.save(`relatorio ${categoty} ${cookiesValues?.filter?.dateSelected}`);
     }
   }
 
@@ -284,21 +279,12 @@ export const Institution = () => {
     initialValues: INITIAL_OPTIONS,
     onSubmit: async (values) => {
       if (values.category === "all") {
-        return reportAll(expense?.institutions);
+        return reportAll();
       }
 
-      return reportCategory(values.category, expense?.institutions);
+      return reportCategory(values.category);
     },
   });
-
-  useEffect(() => {
-    if (expense?.categoryTotalPerDate && expense?.totalPerDate) {
-      getCategoryTotalsMonthAndTotalsMonth(
-        expense.categoryTotalPerDate,
-        expense.totalPerDate
-      );
-    }
-  }, [expense]);
 
   return (
     <Swrapper>
@@ -310,7 +296,7 @@ export const Institution = () => {
             <Saside>
               <InstitutionMenuCard
                 title={institution?.name}
-                totalAmount={institution.totalAmount || 0}
+                totalAmount={institution.total || 0}
                 items={institution?.categoryTotals?.map((categorie) => ({
                   name: categorie.category,
                   total: categorie.total,
@@ -321,8 +307,8 @@ export const Institution = () => {
               />
               <InstitutionMenuCard
                 title="TOTAL MENSAL"
-                totalAmount={totalsMonth?.total || 0}
-                items={categotyTotalsMonth?.categoryTotals.map((categorie) => ({
+                totalAmount={expense?.totalPerMonth?.total || 0}
+                items={expense?.categoryTotals?.map((categorie) => ({
                   name: categorie.category,
                   total: categorie.total,
                 }))}
@@ -381,7 +367,7 @@ export const Institution = () => {
                   onChange={onSubmitReportShopping.handleChange}
                   defaultOption={{ value: "all", label: "Todos" }}
                   options={
-                    categotyTotalsMonth?.categoryTotals.map((option) => ({
+                    expense?.categoryTotals?.map((option) => ({
                       value: option.category,
                       label: option.category,
                     })) || []

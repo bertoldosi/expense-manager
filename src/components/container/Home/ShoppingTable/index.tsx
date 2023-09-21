@@ -5,13 +5,17 @@ import ShoppingTableHeader from "@containers/Home/ShoppingTableHeader";
 import InputTable from "@commons/InputTable";
 
 import { NoResult, Scontent, SrowTable } from "./styles";
-import { userContextData, userContextDataType } from "@context/userContextData";
-import { InstitutionType, ShoppingType } from "@interfaces/*";
 import instances from "@lib/axios-instance-internal";
 import { customToast } from "@commons/CustomToast";
 import { formatedInputValue } from "@helpers/formatedInputValue";
 import InputSelectTable from "@commons/InputSelectTable ";
 import { Button } from "@commons/Button";
+import { userContext, userContextType } from "@context/userContext";
+
+import { InstitutionInterface, ShoppingInterface } from "@interfaces/*";
+
+interface InstitutionType extends InstitutionInterface {}
+interface ShoppingType extends ShoppingInterface {}
 
 const options = [
   { label: "Aberto", value: "open" },
@@ -19,21 +23,11 @@ const options = [
 ];
 
 function ShoppingTable() {
-  const cookies = new Cookies();
-
   const [idShoppingUpdate, setIdShoppingUpdate] = useState<string>("");
-  const { institution, getInstitution, setInstitution, getExpense } =
-    useContext(userContextData) as userContextDataType;
 
-  async function fethInstitutionAndExpense() {
-    const cookieValues = cookies.get("expense-manager");
-
-    getInstitution(cookieValues?.filter?.institution?.id);
-    getExpense(
-      cookieValues?.filter.expense.id,
-      cookieValues?.filter.institutions.createAt
-    );
-  }
+  const { institution, setInstitution, expense, recalculate } = useContext(
+    userContext
+  ) as userContextType;
 
   function onChangeShopping(ev: React.ChangeEvent<HTMLInputElement>) {
     const { id, name, value, checked } = ev.target;
@@ -72,14 +66,48 @@ function ShoppingTable() {
   async function updateShopping(shopping: ShoppingType) {
     setIdShoppingUpdate("");
 
+    /* guardar os dados anteriores, para inserir novamente, em casos de erro ao deletar */
+    const institutionOld = institution;
+    const expenseOld = expense;
+
+    /* salvando os novos valores localmente */
+    const institutionUpdate = {
+      ...institution,
+      shoppings: institution?.shoppings?.map((mapShopping) => {
+        if (mapShopping.id === shopping.id) {
+          return shopping;
+        }
+
+        return mapShopping;
+      }),
+    };
+    const expenseUpdate = {
+      ...expense,
+      institutions: expense?.institutions?.map((mapInstitution) => {
+        if (mapInstitution.id == institutionUpdate?.id) {
+          return institutionUpdate;
+        }
+
+        return mapInstitution;
+      }),
+    };
+
+    shopping.amount = shopping.amount.replace(",", "");
+
+    recalculate(expenseUpdate, institutionUpdate);
+
     async function requestUpdate() {
       return await instances
-        .put("api/shopping", {
+        .put("api/v2/shopping", {
           ...shopping,
           amount: shopping.amount.replace(/,/g, ""),
         })
-        .then(async () => {
-          await fethInstitutionAndExpense();
+        .catch((err) => {
+          recalculate(expenseOld, institutionOld);
+
+          throw new Error(
+            "Houve algum erro ao tentar atualizar o item, tente novamente mais tarde!"
+          );
         });
     }
 

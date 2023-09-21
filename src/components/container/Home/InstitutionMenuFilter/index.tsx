@@ -1,12 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import Cookies from "universal-cookie";
 
 import { BsChevronDown } from "@icons/BsChevronDown";
 import { Modal } from "@commons/Modal";
-
-import { userContextData, userContextDataType } from "@context/userContextData";
-import instances from "@lib/axios-instance-internal";
-import { ExpenseType } from "@interfaces/*";
 
 import { Scontainer, Sdate } from "./styles";
 import { SelectDate } from "@commons/SelectDate";
@@ -14,6 +10,7 @@ import {
   UserContextConfig,
   UserContextConfigType,
 } from "@context/userContextConfig";
+import { userContext, userContextType } from "@context/userContext";
 
 const dates = [
   { name: "JAN", number: "01" },
@@ -35,21 +32,23 @@ interface InstitutionMenuFilterType {
   valueYear: number;
   setValueMonth: Function;
   setValueYear: Function;
+  setIsLoading: Function;
 }
+
+const keyCookies = "expense-manager";
 
 function InstitutionMenuFilter({
   valueMonth,
   valueYear,
   setValueMonth,
   setValueYear,
+  setIsLoading,
 }: InstitutionMenuFilterType) {
   const cookies = new Cookies();
 
-  const { theme } = useContext(UserContextConfig) as UserContextConfigType;
+  const { getExpense } = useContext(userContext) as userContextType;
 
-  const { setExpense, setSelectedInstitution, setInstitution } = useContext(
-    userContextData
-  ) as userContextDataType;
+  const { theme } = useContext(UserContextConfig) as UserContextConfigType;
 
   const [isOptionsModalVisible, setOptionsModalVisible] = useState(false);
 
@@ -59,42 +58,27 @@ function InstitutionMenuFilter({
 
   async function filter(numberMonth: string, numberYear: number) {
     const cookieValues = cookies.get("expense-manager");
+    const dateSelected = `01/${numberMonth}/${numberYear}`;
 
-    const date = `01/${numberMonth}/${numberYear}`;
-
-    const newCookies = {
+    const newCookieValues = {
       ...cookieValues,
       filter: {
-        ...cookieValues.filter,
-        institution: null,
-        institutions: {
-          createAt: date,
-        },
+        ...cookieValues?.filter,
+        dateSelected,
       },
     };
+    cookies.set(keyCookies, newCookieValues);
 
-    instances
-      .get("api/institution", {
-        params: {
-          createAt: date,
-          expenseId: newCookies.filter?.expense?.id,
-        },
-      })
+    const expenseId = cookieValues?.filter?.expense?.id;
+    const institutionCreateAt = dateSelected;
 
-      .then((response) => {
-        setExpense((prevExpense: ExpenseType) => ({
-          ...prevExpense,
-          institutions: response.data,
-        }));
-
-        setInstitution(null);
-        setSelectedInstitution();
-        cookies.set("expense-manager", newCookies);
-        setOptionsModalVisible(false);
-      });
+    getExpense(expenseId, institutionCreateAt);
+    setOptionsModalVisible(false);
+    setIsLoading(false);
   }
 
   function selectDate(numberMonth: string, numberYear: number) {
+    setIsLoading(true);
     setValueMonth(numberMonth);
     setValueYear(numberYear);
 

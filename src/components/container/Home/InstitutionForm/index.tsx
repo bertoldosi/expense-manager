@@ -9,80 +9,98 @@ import { Button } from "@commons/Button";
 import Input from "@commons/Input";
 
 import { Sform } from "./styles";
-import { userContextData, userContextDataType } from "@context/userContextData";
 import { customToast } from "@commons/CustomToast";
-import { ExpenseType, InstitutionType } from "@interfaces/*";
+import { userContext, userContextType } from "@context/userContext";
+import { focusInput } from "@helpers/focusInput";
+import useIsMobile from "@hooks/useIsMobile";
+
+import { ExpenseInterface, InstitutionInterface } from "@interfaces/*";
+
+interface ExpenseType extends ExpenseInterface {}
+interface InstitutionType extends InstitutionInterface {}
 
 const INITIAL_INSTITUTION = {
   name: "",
 };
-
 interface DataFormType {
   name: string;
 }
-
 interface FilterType {
   expense: ExpenseType;
-  institutions: {
-    createAt: string;
-  };
+  dateSelected: string;
 }
-
 interface InstitutionFormProps {
   exitModal?: Function;
   institution?: InstitutionType | null;
 }
 
+const keyCookies = "expense-manager";
+
 function InstitutionForm({ exitModal, institution }: InstitutionFormProps) {
   const cookies = new Cookies();
+  const { isMobile } = useIsMobile();
 
-  const { toggleSelectedInstitution, getExpense } = useContext(
-    userContextData
-  ) as userContextDataType;
+  const { getExpense, toggleSelectedInstitution } = useContext(
+    userContext
+  ) as userContextType;
 
   async function updateInstitution(
     dataForm: DataFormType,
-    filter: FilterType,
     institution: InstitutionType
   ) {
+    const cookieValues = cookies.get(keyCookies);
+
     async function requestUpdate() {
-      return await instances
-        .put("api/institution", {
+      await instances
+        .put("api/v2/institution", {
           id: institution.id,
           name: dataForm.name,
-          expenseId: filter.expense.id,
-          createAt: filter.institutions.createAt,
         })
-        .then(async (response) => {
-          await getExpense(filter.expense.id, filter.institutions.createAt);
-          toggleSelectedInstitution(response.data);
+        .then(({ data: institutionUpdate }) => {
+          toggleSelectedInstitution(institutionUpdate);
 
-          if (exitModal) exitModal();
+          return institutionUpdate;
         })
         .catch((error) => {
           if (error.response.status === 405) {
             throw new Error("Não permitido. Nome já cadastrado nesse periodo!");
           }
-
           throw error;
         });
+
+      const expenseId = cookieValues?.filter?.expense?.id;
+      const institutionCreateAt = cookieValues?.filter?.dateSelected;
+
+      getExpense(expenseId, institutionCreateAt);
+
+      if (exitModal) exitModal();
+
+      return;
     }
 
     await customToast(requestUpdate);
   }
 
   async function createInstitution(dataForm: DataFormType, filter: FilterType) {
+    const cookieValues = cookies.get(keyCookies);
+
     async function requestCreate() {
       return await instances
-        .post("api/institution", {
+        .post("api/v2/institution", {
           name: dataForm.name,
-          expenseId: filter.expense.id,
-          createAt: filter.institutions.createAt,
+          expenseId: filter?.expense?.id,
+          createAt: filter?.dateSelected,
         })
-        .then(async (response) => {
-          await getExpense(filter.expense.id, filter.institutions.createAt);
-          toggleSelectedInstitution(response.data);
+        .then(async ({ data: institutionCreate }) => {
+          const expenseId = cookieValues?.filter?.expense?.id;
+          const institutionCreateAt = cookieValues?.filter?.dateSelected;
+
+          getExpense(expenseId, institutionCreateAt);
+          toggleSelectedInstitution(institutionCreate);
           if (exitModal) exitModal();
+          if (!isMobile) {
+            focusInput("description");
+          }
         })
         .catch((error) => {
           if (error.response.status === 405) {
@@ -102,7 +120,7 @@ function InstitutionForm({ exitModal, institution }: InstitutionFormProps) {
       const { filter = {} } = cookies.get("expense-manager");
 
       if (institution) {
-        await updateInstitution(values, filter, institution);
+        await updateInstitution(values, institution);
       } else {
         await createInstitution(values, filter);
       }

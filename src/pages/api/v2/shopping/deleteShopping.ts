@@ -1,13 +1,10 @@
 import handleError from "@helpers/handleError";
 import prisma from "@services/prisma";
-import { ShoppingType } from "@interfaces/*";
 import { NextApiRequest, NextApiResponse } from "next";
-import updateInstitutionAndExpense from "./updateInstitutionAndExpense";
 
-interface DeleteShoppingType {
-  id: string;
-  shoppings: ShoppingType[];
-}
+import { ShoppingInterface } from "@interfaces/*";
+
+interface ShoppingType extends ShoppingInterface {}
 
 interface DeleteShoppingsType {
   shoppings: ShoppingType[];
@@ -29,9 +26,6 @@ async function deleteShopping(req: NextApiRequest, res: NextApiResponse) {
         });
       }
     });
-
-    const institutionId = shoppings[0].institutionId!!;
-    await updateInstitutionAndExpense(institutionId);
 
     return res.status(200).send("ok");
   } catch (err) {
