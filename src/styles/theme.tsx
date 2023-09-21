@@ -46,7 +46,7 @@ export const darkTheme = {
   backgroundInfo: "#296dff",
   textInfo: "#fff",
 
-  backgroundSuccess: "#2DD36F",
+  backgroundSuccess: "#145A32",
   textSuccess: "#222",
 
   backgroundWarning: "#FFC409",
