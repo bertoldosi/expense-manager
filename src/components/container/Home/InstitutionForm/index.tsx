@@ -52,7 +52,7 @@ function InstitutionForm({ exitModal, institution }: InstitutionFormProps) {
 
     async function requestUpdate() {
       await instances
-        .put("api/v2/institution", {
+        .put("api/v2/institutions", {
           id: institution.id,
           name: dataForm.name,
         })
@@ -86,7 +86,7 @@ function InstitutionForm({ exitModal, institution }: InstitutionFormProps) {
 
     async function requestCreate() {
       return await instances
-        .post("api/v2/institution", {
+        .post("api/v2/institutions", {
           name: dataForm.name,
           expenseId: filter?.expense?.id,
           createAt: filter?.dateSelected,

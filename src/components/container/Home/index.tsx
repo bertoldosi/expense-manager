@@ -101,7 +101,7 @@ function Home() {
   async function createExpense(userEmail: string) {
     const cookieValues = cookies.get(keyCookies);
 
-    const { data: expenseCreate } = await instances.post("api/v2/expense", {
+    const { data: expenseCreate } = await instances.post("api/v2/expenses", {
       name: "default",
       userEmail: userEmail,
     });
@@ -125,7 +125,7 @@ function Home() {
 
   async function getUser(email: string) {
     const { data: user }: GetUserResponseType = await instances.get(
-      "/api/v2/user",
+      "api/v2/users",
       {
         params: {
           email: email,

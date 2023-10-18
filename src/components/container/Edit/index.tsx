@@ -104,7 +104,7 @@ function Edit() {
       });
 
       const requestUpdate = async () => {
-        return await instances.put("api/v2/shopping", {
+        return await instances.put("api/v2/shoppings", {
           shoppings: newShoppings,
         });
       };
@@ -136,7 +136,7 @@ function Edit() {
     newShoppings: ShoppingType[]
   ) {
     const requestRepeat = async () => {
-      return await instances.post("api/v2/shopping/repeat", {
+      return await instances.post("api/v2/shoppings/repeat", {
         repeat: Number(numberRepeat),
         shoppings: newShoppings,
         institution,

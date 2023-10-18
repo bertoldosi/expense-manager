@@ -90,7 +90,7 @@ export const Institution = () => {
     const cookieValues = cookies.get(keyCookies);
 
     async function requestDelete() {
-      await instances.delete("api/v2/institution", {
+      await instances.delete("api/v2/institutions", {
         params: {
           id: institution.id,
         },
