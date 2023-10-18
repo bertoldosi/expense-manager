@@ -2,16 +2,14 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 import createExpense from "./createExpense";
 import getExpense from "./getExpense";
+import googleAuthMiddleware from "@pages/api/middleware";
 
 enum HttpMethod {
   GET = "GET",
   POST = "POST",
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const method = req.method as HttpMethod;
 
   switch (method) {
@@ -27,3 +25,5 @@ export default async function handler(
       return res.status(404).json({ error: "Not Found" });
   }
 }
+
+export default googleAuthMiddleware(handler);

@@ -3,17 +3,14 @@ import { NextApiRequest, NextApiResponse } from "next";
 import createInstitution from "./createInstitution";
 import deleteInstitution from "./deleteInstitution";
 import updateInstitution from "./updateInstitution";
+import googleAuthMiddleware from "@pages/api/middleware";
 
 enum HttpMethod {
   POST = "POST",
   PUT = "PUT",
   DELETE = "DELETE",
 }
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const method = req.method as HttpMethod;
 
   switch (method) {
@@ -33,3 +30,5 @@ export default async function handler(
       return res.status(404).json({ error: "Not Found" });
   }
 }
+
+export default googleAuthMiddleware(handler);
