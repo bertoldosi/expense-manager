@@ -1,16 +1,20 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import Cookies from "universal-cookie";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./auth/[...nextauth]";
 
 const googleAuthMiddleware = (
   handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>
 ) => {
   return async (req: NextApiRequest, res: NextApiResponse) => {
-    const cookies = new Cookies(req.cookies);
+    const session = await getServerSession(req, res, authOptions);
 
-    const nextAuthSessionToken = cookies.get("next-auth.session-token");
+    console.log(!session);
 
-    if (!nextAuthSessionToken) {
-      return res.status(401).json({ error: "Não autorizado" });
+    if (!session) {
+      res.send({
+        content:
+          "You must be signed in to view the protected content on this page.",
+      });
     }
 
     return handler(req, res);
