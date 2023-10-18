@@ -118,7 +118,7 @@ function ShoppingTableHeader() {
     /* persistindo as informações no banco */
     async function requestDelete() {
       return await instances
-        .delete("api/v2/shoppings", {
+        .delete("api/shoppings", {
           data: {
             shoppings: shoppingsSeleceted,
           },
@@ -141,7 +141,7 @@ function ShoppingTableHeader() {
 
     async function requestFilter() {
       return await instances
-        .get("api/v2/shoppings", {
+        .get("api/shoppings", {
           params: {
             category: category,
             institutionId: institution?.id,

@@ -73,7 +73,7 @@ function Shopping() {
     recalculate(newExpense, newInstitution);
 
     await instances
-      .post("api/v2/shoppings", {
+      .post("api/shoppings", {
         institutionId: institution?.id,
         shopping: {
           ...shopping,

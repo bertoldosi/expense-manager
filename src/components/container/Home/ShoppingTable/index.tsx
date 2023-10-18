@@ -98,7 +98,7 @@ function ShoppingTable() {
 
     async function requestUpdate() {
       return await instances
-        .put("api/v2/shoppings", {
+        .put("api/shoppings", {
           ...shopping,
           amount: shopping.amount.replace(/,/g, ""),
         })

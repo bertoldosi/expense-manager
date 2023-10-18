@@ -132,7 +132,7 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
   }
 
   async function getExpense(expenseId: string, institutionCreateAt: string) {
-    const { data: expenseGet } = await instances.get("api/v2/expenses", {
+    const { data: expenseGet } = await instances.get("api/expenses", {
       params: {
         id: expenseId,
         institutionCreateAt,
