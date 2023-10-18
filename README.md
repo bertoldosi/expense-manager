@@ -3,12 +3,12 @@
 ### Web
 
 <p align="center">
-  <img alt="Web Preview" title="Web-preview" src="https://user-images.githubusercontent.com/42129177/200433948-b506417b-191b-415a-aa42-eba539397c52.png" width="800px">
+  <img alt="Web Preview" title="Web-preview" src="https://github.com/bertoldosi/expense-manager/assets/42129177/75a63924-9e5f-46f6-ae8e-e242631bc2d1.png" width="800px">
 
 ### Mobile
 
 <p align="center">
-  <img alt="Web Preview" title="Web-preview" src="https://user-images.githubusercontent.com/42129177/200434971-92bbfc90-a1dd-4058-9b52-f2b3a0523061.png" width="300px">
+  <img alt="Web Preview" title="Web-preview" src="https://github.com/bertoldosi/portfolio/assets/42129177/b85da9fc-9df7-4040-88b8-7a304b51d65d" width="300px">
   
 </p>
 
@@ -45,7 +45,7 @@ Uma aplicação desenvolvida em framework Nextjs, no qual é possível gerenciar
 
 ---
 
-## ⚙️ Configurando CMS
+## ⚙️ Configurando
 
 MongoDB:
 
