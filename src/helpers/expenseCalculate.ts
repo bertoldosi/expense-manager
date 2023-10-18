@@ -6,6 +6,7 @@ interface CategoryTotalsType {
   category: string;
   total: string;
 }
+
 const keyCookies = "expense-manager";
 
 function calculateTotalPerMonth(expense: ExpenseInterface) {
@@ -40,6 +41,28 @@ function calculateTotalPerMonth(expense: ExpenseInterface) {
   };
 
   return totalPerMonth;
+}
+
+function getOptionsReport(expense: ExpenseInterface) {
+  const options: string[] = [];
+
+  if (expense?.institutions?.length) {
+    expense?.institutions?.map((institution) => {
+      if (institution?.shoppings?.length) {
+        institution?.shoppings?.map((shopping) => {
+          const isExistCategory = options.includes(shopping.category);
+
+          if (isExistCategory) {
+            return;
+          } else {
+            options.push(shopping.category);
+          }
+        });
+      }
+    });
+  }
+
+  return options;
 }
 
 function calculateTotalPerCategory(expense: ExpenseInterface) {
@@ -102,6 +125,7 @@ function expenseCalculate(expense) {
     institutions: calculateTotalPerCategoryInInstitutions(expense.institutions),
     totalPerMonth: calculateTotalPerMonth(expense),
     categoryTotals: calculateTotalPerCategory(expense),
+    optionsReport: getOptionsReport(expense),
   };
 }
 

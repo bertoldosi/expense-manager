@@ -41,6 +41,7 @@ interface ExpenseType {
   name: string;
   totalPerMonth: TotalPerDateType;
   categoryTotals: CategoryType[];
+  optionsReport: string[];
   institutions?: InstitutionType[];
 }
 

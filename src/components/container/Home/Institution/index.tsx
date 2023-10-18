@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -47,10 +47,6 @@ interface InstitutionType extends InstitutionInterface {
   expenseId?: string;
   categoryTotals?: CategoryTotalsType[] | null | undefined;
   shoppings?: ShoppingType[];
-}
-interface CategoryTotalsMonthType {
-  date: string;
-  categoryTotals: CategoryTotalsType[];
 }
 
 const INITIAL_OPTIONS = {
@@ -360,9 +356,9 @@ export const Institution = () => {
                   onChange={onSubmitReportShopping.handleChange}
                   defaultOption={{ value: "all", label: "Todos" }}
                   options={
-                    expense?.categoryTotals?.map((option) => ({
-                      value: option.category,
-                      label: option.category,
+                    expense?.optionsReport?.map((category) => ({
+                      value: category,
+                      label: category,
                     })) || []
                   }
                 />
