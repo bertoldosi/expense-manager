@@ -1,12 +1,12 @@
 import styled from "styled-components";
 
-export const Scontainer = styled.div`
+export const Container = styled.div`
   padding: 0 1rem;
   background-color: ${(props) => props.theme.backgroundSecondary};
   margin-bottom: 1rem;
 `;
 
-export const Scontent = styled.div`
+export const Wrapper = styled.div`
   width: 100%;
   height: 100%;
   max-width: 1020px;

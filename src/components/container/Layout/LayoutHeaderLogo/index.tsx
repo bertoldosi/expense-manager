@@ -1,35 +1,34 @@
-import React, { ForwardedRef, forwardRef } from "react";
-import Image from "next/image";
-import logoDark from "@assets/logo-light.svg";
-import logoLight from "@assets/logo-dark.svg";
-
-import { Scontainer } from "./styles";
+import React, { ForwardedRef, forwardRef, useContext } from "react";
 import Link from "next/link";
+
+import { LogoDark } from "@icons/LogoDark";
+import { LogoLight } from "@icons/LogoLight";
+
 import {
   UserContextConfig,
   UserContextConfigType,
 } from "@context/userContextConfig";
 
-interface LayoutHeaderLogoProps {}
+import { Container } from "./styles";
 
-const LayoutHeaderLogo = forwardRef<HTMLAnchorElement, LayoutHeaderLogoProps>(
-  (props, ref) => {
-    const { theme } = React.useContext(
-      UserContextConfig
-    ) as UserContextConfigType;
+function Logo() {
+  const { theme } = useContext(UserContextConfig) as UserContextConfigType;
 
-    const logo = theme.type === "dark" ? logoLight : logoDark;
-
-    return (
-      <Scontainer>
-        <Link href="/" passHref ref={ref as ForwardedRef<HTMLAnchorElement>}>
-          <a>
-            <Image src={logo} width={120} />
-          </a>
-        </Link>
-      </Scontainer>
-    );
+  if (theme.type === "dark") {
+    return <LogoDark />;
   }
-);
+
+  return <LogoLight />;
+}
+
+const LayoutHeaderLogo = forwardRef<HTMLAnchorElement>((ref) => {
+  return (
+    <Container>
+      <Link href="/" passHref ref={ref as ForwardedRef<HTMLAnchorElement>}>
+        <Logo />
+      </Link>
+    </Container>
+  );
+});
 
 export default LayoutHeaderLogo;

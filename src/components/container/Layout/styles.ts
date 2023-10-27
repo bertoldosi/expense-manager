@@ -1,11 +1,13 @@
 import styled from "styled-components";
 
-export const Scontainer = styled.div`
+export const LayoutMain = styled.main``;
+
+export const Container = styled.div`
   height: 100vh;
   padding: 10rem 2rem;
 `;
 
-export const Scontent = styled.div`
+export const Wrapper = styled.div`
   width: 100%;
   max-width: 40rem;
   margin: 0 auto;
@@ -14,14 +16,14 @@ export const Scontent = styled.div`
   padding: 1rem 2rem;
 `;
 
-export const Sheader = styled.div`
+export const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 2rem;
+  margin-bottom: 4rem;
 `;
 
-export const Sbody = styled.div`
+export const Content = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2rem;

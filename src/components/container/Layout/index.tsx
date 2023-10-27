@@ -1,16 +1,19 @@
-import LayoutHeader from "@containers/Layout/LayoutHeader";
 import React, { ReactNode } from "react";
 
-type PropsType = {
+import LayoutHeader from "@containers/Layout/LayoutHeader";
+
+import { LayoutMain } from "./styles";
+
+type LayoutType = {
   children: ReactNode;
 };
 
-const Layout = ({ children }: PropsType) => {
+const Layout = ({ children }: LayoutType) => {
   return (
-    <div>
+    <LayoutMain>
       <LayoutHeader />
       {children}
-    </div>
+    </LayoutMain>
   );
 };
 

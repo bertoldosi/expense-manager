@@ -3,18 +3,16 @@ import React from "react";
 import HeaderLogo from "@containers/Layout/LayoutHeaderLogo";
 import HeaderUser from "@containers/Layout/LayoutHeaderUser";
 
-import { Scontainer, Scontent } from "./styles";
+import { Container, Wrapper } from "./styles";
 
 function LayoutHeader() {
   return (
-    <>
-      <Scontainer>
-        <Scontent>
-          <HeaderLogo />
-          <HeaderUser />
-        </Scontent>
-      </Scontainer>
-    </>
+    <Container>
+      <Wrapper>
+        <HeaderLogo />
+        <HeaderUser />
+      </Wrapper>
+    </Container>
   );
 }
 

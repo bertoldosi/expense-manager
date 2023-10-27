@@ -1,33 +1,38 @@
-import Image from "next/image";
-import React, { ReactNode } from "react";
-import logoDark from "@assets/logo-dark.svg";
-import logoLight from "@assets/logo-light.svg";
-import { Sbody, Scontainer, Scontent, Sheader } from "./styles";
+import React, { ReactNode, useContext } from "react";
 
 import {
   UserContextConfig,
   UserContextConfigType,
 } from "@context/userContextConfig";
 
-type PropsType = {
+import { LogoDark } from "@icons/LogoDark";
+import { LogoLight } from "@icons/LogoLight";
+
+import { Container, Content, Wrapper, Header } from "./styles";
+
+type LayoutAccessType = {
   children: ReactNode;
 };
 
-export const LayoutAccess = ({ children }: PropsType) => {
-  const { theme } = React.useContext(
-    UserContextConfig
-  ) as UserContextConfigType;
+function Logo() {
+  const { theme } = useContext(UserContextConfig) as UserContextConfigType;
 
-  const logo = theme.type === "dark" ? logoDark : logoLight;
+  if (theme.type === "dark") {
+    return <LogoDark />;
+  }
 
+  return <LogoLight />;
+}
+
+export const LayoutAccess = ({ children }: LayoutAccessType) => {
   return (
-    <Scontainer>
-      <Scontent>
-        <Sheader>
-          <Image src={logo} width={150} />
-        </Sheader>
-        <Sbody>{children}</Sbody>
-      </Scontent>
-    </Scontainer>
+    <Container>
+      <Wrapper>
+        <Header>
+          <Logo />
+        </Header>
+        <Content>{children}</Content>
+      </Wrapper>
+    </Container>
   );
 };

@@ -1,25 +1,25 @@
-import Cookies from "universal-cookie";
-import { signOut, useSession } from "next-auth/react";
 import React, { useState } from "react";
+import Cookies from "universal-cookie";
+import { useTheme } from "styled-components";
+import { signOut, useSession } from "next-auth/react";
 
 import { User } from "@icons/User";
 import Dropdown from "@commons/Dropdown";
-
-import { Scontainer, ScontentFooter, Sitem } from "./styles";
-import { useTheme } from "styled-components";
 import { ToggleButtonTheme } from "@commons/ToggleButtonTheme";
+
+import { Container, Footer, FooterText, Item, ItemText } from "./styles";
 
 function LayoutHeaderUser() {
   const cookies = new Cookies();
+
   const theme = useTheme();
-
-  const [isVisible, setIsVisible] = useState(false);
   const { data: session } = useSession();
+  const [isVisible, setIsVisible] = useState(false);
 
-  const logOut = () => {
+  function handlerLogOut() {
     signOut();
     cookies.remove("expense-manager");
-  };
+  }
 
   return (
     <Dropdown
@@ -29,15 +29,16 @@ function LayoutHeaderUser() {
       isVisible={isVisible}
       setIsVisible={setIsVisible}
     >
-      <Scontainer>
-        <Sitem>
-          <span onClick={logOut}>Sair</span>
-        </Sitem>
-        <ScontentFooter>
+      <Container>
+        <Item>
+          <ItemText onClick={handlerLogOut}>Sair</ItemText>
+        </Item>
+
+        <Footer>
           <ToggleButtonTheme />
-          <span>{session?.user?.name}</span>
-        </ScontentFooter>
-      </Scontainer>
+          <FooterText>{session?.user?.name}</FooterText>
+        </Footer>
+      </Container>
     </Dropdown>
   );
 }

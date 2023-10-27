@@ -1,12 +1,12 @@
 import styled from "styled-components";
 
-export const Scontainer = styled.div`
+export const Container = styled.div`
   width: 100%;
   min-width: 20rem;
   background-color: ${(props) => props.theme.backgroundSecondary};
 `;
 
-export const ScontentFooter = styled.div`
+export const Footer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -14,13 +14,13 @@ export const ScontentFooter = styled.div`
   border-top: 1px solid ${(props) => props.theme.textSecondary};
   font-size: 1.2rem;
   padding: 1.5rem 0;
-
-  span {
-    margin-top: 1rem;
-  }
 `;
 
-export const Sitem = styled.div`
+export const FooterText = styled.span`
+  margin-top: 1rem;
+`;
+
+export const Item = styled.div`
   transition: background 0.5s;
 
   &:hover {
@@ -28,10 +28,6 @@ export const Sitem = styled.div`
     color: ${(props) => props.theme.textSecondaryContrast};
 
     font-weight: 600;
-    a,
-    span {
-      color: ${(props) => props.theme.textSecondaryContrast};
-    }
   }
 
   &.no-emphasis {
@@ -59,4 +55,8 @@ export const Sitem = styled.div`
     font-size: 1.5rem;
     padding: 1rem;
   }
+`;
+
+export const ItemText = styled.span`
+  color: ${(props) => props.theme.textSecondaryContrast};
 `;
