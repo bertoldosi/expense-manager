@@ -6,7 +6,7 @@ export const Container = styled.div`
   padding-bottom: 4rem;
 `;
 
-export const ButtonGoogle = styled.button`
+export const GoogleButton = styled.button`
   width: 100%;
   max-width: 15rem;
   height: 4rem;
@@ -18,6 +18,6 @@ export const ButtonGoogle = styled.button`
   border-radius: 0.3rem;
 `;
 
-export const TextGoogle = styled.span`
+export const GoogleText = styled.span`
   font-size: 1.5rem;
 `;

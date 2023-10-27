@@ -1,8 +1,8 @@
 import React from "react";
 import { signIn } from "next-auth/react";
-import { LogoGoogle } from "@icons/LogoGoogle";
+import { GoogleLogo } from "@icons/GoogleLogo";
 
-import { Container, ButtonGoogle, TextGoogle } from "./styles";
+import { Container, GoogleButton, GoogleText } from "./styles";
 
 const LoginContainer = () => {
   function handlerLogin() {
@@ -10,10 +10,10 @@ const LoginContainer = () => {
   }
   return (
     <Container>
-      <ButtonGoogle onClick={handlerLogin}>
-        <LogoGoogle />
-        <TextGoogle>Google</TextGoogle>
-      </ButtonGoogle>
+      <GoogleButton onClick={handlerLogin}>
+        <GoogleLogo />
+        <GoogleText>Google</GoogleText>
+      </GoogleButton>
     </Container>
   );
 };
