@@ -39,8 +39,9 @@ export const SrowTable = styled.span<SrowTableType>`
       ? props.theme.backgroundSuccess
       : props.theme.backgroundSecondary};
 
-  background-color: ${(props) =>
-    props.selected && props.theme.backgroundSecondaryContrast};
+  border: solid 1px
+    ${(props) =>
+      props.selected ? props.theme.backgroundSecondaryContrast : "transparent"};
 
   > strong {
     width: max-content;
@@ -55,15 +56,7 @@ export const SrowTable = styled.span<SrowTableType>`
   }
 
   &:hover {
-    background-color: ${(props) => props.theme.backgroundSecondaryContrast};
-    color: ${(props) => props.theme.textSecondaryContrast};
-
-    > strong {
-      input,
-      select {
-        color: ${(props) => props.theme.textSecondaryContrast};
-      }
-    }
+    border: solid 1px ${(props) => props.theme.backgroundSecondaryContrast};
   }
 `;
 

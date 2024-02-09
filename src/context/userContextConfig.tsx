@@ -23,8 +23,8 @@ export const UserContextConfig =
 
 const UserContextConfigProvider = ({ children }: PropsConfigType) => {
   const [theme, setTheme] = useState<ThemeType>({
-    type: "light",
-    values: lightTheme,
+    type: "dark",
+    values: darkTheme,
   });
 
   function toggleTheme() {
