@@ -6,7 +6,9 @@ import { shoppingSchema } from ".";
 
 import { ShoppingInterface } from "@interfaces/*";
 
-interface ShoppingType extends ShoppingInterface {}
+interface ShoppingType extends ShoppingInterface {
+  index: number;
+}
 
 interface CreateShoppingType {
   shopping: ShoppingType;
@@ -20,7 +22,12 @@ async function createShopping(req: NextApiRequest, res: NextApiResponse) {
     await shoppingSchema.validate(shopping, { abortEarly: false });
     const shoppingUpdate = await prisma.shopping.create({
       data: {
-        ...shopping,
+        id: shopping.id,
+        index: shopping.index,
+        description: shopping.description,
+        amount: shopping.amount,
+        category: shopping.category,
+        paymentStatus: shopping.paymentStatus,
         institutionId,
       },
     });

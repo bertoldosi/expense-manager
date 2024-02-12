@@ -46,12 +46,15 @@ function Shopping() {
   async function createShopping(shopping: ShoppingCreateType) {
     const institutionOld = institution;
     const expenseOld = expense;
+    const indexShopping = institution?.shoppings?.length
+      ? institution?.shoppings?.length + 1
+      : 1;
 
     shopping.amount = shopping.amount.replace(",", "");
     const uuid = new ObjectId().hex;
     const shoppingId = uuid;
 
-    const newShopping = { ...shopping, id: shoppingId };
+    const newShopping = { ...shopping, id: shoppingId, index: indexShopping };
 
     const newInstitution = {
       ...institution,
@@ -78,6 +81,7 @@ function Shopping() {
         shopping: {
           ...shopping,
           id: shoppingId,
+          index: indexShopping,
         },
       })
       .catch(() => {

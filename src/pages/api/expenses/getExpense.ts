@@ -24,7 +24,7 @@ async function getExpense(req: NextApiRequest, res: NextApiResponse) {
             include: {
               shoppings: {
                 orderBy: {
-                  createAt: "desc",
+                  index: "desc",
                 },
               },
             },

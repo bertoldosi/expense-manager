@@ -80,6 +80,7 @@ model Shopping {
   amount        String
   paymentStatus String
   createAt      DateTime?    @default(now())
+  index         Int
   institution   Institution? @relation(fields: [institutionId], references: [id])
   institutionId String       @db.ObjectId
 
