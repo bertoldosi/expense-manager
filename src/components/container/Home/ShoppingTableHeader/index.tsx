@@ -201,7 +201,14 @@ function ShoppingTableHeader() {
                 width="30rem"
                 height="2.5rem"
                 typeButton="delete"
-                onClick={deleteShoppings}
+                onClick={() => {
+                  const confirmed = window.confirm(
+                    "Tem certeza que deseja excluir?"
+                  );
+                  if (confirmed) {
+                    deleteShoppings();
+                  }
+                }}
               />
             </>
           ) : (
