@@ -13,6 +13,7 @@ import { Button } from "@commons/Button";
 import { userContext, userContextType } from "@context/userContext";
 
 import { InstitutionInterface, ShoppingInterface } from "@interfaces/*";
+import { DragDrop } from "@commons/DragDrop";
 
 interface InstitutionType extends InstitutionInterface {}
 interface ShoppingType extends ShoppingInterface {}
@@ -193,18 +194,15 @@ function ShoppingTable() {
                         <SrowTable
                           ref={provided.innerRef}
                           {...provided.draggableProps}
-                          selected={provided.selected || false}
+                          selected={item.selected || false}
                           key={index}
-                          paymentStatus={
-                            provided.paymentStatus as "closed" | "open"
-                          }
+                          paymentStatus={item.paymentStatus}
                         >
-                          <span
+                          <DragDrop
                             {...provided.dragHandleProps}
                             onClick={() => toggleDraggable(item.id)}
-                          >
-                            [DRAG]
-                          </span>
+                          />
+
                           <strong>
                             <InputTable
                               id={item.id}

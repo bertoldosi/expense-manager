@@ -34,7 +34,8 @@ export const SrowTable = styled.span<SrowTableType>`
   align-items: center;
   justify-content: space-between;
   padding: 1rem 0.5rem;
-  background-color: ${(props) =>
+
+  background: ${(props) =>
     props.paymentStatus == "closed"
       ? props.theme.backgroundSuccess
       : props.theme.backgroundSecondary};
@@ -52,6 +53,11 @@ export const SrowTable = styled.span<SrowTableType>`
 
     input {
       color: ${(props) => props.theme.textSecondary};
+    }
+
+    &:nth-child(2) {
+      margin: 0;
+      padding: 0;
     }
   }
 
