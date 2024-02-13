@@ -100,6 +100,7 @@ function Edit() {
           paymentStatus: values.paymentStatus
             ? values.paymentStatus
             : shoppingMap.paymentStatus,
+          index: shoppingMap.index,
         };
       });
 

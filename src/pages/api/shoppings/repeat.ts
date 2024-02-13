@@ -20,6 +20,7 @@ interface CategoryTotal {
 
 interface ShoppingType {
   id: string;
+  index: number;
   description: string;
   amount: string;
   category: string;
@@ -41,11 +42,12 @@ function generateRepeatedData(
   initialShoppings: ShoppingType[],
   repeat: number
 ): InstitutionType[] {
-  const shoppings = initialShoppings.map((shopping) => {
+  const shoppings = initialShoppings.map((shopping, index) => {
     const uuid = new ObjectId().hex;
 
     return {
       id: uuid,
+      index,
       description: shopping.description,
       amount: shopping.amount,
       category: shopping.category,

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import Cookies from "universal-cookie";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 import ShoppingTableHeader from "@containers/Home/ShoppingTableHeader";
 import InputTable from "@commons/InputTable";
@@ -16,6 +16,17 @@ import { InstitutionInterface, ShoppingInterface } from "@interfaces/*";
 
 interface InstitutionType extends InstitutionInterface {}
 interface ShoppingType extends ShoppingInterface {}
+interface ResultType {
+  draggableId: string;
+  type: string;
+  reason: string;
+  mode: string;
+  source: {
+    index: number;
+    droppableId: string;
+  };
+  destination: { droppableId: string; index: number };
+}
 
 const options = [
   { label: "Aberto", value: "open" },
@@ -114,86 +125,173 @@ function ShoppingTable() {
     await customToast(requestUpdate);
   }
 
+  async function updateItemsOrder(reorderedItems) {
+    const requestUpdate = async () => {
+      return await instances.put("api/reorder-shoppings", {
+        shoppings: reorderedItems,
+      });
+    };
+    await customToast(requestUpdate);
+  }
+
+  const reorder = (
+    shoppings: ShoppingType[],
+    startIndex: number,
+    endIndex: number
+  ) => {
+    const result = Array.from(shoppings);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    return result;
+  };
+
+  const onDragEnd = async (result: ResultType) => {
+    if (!result.destination) {
+      return;
+    }
+
+    const shoppings = institution?.shoppings || [];
+
+    const shoppingsReorded = reorder(
+      shoppings,
+      result.source.index,
+      result.destination.index
+    );
+
+    setInstitution((prevInstitution: InstitutionType) => ({
+      ...prevInstitution,
+      shoppings: shoppingsReorded,
+    }));
+
+    await updateItemsOrder(shoppingsReorded);
+  };
+
+  const toggleDraggable = (id: string) => {
+    const updatedItems = institution?.shoppings?.map((item: any) =>
+      item.id === id ? { ...item, isDraggable: !item.isDraggable } : item
+    );
+
+    setInstitution((prevInstitution) => ({
+      ...prevInstitution,
+      shoppings: updatedItems,
+    }));
+  };
+
+  if (institution?.shoppings?.length) {
+    return (
+      <>
+        <ShoppingTableHeader />
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="droppable">
+            {(provided) => (
+              <Scontent {...provided.droppableProps} ref={provided.innerRef}>
+                {institution?.shoppings?.map((item, index) => (
+                  <Draggable key={item.id} draggableId={item.id} index={index}>
+                    {(provided) => {
+                      return (
+                        <SrowTable
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          selected={provided.selected || false}
+                          key={index}
+                          paymentStatus={
+                            provided.paymentStatus as "closed" | "open"
+                          }
+                        >
+                          <span
+                            {...provided.dragHandleProps}
+                            onClick={() => toggleDraggable(item.id)}
+                          >
+                            [DRAG]
+                          </span>
+                          <strong>
+                            <InputTable
+                              id={item.id}
+                              type="checkbox"
+                              name="selected"
+                              checked={item.selected}
+                              onChange={onChangeShopping}
+                            />
+                            <InputTable
+                              id={item.id}
+                              name="description"
+                              handleEnter={() => {
+                                updateShopping(item);
+                              }}
+                              value={item.description || ""}
+                              onChange={onChangeShopping}
+                            />
+                          </strong>
+                          <strong>
+                            <InputTable
+                              id={item.id}
+                              name="amount"
+                              handleEnter={() => {
+                                updateShopping(item);
+                              }}
+                              value={
+                                formatedInputValue(item.amount, "amount") || ""
+                              }
+                              onChange={onChangeShopping}
+                            />
+                          </strong>
+                          <strong>
+                            <InputTable
+                              id={item.id}
+                              name="category"
+                              handleEnter={() => {
+                                updateShopping(item);
+                              }}
+                              value={item.category || ""}
+                              onChange={onChangeShopping}
+                            />
+                          </strong>
+                          <strong>
+                            <InputSelectTable
+                              options={options}
+                              id={item.id}
+                              name="paymentStatus"
+                              value={item.paymentStatus}
+                              onChange={(
+                                ev: React.ChangeEvent<HTMLInputElement>
+                              ) => {
+                                onChangeStatus(ev, item);
+                              }}
+                            />
+
+                            {idShoppingUpdate === item.id && (
+                              <Button
+                                text="Salvar"
+                                width="10rem"
+                                height="2rem"
+                                onClick={() => {
+                                  updateShopping(item);
+                                }}
+                              />
+                            )}
+                          </strong>
+                        </SrowTable>
+                      );
+                    }}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </Scontent>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </>
+    );
+  }
+
   return (
     <>
       <ShoppingTableHeader />
       <Scontent>
-        {institution?.shoppings?.length ? (
-          institution?.shoppings.map((shoppingMap, index) => (
-            <SrowTable
-              selected={shoppingMap.selected || false}
-              key={index}
-              paymentStatus={shoppingMap.paymentStatus as "closed" | "open"}
-            >
-              <strong>
-                <InputTable
-                  id={shoppingMap.id}
-                  type="checkbox"
-                  name="selected"
-                  checked={shoppingMap.selected}
-                  onChange={onChangeShopping}
-                />
-                <InputTable
-                  id={shoppingMap.id}
-                  name="description"
-                  handleEnter={() => {
-                    updateShopping(shoppingMap);
-                  }}
-                  value={shoppingMap.description || ""}
-                  onChange={onChangeShopping}
-                />
-              </strong>
-              <strong>
-                <InputTable
-                  id={shoppingMap.id}
-                  name="amount"
-                  handleEnter={() => {
-                    updateShopping(shoppingMap);
-                  }}
-                  value={formatedInputValue(shoppingMap.amount, "amount") || ""}
-                  onChange={onChangeShopping}
-                />
-              </strong>
-              <strong>
-                <InputTable
-                  id={shoppingMap.id}
-                  name="category"
-                  handleEnter={() => {
-                    updateShopping(shoppingMap);
-                  }}
-                  value={shoppingMap.category || ""}
-                  onChange={onChangeShopping}
-                />
-              </strong>
-              <strong>
-                <InputSelectTable
-                  options={options}
-                  id={shoppingMap.id}
-                  name="paymentStatus"
-                  value={shoppingMap.paymentStatus}
-                  onChange={(ev: React.ChangeEvent<HTMLInputElement>) => {
-                    onChangeStatus(ev, shoppingMap);
-                  }}
-                />
-
-                {idShoppingUpdate === shoppingMap.id && (
-                  <Button
-                    text="Salvar"
-                    width="10rem"
-                    height="2rem"
-                    onClick={() => {
-                      updateShopping(shoppingMap);
-                    }}
-                  />
-                )}
-              </strong>
-            </SrowTable>
-          ))
-        ) : (
-          <NoResult>
-            <span>Nenhum resultado encontrado!</span>
-          </NoResult>
-        )}
+        <NoResult>
+          <span>Nenhum resultado encontrado!</span>
+        </NoResult>
       </Scontent>
     </>
   );
