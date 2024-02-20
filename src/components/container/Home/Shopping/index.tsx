@@ -17,8 +17,6 @@ import { userContext, userContextType } from "@context/userContext";
 
 import { InstitutionInterface } from "@interfaces/*";
 
-interface InstitutionType extends InstitutionInterface {}
-
 interface ShoppingCreateType {
   description: string;
   amount: string;
@@ -96,8 +94,6 @@ function Shopping() {
   const onSubmitShopping = useFormik({
     initialValues: INITIAL_SHOPPING,
     onSubmit: async (values) => {
-      const { filter = {} } = cookies.get("expense-manager");
-
       const shopping = {
         ...values,
         category: values.category ? values.category : "sem",
@@ -110,6 +106,13 @@ function Shopping() {
 
     validationSchema,
   });
+
+  function onChangeAmount(ev: React.ChangeEvent<HTMLInputElement>) {
+    onSubmitShopping.setFieldValue(
+      "amount",
+      formatedInputValue(ev.target.value, "amount")
+    );
+  }
 
   return (
     <Scontent>
@@ -129,8 +132,8 @@ function Shopping() {
           id="amount"
           autoComplete="off"
           placeholder="R$ 00,00"
-          value={formatedInputValue(onSubmitShopping.values.amount, "amount")}
-          onChange={onSubmitShopping.handleChange}
+          value={onSubmitShopping.values.amount}
+          onChange={onChangeAmount}
           error={onSubmitShopping.errors.amount}
         />
         <Input
