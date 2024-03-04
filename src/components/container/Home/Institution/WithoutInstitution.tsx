@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 
-import InstitutionMenuHeader from "@containers/Home/InstitutionMenuHeader";
-import InstitutionMenuCard from "@containers/Home/InstitutionMenuCard";
-import InstitutionForm from "@containers/Home/InstitutionForm";
+import InstitutionMenuCard from "@containers/Home/Institution/MenuCard";
+import InstitutionForm from "@containers/Home/Institution/Form";
 import { Button } from "@commons/Button";
 import { Modal } from "@commons/Modal";
 

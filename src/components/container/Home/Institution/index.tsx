@@ -4,8 +4,8 @@ import autoTable from "jspdf-autotable";
 
 import { Modal } from "@commons/Modal";
 import { Button } from "@commons/Button";
-import InstitutionMenuCard from "@containers/Home/InstitutionMenuCard";
-import InstitutionMenuHeader from "@containers/Home/InstitutionMenuHeader";
+import InstitutionMenuCard from "@containers/Home/Institution/MenuCard";
+import InstitutionMenuHeader from "./MenuHeader";
 
 import {
   Saside,
@@ -15,7 +15,7 @@ import {
   Swrapper,
 } from "./styles";
 
-import InstitutionForm from "../InstitutionForm";
+import InstitutionForm from "./Form";
 import instances from "@lib/axios-instance-internal";
 import { customToast } from "@commons/CustomToast";
 import Shopping from "@containers/Home/Shopping";

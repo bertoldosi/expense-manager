@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-import ShoppingTableHeader from "@containers/Home/ShoppingTableHeader";
+import ShoppingTableHeader from "../TableHeader";
 import InputTable from "@commons/InputTable";
 
 import { NoResult, Scontent, SrowTable } from "./styles";

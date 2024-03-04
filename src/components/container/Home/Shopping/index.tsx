@@ -1,11 +1,10 @@
 import React, { useContext } from "react";
-import Cookies from "universal-cookie";
 import { useFormik } from "formik";
 import ObjectId from "mongo-objectid";
 
 import Input from "@commons/Input";
 import { Button } from "@commons/Button";
-import ShoppingTable from "@containers/Home/ShoppingTable";
+import ShoppingTable from "./Table";
 
 import { Scontent, Sheader } from "./styles";
 import validationSchema from "@containers/Home/Shopping/validations";
@@ -14,8 +13,6 @@ import { formatedInputValue } from "@helpers/formatedInputValue";
 import { focusInput } from "@helpers/focusInput";
 import useIsMobile from "@hooks/useIsMobile";
 import { userContext, userContextType } from "@context/userContext";
-
-import { InstitutionInterface } from "@interfaces/*";
 
 interface ShoppingCreateType {
   description: string;
@@ -34,7 +31,6 @@ const INITIAL_SHOPPING = {
 };
 
 function Shopping() {
-  const cookies = new Cookies();
   const { isMobile } = useIsMobile();
 
   const { institution, expense, recalculate } = useContext(

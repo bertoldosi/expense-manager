@@ -6,7 +6,7 @@ import { Institution } from "@containers/Home/Institution";
 import WithoutInstitution from "@containers/Home/Institution/WithoutInstitution";
 
 import { Scontainer } from "./styles";
-import InstitutionMenuFilter from "./InstitutionMenuFilter";
+import InstitutionMenuFilter from "./Institution/MenuFilter";
 import { useSession } from "next-auth/react";
 import { userContext, userContextType } from "@context/userContext";
 import instances from "@lib/axios-instance-internal";
