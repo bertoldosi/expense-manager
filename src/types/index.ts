@@ -1,26 +1,28 @@
-export type ShoppingType = {
-  id: string;
-  description: string;
-  amount: string;
-  category: string;
-  paymentStatus: string;
-};
-
-export type InstitutionType = {
+interface User {
   id: string;
   name: string;
-  createAt: string;
-  shoppings: ShoppingType[];
-};
-
-export type ExpenseType = {
-  id: string;
-  name: string;
-  institutions: InstitutionType[];
-};
-
-export type UserType = {
   email: string;
+  image?: string | null;
+  card: Card[];
+}
+
+interface Card {
+  id: string;
   name: string;
-  expense: ExpenseType;
-};
+  createAt: Date;
+  user: User;
+  userId: string;
+  purchage: Purchage[];
+}
+
+interface Purchage {
+  id: string;
+  position: number;
+  description: string;
+  category: string;
+  amount: string;
+  paymentStatus: string;
+  createAt: Date;
+  card: Card;
+  cardId: string;
+}
