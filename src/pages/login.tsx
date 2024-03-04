@@ -1,12 +1,11 @@
 import React from "react";
 
-import { LayoutAccess } from "@containers/Layout/LayoutAccess";
-import LoginContainer from "@containers/Login";
-
 const Login = () => {
-  return <LoginContainer />;
+  return (
+    <div>
+      <h1>Login</h1>
+    </div>
+  );
 };
-
-Login.layout = LayoutAccess;
 
 export default Login;

@@ -1,13 +1,4 @@
-import React from "react";
-import { signIn } from "next-auth/react";
-
-import { Scontainer } from "./styles";
-
-const Login = () => {
-  return (
-    <Scontainer>
-      <button onClick={() => signIn("google")}>
-        <svg width="52" height="52" role="img">
+<svg width="52" height="52" role="img">
           <g
             id="Google-Button"
             stroke="none"
@@ -44,10 +35,3 @@ const Login = () => {
             </g>
           </g>
         </svg>
-        <span>Google</span>
-      </button>
-    </Scontainer>
-  );
-};
-
-export default Login;

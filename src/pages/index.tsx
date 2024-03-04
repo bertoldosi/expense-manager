@@ -1,7 +1,6 @@
 import React from "react";
 import Head from "next/head";
 
-import HomeContainer from "@containers/Home";
 import { withAuth } from "@lib/authenticatedRoute";
 
 const Home = () => {
@@ -11,7 +10,9 @@ const Home = () => {
         <title>Expense Manager</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <HomeContainer />
+      <div>
+        <h1>Home</h1>
+      </div>
     </>
   );
 };

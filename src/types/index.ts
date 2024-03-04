@@ -1,4 +1,4 @@
-export type ShoppingInterface = {
+export type ShoppingType = {
   id: string;
   description: string;
   amount: string;
@@ -6,21 +6,21 @@ export type ShoppingInterface = {
   paymentStatus: string;
 };
 
-export type InstitutionInterface = {
+export type InstitutionType = {
   id: string;
   name: string;
   createAt: string;
-  shoppings?: ShoppingInterface[];
+  shoppings: ShoppingType[];
 };
 
-export type ExpenseInterface = {
+export type ExpenseType = {
   id: string;
   name: string;
-  institutions?: InstitutionInterface[];
+  institutions: InstitutionType[];
 };
 
-export type UserInterface = {
+export type UserType = {
   email: string;
   name: string;
-  expense?: ExpenseInterface | undefined;
+  expense: ExpenseType;
 };
