@@ -20,12 +20,11 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId,
       clientSecret,
+      idToken: true,
     }),
   ],
+  secret: nextAuthSecret as string,
   callbacks: {
-    async session({ session }) {
-      return session;
-    },
     async signIn({ user }) {
       if (user.email) {
         return true;
@@ -33,11 +32,15 @@ export const authOptions: NextAuthOptions = {
         return "/login";
       }
     },
+
+    async session({ session }) {
+      return session;
+    },
+
     async redirect() {
       return "/";
     },
   },
-  secret: nextAuthSecret,
 };
 
 export default NextAuth(authOptions);

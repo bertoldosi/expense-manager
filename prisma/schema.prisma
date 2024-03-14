@@ -56,12 +56,12 @@ model Card {
   createAt DateTime   @default(now())
   user     User       @relation(fields: [userId], references: [id])
   userId   String     @unique @db.ObjectId
-  purchage Purchage[]
+  shopping Shopping[]
 
   @@map("cards")
 }
 
-model Purchage {
+model Shopping {
   id            String   @id @map("_id") @db.ObjectId
   position      Int
   description   String
@@ -72,5 +72,5 @@ model Purchage {
   card          Card     @relation(fields: [cardId], references: [id])
   cardId        String   @db.ObjectId
 
-  @@map("purchages")
+  @@map("shoppings")
 }

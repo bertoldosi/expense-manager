@@ -8,14 +8,16 @@ const googleAuthMiddleware = (
   return async (req: NextApiRequest, res: NextApiResponse) => {
     const session = await getServerSession(req, res, authOptions);
 
-    if (!session) {
+    if (!session?.user?.email) {
       res.send({
         content:
           "You must be signed in to view the protected content on this page.",
       });
-    }
+    } else {
+      req.headers["x-user-email"] = session.user.email;
 
-    return handler(req, res);
+      return handler(req, res);
+    }
   };
 };
 

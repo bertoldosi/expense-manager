@@ -1,4 +1,4 @@
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
@@ -6,16 +6,16 @@ interface User {
   card: Card[];
 }
 
-interface Card {
+export interface Card {
   id: string;
   name: string;
   createAt: Date;
   user: User;
   userId: string;
-  purchage: Purchage[];
+  shopping: Shopping[];
 }
 
-interface Purchage {
+export interface Shopping {
   id: string;
   position: number;
   description: string;
