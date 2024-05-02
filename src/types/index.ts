@@ -1,21 +1,26 @@
-export interface User {
+export interface UserType {
   id: string;
   name: string;
   email: string;
+  emailVerified?: string | null;
   image?: string | null;
-  card: Card[];
+  card: CardType[];
 }
 
-export interface Card {
+export interface CardType {
   id: string;
   name: string;
   createAt: Date;
-  user: User;
+  user: UserType;
   userId: string;
-  shopping: Shopping[];
+  shopping: ShoppingType[];
 }
 
-export interface Shopping {
+export interface CardCreateType {
+  name: string;
+}
+
+export interface ShoppingType {
   id: string;
   position: number;
   description: string;
@@ -23,6 +28,16 @@ export interface Shopping {
   amount: string;
   paymentStatus: string;
   createAt: Date;
-  card: Card;
+  card: CardType;
+  cardId: string;
+}
+
+export interface ShoppingCreateType {
+  id: string;
+  position: number;
+  description: string;
+  category: string;
+  amount: string;
+  paymentStatus: string;
   cardId: string;
 }

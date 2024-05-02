@@ -1,22 +1,20 @@
 import prisma from "@services/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 
-async function getShoppings(req: NextApiRequest, res: NextApiResponse) {
+async function getUser(req: NextApiRequest, res: NextApiResponse) {
   const userEmail = req.headers["x-user-email"] as string;
 
   try {
-    const cards = await prisma.card.findMany({
+    const user = await prisma.user.findUnique({
       where: {
-        user: {
-          email: userEmail,
-        },
+        email: userEmail,
       },
     });
 
-    return res.status(200).send(cards);
+    return res.status(200).send(user);
   } catch (error) {
     return res.send(error);
   }
 }
 
-export default getShoppings;
+export default getUser;

@@ -45,18 +45,18 @@ model User {
   image         String?
   account       Account[]
   session       Session[]
-  card          Card[]
+  cards         Card[]
 
   @@map("users")
 }
 
 model Card {
-  id       String     @id @default(auto()) @map("_id") @db.ObjectId
-  name     String
-  createAt DateTime   @default(now())
-  user     User       @relation(fields: [userId], references: [id])
-  userId   String     @unique @db.ObjectId
-  shopping Shopping[]
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  createAt  DateTime   @default(now())
+  user      User       @relation(fields: [userId], references: [id])
+  userId    String     @unique @db.ObjectId
+  shoppings Shopping[]
 
   @@map("cards")
 }

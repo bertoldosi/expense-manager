@@ -1,7 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
-import getShoppings from "./getShoppings";
-import createShopping from "./createShopping";
+import googleAuthMiddleware from "../googleAuthMiddleware";
+
+import createCard from "./createCard";
 
 enum HttpMethod {
   GET = "GET",
@@ -12,12 +13,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const method = req.method as HttpMethod;
 
   switch (method) {
-    case HttpMethod.GET:
-      await getShoppings(req, res);
-      break;
-
     case HttpMethod.POST:
-      await createShopping(req, res);
+      await createCard(req, res);
       break;
 
     default:
@@ -25,4 +22,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-export default handler;
+export default googleAuthMiddleware(handler);

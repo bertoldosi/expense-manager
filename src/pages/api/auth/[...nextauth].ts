@@ -20,7 +20,6 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId,
       clientSecret,
-      idToken: true,
     }),
   ],
   secret: nextAuthSecret as string,
