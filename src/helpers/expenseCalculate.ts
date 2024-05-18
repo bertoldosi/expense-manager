@@ -9,6 +9,10 @@ interface CategoryTotalsType {
 
 const keyCookies = "expense-manager";
 
+function removeSemicolon(amount: string) {
+  return parseInt(amount.replace(".", "").replace(",", ""));
+}
+
 function calculateTotalPerMonth(expense: ExpenseInterface) {
   /* 
       Dado que ao buscar por um gasto(expense) sempre virá as instituições de um determinado mês, não se faz necessário somar os totais de cada mês.
@@ -28,7 +32,7 @@ function calculateTotalPerMonth(expense: ExpenseInterface) {
         institution?.shoppings?.map((shopping) => {
           if (shopping.paymentStatus !== "closed") {
             // Converte o valor de string para número e adiciona à soma total
-            total += parseFloat(shopping.amount);
+            total += removeSemicolon(shopping.amount);
           }
         });
       }
@@ -78,7 +82,7 @@ function calculateTotalPerCategory(expense: ExpenseInterface) {
         institution?.shoppings?.map((shopping) => {
           if (shopping.paymentStatus !== "closed") {
             // Converte o valor de string para número
-            const amount = parseFloat(shopping.amount);
+            const amount = removeSemicolon(shopping.amount);
 
             // Verifica se a categoria já existe nos totais temporários
             if (tempCategoryTotals[shopping.category]) {

@@ -17,6 +17,10 @@ interface InstitutionType {
   shoppings: ShoppingType[];
 }
 
+function removeSemicolon(amount: string) {
+  return parseInt(amount.replace(".", "").replace(",", ""));
+}
+
 function getTotalInstitutionPerCategory(
   institution: InstitutionType
 ): CategoryType[] {
@@ -24,7 +28,8 @@ function getTotalInstitutionPerCategory(
     const categoryTotals: { [category: string]: number } =
       institution.shoppings.reduce((totals, shopping) => {
         const category = shopping.category;
-        const amount = parseFloat(shopping.amount);
+
+        const amount = removeSemicolon(shopping.amount);
 
         // calculando apenas compras em aberto
         if (shopping.paymentStatus === "open") {
@@ -57,7 +62,7 @@ function getTotalInstitution(institution: InstitutionType): number {
     const totalAmount = institution.shoppings.reduce((sum, shopping) => {
       //somando apenas as compras em aberto
       if (shopping.paymentStatus === "open") {
-        return sum + parseFloat(shopping.amount);
+        return sum + removeSemicolon(shopping.amount);
       } else {
         return sum;
       }

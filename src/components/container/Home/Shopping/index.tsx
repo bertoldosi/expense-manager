@@ -44,7 +44,6 @@ function Shopping() {
       ? institution?.shoppings?.length
       : 0;
 
-    shopping.amount = shopping.amount.replace(",", "");
     const uuid = new ObjectId().hex;
     const shoppingId = uuid;
 
