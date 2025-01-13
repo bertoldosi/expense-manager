@@ -205,7 +205,7 @@ export const Institution = () => {
         const shoppingsTable = institution.shoppings?.map((shopping) => {
           const amount =
             shopping.paymentStatus === "open"
-              ? "+ " + `${shopping.amount}`
+              ? "+ " + `${formatMorney(shopping.amount)}`
               : "- " + `${formatMorney(shopping.amount)}`;
 
           const description = shopping.description;
