@@ -1,12 +1,14 @@
-import React from "react";
+import { GetServerSideProps } from "next";
 
-import { LayoutAccess } from "@containers/Layout/LayoutAccess";
-import LoginContainer from "@containers/Login";
-
-const Login = () => {
-  return <LoginContainer />;
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    redirect: {
+      destination: "/api/auth/signin", // redireciona para a página de login do NextAuth
+      permanent: false,
+    },
+  };
 };
 
-Login.layout = LayoutAccess;
-
-export default Login;
+export default function Login() {
+  return null; // nunca será renderizado, pois redireciona
+}
