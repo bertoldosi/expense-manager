@@ -27,6 +27,7 @@ async function createShopping(req: NextApiRequest, res: NextApiResponse) {
         description: shopping.description,
         amount: shopping.amount,
         category: shopping.category,
+        subcategory: shopping.subcategory ?? null,
         paymentStatus: shopping.paymentStatus,
         institutionId,
       },

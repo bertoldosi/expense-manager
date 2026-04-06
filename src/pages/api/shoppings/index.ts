@@ -18,6 +18,7 @@ export const shoppingSchema = yup.object().shape({
   description: yup.string().required(),
   amount: yup.string().required(),
   category: yup.string().required(),
+  subcategory: yup.string().nullable().notRequired(),
   paymentStatus: yup
     .string()
     .required()

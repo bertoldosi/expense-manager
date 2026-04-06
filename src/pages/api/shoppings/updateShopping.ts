@@ -12,12 +12,13 @@ interface UpdateShoppingType {
   description?: string;
   amount?: string;
   category?: string;
+  subcategory?: string | null;
   paymentStatus?: string;
   shoppings?: ShoppingType[];
 }
 
 async function updateShopping(req: NextApiRequest, res: NextApiResponse) {
-  const { id, description, amount, category, paymentStatus } =
+  const { id, description, amount, category, subcategory, paymentStatus } =
     req.body as UpdateShoppingType;
 
   try {
@@ -31,6 +32,7 @@ async function updateShopping(req: NextApiRequest, res: NextApiResponse) {
         description,
         amount,
         category,
+        subcategory: subcategory ?? null,
         paymentStatus,
       },
       include: {
@@ -66,6 +68,7 @@ async function updateShoppings(req: NextApiRequest, res: NextApiResponse) {
               description: shopping.description,
               amount: shopping.amount,
               category: shopping.category,
+              subcategory: shopping.subcategory ?? null,
               paymentStatus: shopping.paymentStatus,
             },
           });

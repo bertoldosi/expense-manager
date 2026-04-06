@@ -3,6 +3,7 @@ export type ShoppingInterface = {
   description: string;
   amount: string;
   category: string;
+  subcategory?: string | null;
   paymentStatus: string;
 };
 
