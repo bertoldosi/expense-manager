@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Cookies from "universal-cookie";
 
 import { BsChevronDown } from "@icons/BsChevronDown";
@@ -11,6 +11,7 @@ import {
   UserContextConfigType,
 } from "@context/userContextConfig";
 import { userContext, userContextType } from "@context/userContext";
+import moment from "moment";
 
 const dates = [
   { name: "JAN", number: "01" },
@@ -91,6 +92,49 @@ function InstitutionMenuFilter({
 
     return nameMonth?.name || "";
   }
+
+  function addDateState(date: string) {
+    const [_day, month, year] = date.split("/");
+
+    setValueYear(Number(year));
+    setValueMonth(month);
+  }
+
+  function getDateNow() {
+    const cookieValues = cookies.get(keyCookies);
+    const date = moment().format("DD/MM/YYYY");
+    const [_day, month, year] = date.split("/");
+    const dateSelected = `01/${month}/${year}`;
+
+    const newCookieValues = {
+      ...cookieValues,
+      filter: {
+        ...cookieValues?.filter,
+        dateSelected,
+      },
+    };
+
+    setValueYear(Number(year));
+    setValueMonth(month);
+    cookies.set(keyCookies, newCookieValues);
+  }
+
+  function initializationDate() {
+    const cookieValues = cookies.get(keyCookies);
+    const createAt = cookieValues?.filter?.dateSelected;
+
+    // caso exista uma data já selecionada, salvamos localmente
+    if (createAt) {
+      return addDateState(createAt);
+    }
+
+    // caso não exista uma data já selecionada, pegamos a data atual e salvamos localmente
+    getDateNow();
+  }
+
+  useEffect(() => {
+    initializationDate();
+  }, []);
 
   return (
     <>
