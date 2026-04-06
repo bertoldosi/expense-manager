@@ -21,6 +21,7 @@ interface ShoppingType {
   description: string;
   amount: string;
   category: string;
+  subcategory?: string | null;
   paymentStatus: string;
   selected?: boolean;
   institutionId?: string;
@@ -95,7 +96,7 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
 
   async function recalculate(
     expense: ExpenseType | null,
-    institution: InstitutionType | null
+    institution: InstitutionType | null,
   ) {
     const institutionCalculeted = await institutionCalculate(institution);
 
@@ -175,7 +176,7 @@ const UserAppContextProvider = ({ children }: UserAppContextProviderType) => {
       const institutionNameCookie = cookieValues.filter.institution.name;
 
       const institutionCookie = institutions.find(
-        (findInstitution) => findInstitution.name === institutionNameCookie
+        (findInstitution) => findInstitution.name === institutionNameCookie,
       );
 
       if (!institutionCookie) {

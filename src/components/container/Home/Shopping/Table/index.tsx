@@ -38,7 +38,7 @@ function ShoppingTable() {
   const [idShoppingUpdate, setIdShoppingUpdate] = useState<string>("");
 
   const { institution, setInstitution, expense, recalculate } = useContext(
-    userContext
+    userContext,
   ) as userContextType;
 
   function onChangeShopping(ev: React.ChangeEvent<HTMLInputElement>) {
@@ -67,7 +67,7 @@ function ShoppingTable() {
 
   async function onChangeStatus(
     ev: React.ChangeEvent<HTMLInputElement>,
-    shopping: ShoppingType
+    shopping: ShoppingType,
   ) {
     const { value } = ev.target;
 
@@ -118,7 +118,7 @@ function ShoppingTable() {
           recalculate(expenseOld, institutionOld);
 
           throw new Error(
-            "Houve algum erro ao tentar atualizar o item, tente novamente mais tarde!"
+            "Houve algum erro ao tentar atualizar o item, tente novamente mais tarde!",
           );
         });
     }
@@ -138,7 +138,7 @@ function ShoppingTable() {
   const reorder = (
     shoppings: ShoppingType[],
     startIndex: number,
-    endIndex: number
+    endIndex: number,
   ) => {
     const result = Array.from(shoppings);
     const [removed] = result.splice(startIndex, 1);
@@ -157,7 +157,7 @@ function ShoppingTable() {
     const shoppingsReorded = reorder(
       shoppings,
       result.source.index,
-      result.destination.index
+      result.destination.index,
     );
 
     setInstitution((prevInstitution: InstitutionType) => ({
@@ -170,7 +170,7 @@ function ShoppingTable() {
 
   const toggleDraggable = (id: string) => {
     const updatedItems = institution?.shoppings?.map((item: any) =>
-      item.id === id ? { ...item, isDraggable: !item.isDraggable } : item
+      item.id === id ? { ...item, isDraggable: !item.isDraggable } : item,
     );
 
     setInstitution((prevInstitution) => ({
@@ -246,13 +246,25 @@ function ShoppingTable() {
                             />
                           </strong>
                           <strong>
+                            <InputTable
+                              id={item.id}
+                              name="subcategory"
+                              placeholder="sem subcategoria"
+                              handleEnter={() => {
+                                updateShopping(item);
+                              }}
+                              value={item.subcategory || ""}
+                              onChange={onChangeShopping}
+                            />
+                          </strong>
+                          <strong>
                             <InputSelectTable
                               options={options}
                               id={item.id}
                               name="paymentStatus"
                               value={item.paymentStatus}
                               onChange={(
-                                ev: React.ChangeEvent<HTMLInputElement>
+                                ev: React.ChangeEvent<HTMLInputElement>,
                               ) => {
                                 onChangeStatus(ev, item);
                               }}

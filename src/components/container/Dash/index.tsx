@@ -12,8 +12,15 @@ interface GetShoppingType {
   description: string;
   createAt: string;
   category: string;
-  amount: number;
+  subcategory?: string | null;
+  amount: string;
   institutionId: string;
+}
+
+interface SubcategoryGroupType {
+  subcategory: string;
+  total: number;
+  items: GetShoppingType[];
 }
 
 const dates = [
@@ -55,6 +62,17 @@ function Edit() {
     setValueMonth(numberMonth);
     setValueYear(numberYear);
     setOptionsModalVisible(false);
+  }
+
+  function parseAmount(value: string): number {
+    return Number(value.replace(/\./g, "").replace(",", ".")) || 0;
+  }
+
+  function formatAmount(value: number): string {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(value);
   }
 
   function renderNameMonth(number: string): string {
@@ -117,6 +135,29 @@ function Edit() {
     }
   }
 
+  const groupedBySubcategory = React.useMemo<SubcategoryGroupType[]>(() => {
+    const groups: Record<string, { total: number; items: GetShoppingType[] }> =
+      {};
+
+    shoppings.forEach((shopping) => {
+      const key = shopping.subcategory?.trim() || "Sem subcategoria";
+      const amount = parseAmount(shopping.amount);
+
+      if (!groups[key]) {
+        groups[key] = { total: 0, items: [] };
+      }
+
+      groups[key].total += amount;
+      groups[key].items.push(shopping);
+    });
+
+    return Object.entries(groups).map(([subcategory, data]) => ({
+      subcategory,
+      total: data.total,
+      items: data.items,
+    }));
+  }, [shoppings]);
+
   React.useEffect(() => {
     fetchShoppings(selectedCategory, valueMonth, valueYear);
   }, [selectedCategory, valueMonth, valueYear]);
@@ -172,13 +213,25 @@ function Edit() {
           </tr>
         </thead>
         <tbody>
-          {shoppings.map((shopping) => (
-            <tr key={shopping.id}>
-              <td>{formatDatePtBr(shopping.createAt)}</td>
-              <td>{shopping.description}</td>
-              <td>{shopping.category}</td>
-              <td>{shopping.amount}</td>
-            </tr>
+          {groupedBySubcategory.map((group) => (
+            <React.Fragment key={group.subcategory}>
+              <tr>
+                <td colSpan={3}>
+                  <strong>{group.subcategory}</strong>
+                </td>
+                <td>
+                  <strong>{formatAmount(group.total)}</strong>
+                </td>
+              </tr>
+              {group.items.map((shopping) => (
+                <tr key={shopping.id}>
+                  <td>{formatDatePtBr(shopping.createAt)}</td>
+                  <td>{shopping.description}</td>
+                  <td>{shopping.category}</td>
+                  <td>{formatAmount(parseAmount(shopping.amount))}</td>
+                </tr>
+              ))}
+            </React.Fragment>
           ))}
         </tbody>
       </table>
