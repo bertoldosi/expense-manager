@@ -1,0 +1,123 @@
+[
+  {
+    "referenceMonth": "2025-01",
+    "owner": "joao.silva",
+    "currency": "BRL",
+
+    "accounts": [
+      {
+        "id": "acc-001",
+        "bank": "Santander",
+
+        "transactions": [
+          {
+            "id": "tx-001",
+            "description": "Supermercado",
+            "amount": 1000,
+            "person": "Matheus",
+            "category": "alimentacao"
+          },
+          {
+            "id": "tx-002",
+            "description": "Restaurante",
+            "amount": 1000,
+            "person": "Maria",
+            "category": "alimentacao"
+          },
+          {
+            "id": "tx-003",
+            "description": "Assinatura Streaming",
+            "amount": 500,
+            "person": "Matheus",
+            "category": "entretenimento"
+          },
+          {
+            "id": "tx-004",
+            "description": "Farmácia",
+            "amount": 500,
+            "person": "Maria",
+            "category": "saude"
+          }
+        ],
+
+        "summaries": {
+          "total": 4000,
+          "byPerson": {
+            "Matheus": 2000,
+            "Maria": 2000
+          },
+          "byCategory": {
+            "alimentacao": 2000,
+            "entretenimento": 500,
+            "saude": 500
+          }
+        }
+      }
+    ],
+
+    "summaries": {
+      "total": 4000,
+      "byPerson": {
+        "Matheus": 2000,
+        "Maria": 2000
+      },
+      "byCategory": {
+        "alimentacao": 2000,
+        "entretenimento": 500,
+        "saude": 500
+      }
+    }
+  },
+
+  {
+    "referenceMonth": "2025-02",
+    "owner": "joao.silva",
+    "currency": "BRL",
+
+    "accounts": [
+      {
+        "id": "acc-001",
+        "bank": "Santander",
+
+        "transactions": [
+          {
+            "id": "tx-005",
+            "description": "Compra Online",
+            "amount": 1000,
+            "person": "Matheus",
+            "category": "compras"
+          },
+          {
+            "id": "tx-006",
+            "description": "Combustível",
+            "amount": 500,
+            "person": "Matheus",
+            "category": "transporte"
+          }
+        ],
+
+        "summaries": {
+          "total": 1500,
+          "byPerson": {
+            "Matheus": 1500
+          },
+          "byCategory": {
+            "compras": 1000,
+            "transporte": 500
+          }
+        }
+      }
+    ],
+
+    "summaries": {
+      "total": 1500,
+      "byPerson": {
+        "Matheus": 1500
+      },
+      "byCategory": {
+        "compras": 1000,
+        "transporte": 500
+      }
+    }
+  }
+]
