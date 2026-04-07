@@ -1,14 +1,15 @@
 import styled from "styled-components";
 
 export const Swrapper = styled.div`
-  width: 100%;
-  height: calc(100vh - 8.4rem);
+  width: 100vw;
+  height: 100vh;
   left: 0;
-  top: 8.4rem;
-  position: absolute;
+  top: 0;
+  position: fixed;
+  z-index: 9999;
   background: rgba(0, 0, 0, 0.9);
 
-  padding: 3rem 1rem;
+  padding: 6rem 1rem 2rem;
 
   display: flex;
   justify-content: center;

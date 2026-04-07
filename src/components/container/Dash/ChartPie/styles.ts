@@ -1,5 +1,17 @@
 import styled from "styled-components";
 
+const skeletonShimmer = `
+  @keyframes skeletonShimmer {
+    0% {
+      background-position: 200% 0;
+    }
+
+    100% {
+      background-position: -200% 0;
+    }
+  }
+`;
+
 export const SContainer = styled.section`
   display: flex;
   flex-direction: column;
@@ -121,4 +133,59 @@ export const SLegendDot = styled.span`
 
 export const SLegendValue = styled.strong`
   color: ${({ theme }) => theme.textPrimary};
+`;
+
+export const SSkeletonSummaryCard = styled.div`
+  min-width: 180px;
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.42);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+`;
+
+export const SSkeletonBlock = styled.div<{ width: string; height: string }>`
+  ${({ width, height }) => `
+    width: ${width};
+    height: ${height};
+  `}
+  border-radius: 0.35rem;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.25) 25%,
+    rgba(255, 255, 255, 0.5) 37%,
+    rgba(255, 255, 255, 0.25) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeletonShimmer 1.2s ease-in-out infinite;
+
+  ${skeletonShimmer}
+`;
+
+export const SSkeletonCircle = styled.div`
+  width: 260px;
+  height: 260px;
+  border-radius: 999px;
+  margin: 1rem auto;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.22) 25%,
+    rgba(255, 255, 255, 0.45) 37%,
+    rgba(255, 255, 255, 0.22) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeletonShimmer 1.2s ease-in-out infinite;
+
+  ${skeletonShimmer}
+`;
+
+export const SSkeletonLegendItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.42);
 `;

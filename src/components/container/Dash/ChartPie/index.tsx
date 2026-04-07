@@ -18,6 +18,10 @@ import {
   SLegendHeader,
   SLegendItem,
   SLegendValue,
+  SSkeletonBlock,
+  SSkeletonCircle,
+  SSkeletonLegendItem,
+  SSkeletonSummaryCard,
   SSummary,
   SSummaryLabel,
   SSummaryValue,
@@ -52,8 +56,10 @@ function formatCurrency(valueInCents: string | number) {
 
 function ChartPie({
   shoppingGroups,
+  isLoading,
 }: {
   shoppingGroups: ShoppingGroupInterface[];
+  isLoading?: boolean;
 }) {
   const chartData = React.useMemo(
     () =>
@@ -79,6 +85,44 @@ function ChartPie({
 
     return [formatCurrency(cents), "Total"];
   }, []);
+
+  if (isLoading) {
+    return (
+      <SContainer>
+        <SChartCard>
+          <SSummary>
+            <SSkeletonSummaryCard>
+              <SSkeletonBlock height="1rem" width="9rem" />
+              <SSkeletonBlock height="1.4rem" width="7rem" />
+            </SSkeletonSummaryCard>
+            <SSkeletonSummaryCard>
+              <SSkeletonBlock height="1rem" width="8rem" />
+              <SSkeletonBlock height="1.4rem" width="4rem" />
+            </SSkeletonSummaryCard>
+          </SSummary>
+
+          <SChartWrapper>
+            <SSkeletonCircle />
+          </SChartWrapper>
+
+          <SLegend>
+            <SSkeletonLegendItem>
+              <SSkeletonBlock height="1rem" width="8rem" />
+              <SSkeletonBlock height="1rem" width="5rem" />
+            </SSkeletonLegendItem>
+            <SSkeletonLegendItem>
+              <SSkeletonBlock height="1rem" width="7rem" />
+              <SSkeletonBlock height="1rem" width="4.5rem" />
+            </SSkeletonLegendItem>
+            <SSkeletonLegendItem>
+              <SSkeletonBlock height="1rem" width="9rem" />
+              <SSkeletonBlock height="1rem" width="6rem" />
+            </SSkeletonLegendItem>
+          </SLegend>
+        </SChartCard>
+      </SContainer>
+    );
+  }
 
   return (
     <SContainer>

@@ -3,6 +3,7 @@ import Table from "@containers/Dash/ChartPie";
 import { ShoppingGroupInterface } from "@interfaces/*";
 import InputSelect from "@commons/InputSelect";
 import Cookies from "universal-cookie";
+import { userContext, userContextType } from "@context/userContext";
 import { Scontainer, SfilterWrapper } from "./styles";
 
 interface CookieValuesType {
@@ -23,6 +24,7 @@ const keyCookies = "expense-manager";
 function Dash() {
   const cookies = new Cookies();
   const requestIdRef = React.useRef(0);
+  const userData = React.useContext(userContext) as userContextType | null;
 
   function getCookieCreateAt() {
     const cookieValues: CookieValuesType = cookies.get(keyCookies);
@@ -34,12 +36,23 @@ function Dash() {
     ShoppingGroupInterface[]
   >([]);
   const [categories, setCategories] = React.useState<string[]>([]);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = React.useState<string>("all");
   const [createAt, setCreateAt] = React.useState<string>(() =>
     getCookieCreateAt(),
   );
 
+  const institutionCreateAt = userData?.institution?.createAt || "";
   const cookieCreateAt = getCookieCreateAt();
+
+  React.useEffect(() => {
+    if (!institutionCreateAt || institutionCreateAt === createAt) {
+      return;
+    }
+
+    setCreateAt(institutionCreateAt);
+    setSelectedCategory("all");
+  }, [institutionCreateAt, createAt]);
 
   React.useEffect(() => {
     if (!cookieCreateAt || cookieCreateAt === createAt) {
@@ -82,14 +95,19 @@ function Dash() {
 
   React.useEffect(() => {
     const requestId = ++requestIdRef.current;
+    setIsLoading(true);
 
     fetchShoppings(selectedCategory, createAt).then((data) => {
       if (!data || requestId !== requestIdRef.current) {
+        if (requestId === requestIdRef.current) {
+          setIsLoading(false);
+        }
         return;
       }
 
       setShoppingGroups(data.shoppings || []);
       setCategories(data.filters?.optionsSelect || []);
+      setIsLoading(false);
     });
   }, [selectedCategory, createAt]);
 
@@ -109,7 +127,7 @@ function Dash() {
           }))}
         />
       </SfilterWrapper>
-      <Table shoppingGroups={shoppingGroups} />
+      <Table shoppingGroups={shoppingGroups} isLoading={isLoading} />
     </Scontainer>
   );
 }
