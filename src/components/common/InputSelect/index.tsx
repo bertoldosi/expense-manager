@@ -6,20 +6,27 @@ interface SelectOption<T extends string | number> {
   label: string;
 }
 
-interface SelectInputProps<T extends string | number>
-  extends SelectHTMLAttributes<HTMLSelectElement> {
+interface SelectInputProps<
+  T extends string | number,
+> extends SelectHTMLAttributes<HTMLSelectElement> {
   options: SelectOption<T>[];
   defaultOption?: SelectOption<T>;
   onChange?: ChangeEventHandler<HTMLSelectElement>;
+  withOutPadding?: boolean;
 }
 
 function InputSelect<T extends string | number>({
   options,
   defaultOption,
+  withOutPadding,
   ...props
 }: SelectInputProps<T>) {
   return (
-    <Sselect {...props} defaultValue={defaultOption ? defaultOption.value : ""}>
+    <Sselect
+      {...props}
+      defaultValue={defaultOption ? defaultOption.value : ""}
+      withOutPadding={withOutPadding}
+    >
       {defaultOption && (
         <option value={defaultOption.value} selected>
           {defaultOption.label}

@@ -1,6 +1,15 @@
 import styled from "styled-components";
 
-export const Scontainer = styled.div``;
+export const Scontainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const SfilterWrapper = styled.div`
+  width: 100%;
+  max-width: 22rem;
+  margin-bottom: 1rem;
+`;
 
 export const Sform = styled.form`
   display: flex;

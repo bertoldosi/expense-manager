@@ -1,8 +1,8 @@
 import styled from "styled-components";
 
-export const Sselect = styled.select`
+export const Sselect = styled.select<{ withOutPadding?: boolean }>`
   width: 100%;
-  padding: 1rem;
+  padding: ${(props) => (props.withOutPadding ? "0" : "1rem")};
   border-radius: 0.3rem;
   font-weight: 800;
 

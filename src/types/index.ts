@@ -5,6 +5,15 @@ export type ShoppingInterface = {
   category: string;
   subcategory?: string | null;
   paymentStatus: string;
+  createAt?: string;
+  institutionId?: string;
+  index?: number;
+};
+
+export type ShoppingGroupInterface = {
+  subcategory: string;
+  total: string;
+  items: ShoppingInterface[];
 };
 
 export type InstitutionInterface = {

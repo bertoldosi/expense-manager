@@ -1,48 +1,117 @@
 import handleError from "@helpers/handleError";
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@services/prisma";
+import getCreateAtRange from "@helpers/getCreateAtRange";
 
-async function getShoppings(req: NextApiRequest) {
-  const categoryParam = req.query.category;
-  const monthParam = req.query.month;
-  const yearParam = req.query.year;
+type ShoppingItem = {
+  id: string;
+  description: string;
+  amount: string;
+  category: string;
+  subcategory: string | null;
+  paymentStatus: string;
+  createAt: Date | null;
+  institutionId: string;
+};
 
-  const category =
-    typeof categoryParam === "string" && categoryParam.trim().length > 0
-      ? categoryParam
-      : undefined;
+type GroupedShopping = {
+  subcategory: string;
+  total: string;
+  items: ShoppingItem[];
+};
 
-  const currentDate = new Date();
-  const month =
-    typeof monthParam === "string" &&
-    Number(monthParam) >= 1 &&
-    Number(monthParam) <= 12
-      ? Number(monthParam)
-      : undefined;
-  const year =
-    typeof yearParam === "string" && Number(yearParam) > 0
-      ? Number(yearParam)
-      : currentDate.getFullYear();
+type FilterAllShoppingsResponse = {
+  filters: {
+    optionsSelect: string[];
+  };
+  shoppings: GroupedShopping[];
+};
 
-  const initialDate = month
-    ? new Date(year, month - 1, 1, 0, 0, 0, 0)
-    : new Date(year, 0, 1, 0, 0, 0, 0);
-  const finalDate = month
-    ? new Date(year, month, 0, 23, 59, 59, 999)
-    : new Date(year, 11, 31, 23, 59, 59, 999);
+function parseAmountInCents(amount: string) {
+  const normalizedAmount = amount.replace(/\D/g, "");
+
+  return Number(normalizedAmount) || 0;
+}
+
+function groupShoppingsBySubcategory(shoppings: ShoppingItem[]) {
+  const groups: Record<
+    string,
+    {
+      subcategory: string;
+      total: string;
+      items: ShoppingItem[];
+    }
+  > = {};
+
+  shoppings.forEach((shopping) => {
+    const subcategory = shopping.subcategory?.trim() || "sem subcategoria";
+
+    if (!groups[subcategory]) {
+      groups[subcategory] = {
+        subcategory,
+        total: "0",
+        items: [],
+      };
+    }
+
+    groups[subcategory].total = String(
+      parseAmountInCents(groups[subcategory].total) +
+        parseAmountInCents(shopping.amount),
+    );
+    groups[subcategory].items.push(shopping);
+  });
+
+  return Object.values(groups);
+}
+
+async function getUniqueCategories(createAt: string) {
+  const createAtRange = getCreateAtRange(createAt);
 
   try {
     const shoppings = await prisma.shopping.findMany({
       where: {
-        ...(category ? { category } : {}),
-        createAt: {
-          gte: initialDate,
-          lte: finalDate,
-        },
+        ...(createAtRange && { createAt: createAtRange }),
       },
     });
 
-    return shoppings;
+    return Array.from(
+      new Set(
+        shoppings
+          .map((shopping) => shopping.category?.trim())
+          .filter((category): category is string => Boolean(category)),
+      ),
+    );
+  } catch (err) {
+    throw err;
+  }
+}
+
+async function getShoppings(req: NextApiRequest) {
+  const category = req.query.category as string;
+  const createAt = req.query.createAt as string;
+  const createAtRange = getCreateAtRange(createAt);
+
+  try {
+    const shoppings = await prisma.shopping.findMany({
+      where: {
+        ...(category && { category }),
+        ...(createAtRange && { createAt: createAtRange }),
+      },
+    });
+
+    const groupedShoppings = groupShoppingsBySubcategory(
+      shoppings as ShoppingItem[],
+    );
+    const optionsSelect = await getUniqueCategories(createAt);
+
+    const result: FilterAllShoppingsResponse = {
+      filters: {
+        optionsSelect,
+      },
+      shoppings: groupedShoppings,
+    };
+
+    return result;
   } catch (err) {
     throw err;
   }
@@ -50,9 +119,9 @@ async function getShoppings(req: NextApiRequest) {
 
 async function handle(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const shoppings = await getShoppings(req);
+    const payload = await getShoppings(req);
 
-    return res.status(200).send(shoppings);
+    return res.status(200).send(payload);
   } catch (err) {
     handleError(res, err);
   }
