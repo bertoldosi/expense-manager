@@ -95,6 +95,7 @@ export const SCenterLabel = styled.div`
   justify-content: center;
   flex-direction: column;
   pointer-events: none;
+  margin-top: 3rem;
 
   > span {
     font-size: 1.5rem;
