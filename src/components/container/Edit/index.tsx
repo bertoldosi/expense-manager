@@ -24,6 +24,7 @@ interface ShoppingUpdateType {
   description: string;
   amount: string;
   category: string;
+  subcategory: string;
   paymentStatus: string;
   repeat: string;
   selected?: boolean;
@@ -34,6 +35,7 @@ const INITIAL_SHOPPING = {
   description: "",
   amount: "",
   category: "",
+  subcategory: "",
   paymentStatus: "",
   repeat: "",
 };
@@ -62,7 +64,7 @@ function Edit() {
   const router = useRouter();
 
   const { institution, setInstitution } = useContext(
-    userContext
+    userContext,
   ) as userContextType;
 
   const [shoppingsEdit, setShoppingsEdit] = useState<ShoppingType[] | []>([]);
@@ -83,6 +85,7 @@ function Edit() {
       !!values.description ||
       !!values.amount ||
       !!values.category ||
+      !!values.subcategory ||
       !!values.paymentStatus ||
       !!values.repeat;
 
@@ -97,6 +100,9 @@ function Edit() {
             ? values.amount.replace(/,/g, "")
             : shoppingMap.amount.replace(/,/g, ""),
           category: values.category ? values.category : shoppingMap.category,
+          subcategory: values.subcategory
+            ? values.subcategory
+            : shoppingMap.subcategory,
           paymentStatus: values.paymentStatus
             ? values.paymentStatus
             : shoppingMap.paymentStatus,
@@ -134,7 +140,7 @@ function Edit() {
 
   async function repeatShoppings(
     numberRepeat: string,
-    newShoppings: ShoppingType[]
+    newShoppings: ShoppingType[],
   ) {
     const requestRepeat = async () => {
       return await instances.post("api/shoppings/repeat", {
@@ -147,7 +153,7 @@ function Edit() {
     await customToast(
       requestRepeat,
       "Replicando compras",
-      "Compras repetidas para o(s) próximo(o) meses"
+      "Compras repetidas para o(s) próximo(o) meses",
     );
   }
 
@@ -205,6 +211,16 @@ function Edit() {
             onChange={onSubmitShopping.handleChange}
             placeholder="Nome da categoria"
             error={onSubmitShopping.errors.category}
+          />
+
+          <Input
+            name="subcategory"
+            id="subcategory"
+            autoComplete="off"
+            value={onSubmitShopping.values.subcategory}
+            onChange={onSubmitShopping.handleChange}
+            placeholder="Nome da subcategoria"
+            error={onSubmitShopping.errors.subcategory}
           />
 
           <InputSelect

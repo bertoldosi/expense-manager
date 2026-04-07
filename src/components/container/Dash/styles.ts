@@ -3,6 +3,14 @@ import styled from "styled-components";
 export const Scontainer = styled.div`
   display: flex;
   flex-direction: column;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+
+  @media (max-width: 900px) {
+    height: auto;
+    overflow: visible;
+  }
 `;
 
 export const Sactions = styled.div`
@@ -11,10 +19,25 @@ export const Sactions = styled.div`
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1rem;
+  flex-shrink: 0;
 
   @media (max-width: 700px) {
     flex-direction: column;
     align-items: stretch;
+  }
+`;
+
+export const SchartArea = styled.div`
+  flex: 1;
+  height: calc(100dvh - 16rem);
+  max-height: calc(100dvh - 16rem);
+  min-height: 0;
+  overflow: hidden;
+
+  @media (max-width: 900px) {
+    height: auto;
+    max-height: none;
+    overflow: visible;
   }
 `;
 

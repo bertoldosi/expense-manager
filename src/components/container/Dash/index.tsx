@@ -6,7 +6,7 @@ import { Button } from "@commons/Button";
 import Cookies from "universal-cookie";
 import { userContext, userContextType } from "@context/userContext";
 import { useRouter } from "next/router";
-import { Sactions, Scontainer, SfilterWrapper } from "./styles";
+import { Sactions, SchartArea, Scontainer, SfilterWrapper } from "./styles";
 
 interface CookieValuesType {
   filter: {
@@ -139,7 +139,9 @@ function Dash() {
           onClick={() => router.push("/")}
         />
       </Sactions>
-      <Table shoppingGroups={shoppingGroups} isLoading={isLoading} />
+      <SchartArea>
+        <Table shoppingGroups={shoppingGroups} isLoading={isLoading} />
+      </SchartArea>
     </Scontainer>
   );
 }

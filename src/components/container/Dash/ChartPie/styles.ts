@@ -16,19 +16,37 @@ export const SContainer = styled.section`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  overflow: hidden;
+
+  @media (max-width: 900px) {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
 `;
 
 export const SChartCard = styled.div`
   font-size: 1.5rem;
   display: grid;
   grid-template-columns: minmax(320px, 1.2fr) minmax(260px, 0.8fr);
-  gap: 1.5rem;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 2.5rem;
   padding: 1.5rem;
+  height: 100%;
+  min-height: 0;
+  max-height: calc(100dvh - 19.2rem);
+  overflow: hidden;
   background-color: ${(props) => props.theme.backgroundSecondary};
   color: ${(props) => props.theme.textSecondary};
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    height: auto;
+    overflow: visible;
   }
 `;
 
@@ -61,7 +79,12 @@ export const SSummaryValue = styled.strong`
 
 export const SChartWrapper = styled.div`
   position: relative;
-  min-height: 340px;
+  min-height: 0;
+  height: 100%;
+
+  @media (max-width: 900px) {
+    min-height: 340px;
+  }
 `;
 
 export const SCenterLabel = styled.div`
@@ -94,9 +117,18 @@ export const SLegend = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  max-height: 340px;
-  overflow: auto;
+  min-height: 0;
+  height: auto;
+  max-height: calc(100dvh - 28rem);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   padding-right: 0.25rem;
+
+  @media (max-width: 900px) {
+    max-height: 24rem;
+  }
 `;
 
 export const SLegendItem = styled.div`
