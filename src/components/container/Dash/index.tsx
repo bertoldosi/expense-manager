@@ -18,49 +18,80 @@ interface FilterAllShoppingsResponse {
   shoppings: ShoppingGroupInterface[];
 }
 
-interface DashFiltersType {
-  createAt: string;
-  category: string;
-}
-
 const keyCookies = "expense-manager";
 
 function Dash() {
   const cookies = new Cookies();
+  const requestIdRef = React.useRef(0);
+
+  function getCookieCreateAt() {
+    const cookieValues: CookieValuesType = cookies.get(keyCookies);
+
+    return cookieValues?.filter?.dateSelected || "";
+  }
 
   const [shoppingGroups, setShoppingGroups] = React.useState<
     ShoppingGroupInterface[]
   >([]);
   const [categories, setCategories] = React.useState<string[]>([]);
-  const [filters, setFilters] = React.useState<DashFiltersType>(() => {
-    const cookieValues: CookieValuesType = cookies.get(keyCookies);
+  const [selectedCategory, setSelectedCategory] = React.useState<string>("all");
+  const [createAt, setCreateAt] = React.useState<string>(() =>
+    getCookieCreateAt(),
+  );
 
-    return {
-      createAt: cookieValues?.filter?.dateSelected || "",
-      category: "all",
-    };
-  });
+  const cookieCreateAt = getCookieCreateAt();
 
-  async function fetchShoppings() {
+  React.useEffect(() => {
+    if (!cookieCreateAt || cookieCreateAt === createAt) {
+      return;
+    }
+
+    setCreateAt(cookieCreateAt);
+    setSelectedCategory("all");
+  }, [cookieCreateAt, createAt]);
+
+  async function fetchShoppings(
+    currentCategory: string,
+    currentCreateAt: string,
+  ) {
+    if (!currentCreateAt) {
+      return;
+    }
+
     const categoryQueryString =
-      filters.category === "all" ? "" : `category=${filters.category}&`;
+      currentCategory === "all"
+        ? ""
+        : `category=${encodeURIComponent(currentCategory)}&`;
 
     try {
       const response = await fetch(
-        `/api/filter-all-shoppings?${categoryQueryString}createAt=${filters.createAt}`,
+        `/api/filter-all-shoppings?${categoryQueryString}createAt=${encodeURIComponent(currentCreateAt)}`,
       );
+
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
+
       const data: FilterAllShoppingsResponse = await response.json();
 
-      setShoppingGroups(data?.shoppings || []);
-      setCategories(data?.filters?.optionsSelect || []);
+      return data;
     } catch (error) {
       console.error("Error fetching shoppings:", error);
     }
   }
 
   React.useEffect(() => {
-    fetchShoppings();
-  }, [filters]);
+    const requestId = ++requestIdRef.current;
+
+    fetchShoppings(selectedCategory, createAt).then((data) => {
+      if (!data || requestId !== requestIdRef.current) {
+        return;
+      }
+
+      setShoppingGroups(data.shoppings || []);
+      setCategories(data.filters?.optionsSelect || []);
+    });
+  }, [selectedCategory, createAt]);
 
   return (
     <Scontainer>
@@ -68,13 +99,8 @@ function Dash() {
         <InputSelect
           id="category"
           name="category"
-          value={filters.category}
-          onChange={(event) =>
-            setFilters((prev) => ({
-              ...prev,
-              category: event.target.value,
-            }))
-          }
+          value={selectedCategory}
+          onChange={(event) => setSelectedCategory(event.target.value)}
           defaultOption={{ value: "all", label: "Todas" }}
           withOutPadding
           options={categories.map((category) => ({

@@ -1,7 +1,6 @@
 import handleError from "@helpers/handleError";
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@services/prisma";
-import getCreateAtRange from "@helpers/getCreateAtRange";
 
 type ShoppingItem = {
   id: string;
@@ -65,12 +64,16 @@ function groupShoppingsBySubcategory(shoppings: ShoppingItem[]) {
 }
 
 async function getUniqueCategories(createAt: string) {
-  const createAtRange = getCreateAtRange(createAt);
+  if (!createAt) {
+    return [];
+  }
 
   try {
     const shoppings = await prisma.shopping.findMany({
       where: {
-        ...(createAtRange && { createAt: createAtRange }),
+        institution: {
+          createAt,
+        },
       },
     });
 
@@ -87,16 +90,27 @@ async function getUniqueCategories(createAt: string) {
 }
 
 async function getShoppings(req: NextApiRequest) {
-  const category = req.query.category as string;
+  const category = (req.query.category as string)?.trim();
   const createAt = req.query.createAt as string;
-  const createAtRange = getCreateAtRange(createAt);
+
+  if (!createAt) {
+    return {
+      filters: {
+        optionsSelect: [],
+      },
+      shoppings: [],
+    } as FilterAllShoppingsResponse;
+  }
 
   try {
     const shoppings = await prisma.shopping.findMany({
       where: {
-        ...(category && { category }),
-        ...(createAtRange && { createAt: createAtRange }),
+        ...(category ? { category } : {}),
+        institution: {
+          createAt,
+        },
       },
+      orderBy: [{ subcategory: "asc" }, { createAt: "desc" }],
     });
 
     const groupedShoppings = groupShoppingsBySubcategory(
