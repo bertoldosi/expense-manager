@@ -85,6 +85,14 @@ export const Institution = () => {
   }
 
   async function deleteInstitution(institution) {
+    const hasConfirmedDelete = window.confirm(
+      `Tem certeza que deseja excluir ${institution?.name}?`,
+    );
+
+    if (!hasConfirmedDelete) {
+      return;
+    }
+
     const cookieValues = cookies.get(keyCookies);
 
     async function requestDelete() {
