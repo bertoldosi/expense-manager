@@ -5,10 +5,26 @@ export const Scontainer = styled.div`
   flex-direction: column;
 `;
 
+export const Sactions = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  @media (max-width: 700px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+`;
+
 export const SfilterWrapper = styled.div`
   width: 100%;
   max-width: 22rem;
-  margin-bottom: 1rem;
+
+  @media (max-width: 700px) {
+    max-width: 100%;
+  }
 `;
 
 export const Sform = styled.form`

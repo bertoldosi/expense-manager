@@ -2,9 +2,11 @@ import React from "react";
 import Table from "@containers/Dash/ChartPie";
 import { ShoppingGroupInterface } from "@interfaces/*";
 import InputSelect from "@commons/InputSelect";
+import { Button } from "@commons/Button";
 import Cookies from "universal-cookie";
 import { userContext, userContextType } from "@context/userContext";
-import { Scontainer, SfilterWrapper } from "./styles";
+import { useRouter } from "next/router";
+import { Sactions, Scontainer, SfilterWrapper } from "./styles";
 
 interface CookieValuesType {
   filter: {
@@ -22,6 +24,7 @@ interface FilterAllShoppingsResponse {
 const keyCookies = "expense-manager";
 
 function Dash() {
+  const router = useRouter();
   const cookies = new Cookies();
   const requestIdRef = React.useRef(0);
   const userData = React.useContext(userContext) as userContextType | null;
@@ -113,20 +116,29 @@ function Dash() {
 
   return (
     <Scontainer>
-      <SfilterWrapper>
-        <InputSelect
-          id="category"
-          name="category"
-          value={selectedCategory}
-          onChange={(event) => setSelectedCategory(event.target.value)}
-          defaultOption={{ value: "all", label: "Todas" }}
-          withOutPadding
-          options={categories.map((category) => ({
-            value: category,
-            label: category,
-          }))}
+      <Sactions>
+        <SfilterWrapper>
+          <InputSelect
+            id="category"
+            name="category"
+            value={selectedCategory}
+            onChange={(event) => setSelectedCategory(event.target.value)}
+            defaultOption={{ value: "all", label: "Todas" }}
+            withOutPadding
+            options={categories.map((category) => ({
+              value: category,
+              label: category,
+            }))}
+          />
+        </SfilterWrapper>
+
+        <Button
+          text="Voltar para inicio"
+          width="16rem"
+          height="3.4rem"
+          onClick={() => router.push("/")}
         />
-      </SfilterWrapper>
+      </Sactions>
       <Table shoppingGroups={shoppingGroups} isLoading={isLoading} />
     </Scontainer>
   );

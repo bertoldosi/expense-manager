@@ -28,6 +28,7 @@ import { userContext, userContextType } from "@context/userContext";
 import { InstitutionInterface } from "@interfaces/*";
 import { useFormik } from "formik";
 import InputSelect from "@commons/InputSelect";
+import { useRouter } from "next/router";
 
 interface CategoryTotalsType {
   category: string;
@@ -56,10 +57,11 @@ const INITIAL_OPTIONS = {
 const keyCookies = "expense-manager";
 
 export const Institution = () => {
+  const router = useRouter();
   const cookies = new Cookies();
 
   const { institution, getExpense, expense } = useContext(
-    userContext
+    userContext,
   ) as userContextType;
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -147,7 +149,7 @@ export const Institution = () => {
             const total = formatMorney(categoryTotal.total);
 
             return [category, total];
-          }
+          },
         );
 
         autoTable(doc, {
@@ -183,7 +185,7 @@ export const Institution = () => {
         if (findCategoryTotal.category === categoty) {
           return categotyTotalsCategoryTable.push(
             "TOTAL A PAGAR",
-            formatMorney(findCategoryTotal.total)
+            formatMorney(findCategoryTotal.total),
           );
         }
       });
@@ -191,7 +193,7 @@ export const Institution = () => {
       const institutionsByCategory = new Array();
       expense.institutions.map((mapInstitution) => {
         const shoppingByCategory = mapInstitution?.shoppings?.filter(
-          (mapShopping) => mapShopping.category === categoty
+          (mapShopping) => mapShopping.category === categoty,
         );
 
         institutionsByCategory.push({
@@ -215,7 +217,7 @@ export const Institution = () => {
         });
 
         const totalInstitutionByCategory = institution.categoryTotals?.find(
-          (findCategoryTotal) => findCategoryTotal.category === categoty
+          (findCategoryTotal) => findCategoryTotal.category === categoty,
         );
 
         //Tabela de gastos
@@ -318,6 +320,14 @@ export const Institution = () => {
                         setIsModalReportVisible(!isModalReportVisible);
                       }}
                       text="Baixar relatório"
+                      typeButton=""
+                    />
+
+                    <Button
+                      onClick={() => {
+                        router.push("/dashboard");
+                      }}
+                      text="Ir para dashboard"
                       typeButton=""
                     />
                   </>
