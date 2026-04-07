@@ -9,7 +9,7 @@ export const Scontainer = styled.div`
 
   @media (max-width: 900px) {
     height: auto;
-    overflow: visible;
+    overflow: auto;
   }
 `;
 

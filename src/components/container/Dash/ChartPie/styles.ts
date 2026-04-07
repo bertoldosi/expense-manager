@@ -43,10 +43,13 @@ export const SChartCard = styled.div`
   color: ${(props) => props.theme.textSecondary};
 
   @media (max-width: 900px) {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
+    display: flex;
+    flex-direction: column;
     height: auto;
+    max-height: none;
     overflow: visible;
+    gap: 1.5rem;
+    padding: 1rem;
   }
 `;
 
@@ -55,6 +58,7 @@ export const SSummary = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
+  flex-shrink: 0;
 
   > div {
     min-width: 180px;
@@ -81,9 +85,10 @@ export const SChartWrapper = styled.div`
   position: relative;
   min-height: 0;
   height: 100%;
+  flex-shrink: 0;
 
   @media (max-width: 900px) {
-    min-height: 340px;
+    height: 240px;
   }
 `;
 
@@ -128,7 +133,9 @@ export const SLegend = styled.div`
   padding-right: 0.25rem;
 
   @media (max-width: 900px) {
-    max-height: 24rem;
+    flex: 1;
+    max-height: none;
+    margin-top: 8rem;
   }
 `;
 
