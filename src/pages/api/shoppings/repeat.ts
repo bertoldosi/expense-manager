@@ -24,6 +24,7 @@ interface ShoppingType {
   description: string;
   amount: string;
   category: string;
+  subcategory?: string | null;
   paymentStatus: string;
   institutionId?: string;
 }
@@ -40,7 +41,7 @@ interface InstitutionType {
 function generateRepeatedData(
   initialInstitution: InstitutionType,
   initialShoppings: ShoppingType[],
-  repeat: number
+  repeat: number,
 ): InstitutionType[] {
   const shoppings = initialShoppings.map((shopping, index) => {
     const uuid = new ObjectId().hex;
@@ -51,6 +52,7 @@ function generateRepeatedData(
       description: shopping.description,
       amount: shopping.amount,
       category: shopping.category,
+      subcategory: shopping.subcategory ?? null,
       paymentStatus: shopping.paymentStatus,
     };
   });
@@ -102,7 +104,7 @@ async function repeatShoppings(req: NextApiRequest, res: NextApiResponse) {
   const institutionsRepeat = generateRepeatedData(
     institutionRepeat,
     shoppings,
-    repeat
+    repeat,
   );
 
   try {
@@ -148,7 +150,7 @@ async function repeatShoppings(req: NextApiRequest, res: NextApiResponse) {
 
           return institutionCreate;
         }
-      }
+      },
     );
 
     await prisma.$transaction(async (prisma) => {
@@ -170,7 +172,7 @@ async function repeatShoppings(req: NextApiRequest, res: NextApiResponse) {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   const method = req.method as HttpMethod;
 
