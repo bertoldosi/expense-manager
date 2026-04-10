@@ -54,6 +54,14 @@ function formatCurrency(valueInCents: string | number) {
   }).format(cents / 100);
 }
 
+function formatPercent(value: number) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "percent",
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(value / 100);
+}
+
 function ChartPie({
   shoppingGroups,
   isLoading,
@@ -61,7 +69,7 @@ function ChartPie({
   shoppingGroups: ShoppingGroupInterface[];
   isLoading?: boolean;
 }) {
-  const chartData = React.useMemo(
+  const chartDataRaw = React.useMemo(
     () =>
       shoppingGroups
         .map((group, index) => ({
@@ -76,15 +84,31 @@ function ChartPie({
   );
 
   const totalCents = React.useMemo(
-    () => chartData.reduce((acc, item) => acc + item.value, 0),
-    [chartData],
+    () => chartDataRaw.reduce((acc, item) => acc + item.value, 0),
+    [chartDataRaw],
   );
 
-  const tooltipFormatter = React.useCallback((value: number | string) => {
-    const cents = typeof value === "number" ? value : parseCents(value);
+  const chartData = React.useMemo(
+    () =>
+      chartDataRaw.map((item) => ({
+        ...item,
+        percentage: totalCents > 0 ? (item.value / totalCents) * 100 : 0,
+      })),
+    [chartDataRaw, totalCents],
+  );
 
-    return [formatCurrency(cents), "Total"];
-  }, []);
+  const tooltipFormatter = React.useCallback(
+    (value: number | string) => {
+      const cents = typeof value === "number" ? value : parseCents(value);
+      const percentage = totalCents > 0 ? (cents / totalCents) * 100 : 0;
+
+      return [
+        `${formatCurrency(cents)} (${formatPercent(percentage)})`,
+        "Total",
+      ];
+    },
+    [totalCents],
+  );
 
   if (isLoading) {
     return (
@@ -175,7 +199,9 @@ function ChartPie({
 
               <div>
                 <SLegendValue>{formatCurrency(entry.total)}</SLegendValue>
-                <small>{entry.itemsCount} compras</small>
+                <small>
+                  {formatPercent(entry.percentage)} · {entry.itemsCount} compras
+                </small>
               </div>
             </SLegendItem>
           ))}
